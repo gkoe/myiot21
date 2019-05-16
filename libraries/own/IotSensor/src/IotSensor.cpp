@@ -41,7 +41,7 @@ void IotSensor::setMeasurement(float value)
 		char fullTopic[LENGTH_TOPIC];
 		//!sprintf(fullTopic, "%s/%s", Thing.getName(), _name);
 		//Serial.println(_thingName);
-		sprintf(fullTopic, "%s/%s/state", _thingName, _name);
+		sprintf(fullTopic, "%s/state", _name);
 		char payload[LENGTH_TOPIC];
 		getMqttPayload(payload, value);
 		sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
@@ -68,7 +68,7 @@ char *IotSensor::getName()
 
 void IotSensor::getMqttPayload(char *payload, float measurement)
 {
-	sprintf(payload, "{\"timestamp\":%ld, \"value\":%.2f", EspTime.getTime(), measurement);
+	sprintf(payload, "{\"timestamp\":%ld,\"value\":%.2f}", EspTime.getTime(), measurement);
 }
 
 //void IotSensor::measure(){}

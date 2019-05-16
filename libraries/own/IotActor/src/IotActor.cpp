@@ -3,6 +3,7 @@
 #include <IotSensor.h>
 #include <Thing.h>
 #include <Logger.h>
+#include <EspConfig.h>
 
 #define MESSAGE_LENGTH 100
 //#define Actor_DEBUG
@@ -16,7 +17,7 @@
 static void actorMqttCallback(const char *topic, const char *payload)
 {
 	// Actor aus topic extrahieren
-    int thingNameLength = strlen(Thing.getName());
+    int thingNameLength = strlen(EspConfig.getThingName());
 	int topicLength = strlen(topic);
 	int actorNameLength = topicLength-thingNameLength-9; // /command am Ende (8 Zeichen) wird nicht mitkopiert
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
@@ -40,7 +41,7 @@ IotActor::IotActor(const char *thingName, const char *name)
 	_time = EspTime.getTime();
 	strcpy(_settedState, "");
 	strcpy(_currentState, "");
-	strcpy(_actorTopic, Thing.getName());
+	strcpy(_actorTopic, EspConfig.getThingName());
 	strcat(_actorTopic, "/");
 	strcat(_actorTopic, getName());
 	_actorSubscription.topic = _actorTopic;
@@ -95,7 +96,7 @@ void IotActor::sync()
 		setActor(_settedState);
 		if (strcmp(_currentState, _lastReportedState) != 0) {
 			char fullTopic[LENGTH_TOPIC];
-			sprintf(fullTopic, "%s/%s/state", Thing.getName(), _name);
+			sprintf(fullTopic, "%s/%s/state", EspConfig.getThingName(), _name);
 			char payload[LENGTH_PAYLOAD];
 			strcpy(payload, _currentState);
 			char loggerMessage[LENGTH_LOGGER_MESSAGE];

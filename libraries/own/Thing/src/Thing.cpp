@@ -4,75 +4,75 @@
 #include <HttpServer.h>
 #include <Logger.h>
 
-/**
- * Aktorwert kann per Get-Request gesetzt werden. 
- * Implementiert von Ferdinand Hell (Htl Wels)
- */
-void handleSetActorRequest()
-{
-	printf("*TH: handleSetActorRequest()");
-	String actorName = HttpServer.arg("actor");
-	String actorValue = HttpServer.arg("value");
-	if (actorName != NULL && actorValue != NULL)
-	{
-		IotActor *actor = Thing.getActorByName((char *)(actorName.c_str()));
-		char response[50];
-		if (actor == NULL)
-		{
-			sprintf(response, "Actor %s not found!", actorName.c_str());
-			HttpServer.send(200, "text/html", response); //Returns the HTTP response
-		}
-		else
-		{
-			actor->setState(actorValue.c_str());
-			sprintf(response, "Changed Actor's %s value %.2f", actorName.c_str(), atof(actorValue.c_str()));
-			char loggerMessage[150];
-			sprintf(loggerMessage, "Response: %s", response);
-			Logger.info("Thing Set Actor", loggerMessage);
-			HttpServer.send(200, "text/html", response); //Returns the HTTP response
-		}
-	}
-	else if (actorName == NULL)
-	{
-		HttpServer.send(200, "text/html", "Parametername actor fehlt"); //Returns the HTTP response
-	}
-	else
-	{
-		HttpServer.send(200, "text/html", "Parametername value fehlt"); //Returns the HTTP response
-	}
-}
+// /**
+//  * Aktorwert kann per Get-Request gesetzt werden. 
+//  * Implementiert von Ferdinand Hell (Htl Wels)
+//  */
+// void handleSetActorRequest()
+// {
+// 	printf("*TH: handleSetActorRequest()");
+// 	String actorName = HttpServer.arg("actor");
+// 	String actorValue = HttpServer.arg("value");
+// 	if (actorName != NULL && actorValue != NULL)
+// 	{
+// 		IotActor *actor = Thing.getActorByName((char *)(actorName.c_str()));
+// 		char response[50];
+// 		if (actor == NULL)
+// 		{
+// 			sprintf(response, "Actor %s not found!", actorName.c_str());
+// 			HttpServer.send(200, "text/html", response); //Returns the HTTP response
+// 		}
+// 		else
+// 		{
+// 			actor->setState(actorValue.c_str());
+// 			sprintf(response, "Changed Actor's %s value %.2f", actorName.c_str(), atof(actorValue.c_str()));
+// 			char loggerMessage[150];
+// 			sprintf(loggerMessage, "Response: %s", response);
+// 			Logger.info("Thing Set Actor", loggerMessage);
+// 			HttpServer.send(200, "text/html", response); //Returns the HTTP response
+// 		}
+// 	}
+// 	else if (actorName == NULL)
+// 	{
+// 		HttpServer.send(200, "text/html", "Parametername actor fehlt"); //Returns the HTTP response
+// 	}
+// 	else
+// 	{
+// 		HttpServer.send(200, "text/html", "Parametername value fehlt"); //Returns the HTTP response
+// 	}
+// }
 
-/**
- * Sensorwert per Http-Get-Request abfragen
- */
-void handleGetSensorRequest()
-{
-	Serial.println(F("*TH: handleGetSensorRequest()"));
-	String sensorName = HttpServer.arg("sensor");
-	if (sensorName != NULL)
-	{
-		IotSensor *sensor = Thing.getSensorByName((char *)(sensorName.c_str()));
-		char response[50];
-		if (sensor == NULL)
-		{
-			sprintf(response, "Sensor %s not found!", sensorName.c_str());
-			HttpServer.send(200, "text/html", response); //Returns the HTTP response
-		}
-		else
-		{
-			float measurement = sensor->getLastMeasurement();
-			sprintf(response, "Sensor's %s value %.2f", sensorName.c_str(), measurement);
-			char loggerMessage[100];
-			sprintf(loggerMessage, "Response: %s", response);
-			Logger.info("Thing Get Sensor", loggerMessage);
-			HttpServer.send(200, "text/html", response); //Returns the HTTP response
-		}
-	}
-	else 
-	{
-		HttpServer.send(200, "text/html", "Parametername sensor fehlt"); //Returns the HTTP response
-	}
-}
+// /**
+//  * Sensorwert per Http-Get-Request abfragen
+//  */
+// void handleGetSensorRequest()
+// {
+// 	Serial.println(F("*TH: handleGetSensorRequest()"));
+// 	String sensorName = HttpServer.arg("sensor");
+// 	if (sensorName != NULL)
+// 	{
+// 		IotSensor *sensor = Thing.getSensorByName((char *)(sensorName.c_str()));
+// 		char response[50];
+// 		if (sensor == NULL)
+// 		{
+// 			sprintf(response, "Sensor %s not found!", sensorName.c_str());
+// 			HttpServer.send(200, "text/html", response); //Returns the HTTP response
+// 		}
+// 		else
+// 		{
+// 			float measurement = sensor->getLastMeasurement();
+// 			sprintf(response, "Sensor's %s value %.2f", sensorName.c_str(), measurement);
+// 			char loggerMessage[100];
+// 			sprintf(loggerMessage, "Response: %s", response);
+// 			Logger.info("Thing Get Sensor", loggerMessage);
+// 			HttpServer.send(200, "text/html", response); //Returns the HTTP response
+// 		}
+// 	}
+// 	else 
+// 	{
+// 		HttpServer.send(200, "text/html", "Parametername sensor fehlt"); //Returns the HTTP response
+// 	}
+// }
 
 
 /*
@@ -85,8 +85,8 @@ void ThingClass::init()
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sprintf(loggerMessage, "Thing init with name: %s", EspConfig.getThingName());
 	Logger.info("ThingClass Init", loggerMessage);
-	HttpServer.on("/setactor", handleSetActorRequest);
-	HttpServer.on("/getsensor", handleGetSensorRequest);
+	// HttpServer.on("/setactor", handleSetActorRequest);
+	// HttpServer.on("/getsensor", handleGetSensorRequest);
 
 }
 
