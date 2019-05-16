@@ -20,32 +20,39 @@
 // 	return 1;
 // }
 
-void LoggerClass::init(const char* name) {
+void LoggerClass::init(const char *name)
+{
 	strcpy(_name, name);
 	printf("TH* Logger init with name: %s ", _name);
 	// esp_log_set_vprintf(&espLogDelegate);
 }
-void LoggerClass::verbose(const char* tag, const char* message) {
+void LoggerClass::verbose(const char *tag, const char *message)
+{
 	log(LOG_LEVEL_VERBOSE, tag, message);
 }
 
-void LoggerClass::debug(const char* tag, const char* message) {
+void LoggerClass::debug(const char *tag, const char *message)
+{
 	log(LOG_LEVEL_DEBUG, tag, message);
 }
 
-void LoggerClass::info(const char* tag, const char* message) {
+void LoggerClass::info(const char *tag, const char *message)
+{
 	log(LOG_LEVEL_INFO, tag, message);
 }
 
-void LoggerClass::warning(const char* tag, const char* message) {
+void LoggerClass::warning(const char *tag, const char *message)
+{
 	log(LOG_LEVEL_WARNING, tag, message);
 }
 
-void LoggerClass::error(const char* tag, const char* message) {
+void LoggerClass::error(const char *tag, const char *message)
+{
 	log(LOG_LEVEL_ERROR, tag, message);
 }
 
-void LoggerClass::log(int logLevel, const char* tag, const char* message) {
+void LoggerClass::log(int logLevel, const char *tag, const char *message)
+{
 	for (std::list<LoggerTarget *>::iterator it = _logger.begin(); it != _logger.end(); ++it)
 	{
 		// Serial.print(F("*NO: refresh, Sensor: "));
@@ -53,27 +60,40 @@ void LoggerClass::log(int logLevel, const char* tag, const char* message) {
 		// Serial.print(F(", last Value: "));
 		// Serial.println(it->second->getLastMeasurement());
 		LoggerTarget *loggerTarget = *it;
-		if(logLevel >= loggerTarget -> getLogLevel()) {
+		if (logLevel >= loggerTarget->getLogLevel())
+		{
 			loggerTarget->log(_logLevelTexts[logLevel], tag, message);
 		}
 	}
 }
 
-void LoggerClass::addLoggerTarget(LoggerTarget* logger) {
-	_logger.push_back(logger);
+bool LoggerClass::addLoggerTarget(LoggerTarget *loggerTarget)
+{
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	if (getLoggerTarget(loggerTarget->getName()) != nullptr)
+	{
+		sprintf(loggerMessage, "Logger %s already exists!", loggerTarget->getName());
+		Logger.error("Logger;addLoggerTarget()", loggerMessage);
+		return false;
+	}
+	_logger.push_back(loggerTarget);
+	sprintf(loggerMessage, "LoggerTarget %s registered", loggerTarget->getName());
+	Logger.error("Logger;addLoggerTarget()", loggerMessage);
+	return true;
 }
 
-const char* LoggerClass::getLogLevelText(int logLevel){
+const char *LoggerClass::getLogLevelText(int logLevel)
+{
 	if (logLevel > 4)
 	{
 		return "?";
 	}
-	
+
 	return _logLevelTexts[logLevel];
 }
 
-
-LoggerTarget* LoggerClass::getLoggerTarget(const char* name) {
+LoggerTarget *LoggerClass::getLoggerTarget(const char *name)
+{
 	for (std::list<LoggerTarget *>::iterator it = _logger.begin(); it != _logger.end(); ++it)
 	{
 		// Serial.print(F("*NO: refresh, Sensor: "));
@@ -81,16 +101,17 @@ LoggerTarget* LoggerClass::getLoggerTarget(const char* name) {
 		// Serial.print(F(", last Value: "));
 		// Serial.println(it->second->getLastMeasurement());
 		LoggerTarget *logger = *it;
-		if(strcmp(logger->getName(), name) == 0) {
+		if (strcmp(logger->getName(), name) == 0)
+		{
 			return logger;
 		}
 	}
 	return nullptr;
 }
 
-char * LoggerClass::getName() {
+char *LoggerClass::getName()
+{
 	return _name;
 }
 
 LoggerClass Logger;
-

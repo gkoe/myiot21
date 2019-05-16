@@ -10,7 +10,7 @@ public:
 	void init();
 	void clearConfig();
 	void getConfig(char* buffer, int size);
-	char* getNvsStringValue(const char* key);
+	void getNvsStringValue(const char* key, char* value);
 	int getNvsIntValue(const char *key);
 	void setNvsStringValue(const char* key, const char* value);
 	void setNvsIntValue(const char *key, int value);
@@ -23,15 +23,13 @@ public:
 
 
 private:
-	char* _ssid;
-	char* _password;
-	char* _mqttBroker;
-	char* _thingName;
-	char* _mqttBrokerPort;
-
 	nvs_handle _nvsHandle;
-
-
+	char _ssid[LENGTH_SHORT_TEXT];
+	char _password[LENGTH_SHORT_TEXT];
+	char _mqttbroker[LENGTH_MIDDLE_TEXT];
+	char _mqttport[LENGTH_SHORT_TEXT];
+	char _thingname[LENGTH_SHORT_TEXT];
+	
 };
 
 extern EspConfigClass EspConfig;

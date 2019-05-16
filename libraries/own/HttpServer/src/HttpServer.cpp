@@ -15,6 +15,7 @@
 #include <HttpServer.h>
 #include <Logger.h>
 #include <EspConfig.h>
+#include <EspMqttClient.h>
 
 static const char *TAG = "httpserver";
 
@@ -180,6 +181,18 @@ static const httpd_uri_t echo = {
     .handler = echoHandler,
     .user_ctx = nullptr};
 
+void HttpServerClass::addRoute(const httpd_uri *httpdUri)
+{
+    char loggerMessage[LENGTH_LOGGER_MESSAGE];
+    Logger.info("HttpServer, addRoute()", httpdUri->uri);
+    esp_err_t err = httpd_register_uri_handler(_server, httpdUri);
+    if (err != ESP_OK)
+    {
+        sprintf(loggerMessage, "httpd_register_uri_handler() ERROR: %d", err);
+        Logger.error("HttpServer, addRoute()", loggerMessage);
+    }
+}
+
 httpd_handle_t HttpServerClass::startWebserver()
 {
     httpd_handle_t server = NULL;
@@ -195,6 +208,7 @@ httpd_handle_t HttpServerClass::startWebserver()
         httpd_register_uri_handler(server, &setconfig);
         httpd_register_uri_handler(server, &getconfig);
         httpd_register_uri_handler(server, &clearconfig);
+        // httpd_register_uri_handler(server, &testmqttrequest);
         return server;
     }
 
@@ -231,7 +245,7 @@ httpd_handle_t HttpServerClass::startWebserver()
 
 void HttpServerClass::init()
 {
-    startWebserver();
+    _server = startWebserver();
 }
 
 HttpServerClass HttpServer;

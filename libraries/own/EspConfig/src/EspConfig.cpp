@@ -26,30 +26,21 @@ void EspConfigClass::init()
 		Logger.error("EspConfig, init()", loggerMessage);
 		return;
 	}
-	_ssid = getNvsStringValue("ssid");
-	_password = getNvsStringValue("password");
-	_thingName = getNvsStringValue("thingname");
-	_mqttBroker = getNvsStringValue("mqttbroker");
-	_mqttBrokerPort = getNvsStringValue("mqttbrokerport");
 	Logger.info("EspConfig, init()", "OK!");
 }
 
-char *EspConfigClass::getNvsStringValue(const char *key)
+void EspConfigClass::getNvsStringValue(const char *key, char* value)
 {
 	size_t stringSize;
 	esp_err_t err = nvs_get_str(_nvsHandle, key, NULL, &stringSize);
-	char *value;
 	if (err != ESP_OK || stringSize == 0)
 	{
-		value = (char *)malloc(1);
 		value[0] = 0;
 	}
 	else
 	{
-		value = (char *)malloc(stringSize + 1);
 		err = nvs_get_str(_nvsHandle, key, value, &stringSize);
 	}
-	return value;
 }
 
 int EspConfigClass::getNvsIntValue(const char *key)
@@ -152,20 +143,21 @@ void EspConfigClass::clearConfig()
 
 void EspConfigClass::getConfig(char *buffer, int size)
 {
-	snprintf(buffer, size - 1, "thingname=%s,ssid=%s,mqttbroker=%s,mqttport=%s", _thingName, _ssid, _mqttBroker, _mqttBrokerPort);
+	snprintf(buffer, size - 1, "thingname=%s,ssid=%s,mqttbroker=%s,mqttport=%d", getThingName(), getSsid(), getMqttBroker(), getMqttBrokerPort());
 }
 
-char *EspConfigClass::getSsid() { return _ssid; }
-char *EspConfigClass::getPassword() { return _password; }
-char *EspConfigClass::getThingName() { return _thingName; }
-char *EspConfigClass::getMqttBroker() { return _mqttBroker; }
-
-int EspConfigClass::getMqttBrokerPort() 
+char *EspConfigClass::getSsid() { getNvsStringValue("ssid", _ssid); return _ssid; }
+char *EspConfigClass::getPassword() { getNvsStringValue("password", _password); return _password; }
+char *EspConfigClass::getThingName() { getNvsStringValue("thingname", _thingname); return _thingname; }
+char *EspConfigClass::getMqttBroker() { getNvsStringValue("mqttbroker", _mqttbroker); return _mqttbroker; }
+int EspConfigClass::getMqttBrokerPort()
 {
-	 if(strlen(_mqttBrokerPort)==0){
-		 return 0;
-	 }
-	 return atoi(_mqttBrokerPort);
+	getNvsStringValue("mqttport", _mqttport);
+	if (strlen(_mqttport) == 0)
+	{
+		return 0;
+	}
+	return atoi(_mqttport);
 }
 
 EspConfigClass EspConfig;

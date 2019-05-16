@@ -31,7 +31,7 @@ public:
 	void warning(const char* tag, const char* message);
 	void error(const char* tag, const char* message);
 
-	void addLoggerTarget(LoggerTarget* logger);
+	bool addLoggerTarget(LoggerTarget* logger);
 	LoggerTarget* getLoggerTarget(const char* name);
 	char* getName();
 	char* getThingName();

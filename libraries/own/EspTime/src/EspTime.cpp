@@ -8,8 +8,9 @@
 #include <EspTime.h>
 #include <Constants.h>
 #include <Logger.h>
+#include <EspConfig.h>
 
-static char NTP_SERVER_ADDRESS[] = "0.at.pool.ntp.org";  // "pool.ntp.org"
+static char NTP_SERVER_ADDRESS[] = "0.at.pool.ntp.org"; // "pool.ntp.org"
 
 void EspTimeClass::getTimeString(char *buffer)
 {
@@ -38,8 +39,17 @@ long EspTimeClass::getTime()
 
 void EspTimeClass::init()
 {
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
-	sntp_setservername(0, NTP_SERVER_ADDRESS); //  "0.at.pool.ntp.org"	sntp_init();
+	char ntpServerAddress[LENGTH_MIDDLE_TEXT];
+	EspConfig.getNvsStringValue("ntpserver", ntpServerAddress);
+	if (strlen(ntpServerAddress) == 0)
+	{
+		strcpy(ntpServerAddress, NTP_SERVER_ADDRESS);
+	}
+	sprintf(loggerMessage,"ntpserver: %s", ntpServerAddress);;
+	Logger.info("EspTime;init()",loggerMessage);
+	sntp_setservername(0, ntpServerAddress); //  "0.at.pool.ntp.org"	sntp_init();
 	sntp_init();
 	// wait for the service to set the time
 	time_t now;
