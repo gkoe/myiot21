@@ -61,7 +61,7 @@ static void udp_server_task(void *pvParameters)
 
         while (1)
         {
-            Logger.info("EspUdp; udp_server_task()", "Waiting for data");
+            // Logger.info("EspUdp; udp_server_task()", "Waiting for data");
             struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
             socklen_t socklen = sizeof(source_addr);
             int len = recvfrom(sock, ipAddressText, sizeof(ipAddressText) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
@@ -87,8 +87,8 @@ static void udp_server_task(void *pvParameters)
                 }
 
                 ipAddressText[len] = 0; // Null-terminate whatever we received and treat like a string...
-                sprintf(loggerMessage, "Received %d bytes from %s: %s", len, addr_str, ipAddressText);
-                Logger.info("EspUdp; udp_server_task()", loggerMessage);
+                // sprintf(loggerMessage, "Received %d bytes from %s: %s", len, addr_str, ipAddressText);
+                // Logger.info("EspUdp; udp_server_task()", loggerMessage);
 
                 // int err = sendto(sock, ipAddressText, len, 0, (struct sockaddr *)&source_addr, sizeof(source_addr));
                 if (err < 0)
@@ -107,8 +107,8 @@ static void udp_server_task(void *pvParameters)
                         sprintf(loggerMessage, "Logger registered:%s", ipAddressText);
                         Logger.info("EspUdp; udp_server_task()", loggerMessage);
                     }
-                    sprintf(loggerMessage, "%s;%d", ipAddressText, target->getLogLevel());
-                    Logger.info("EspUdp;online", loggerMessage);
+                    // sprintf(loggerMessage, "%s;%d", ipAddressText, target->getLogLevel());
+                    // Logger.info("EspUdp;online", loggerMessage);
                 }
             }
         }

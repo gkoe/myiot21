@@ -32,6 +32,7 @@ class EspMqttClientClass
 	void addSubscription(MqttSubscription* subscriptionPtr);
 	bool publish(const char *topic,const char *payLoad);
 	void notifySubscribers(char* topic, char *payload);
+	void addSubscriptionsToBroker();
 	void subscribeToBroker();
 
 	const char* getMainTopic();

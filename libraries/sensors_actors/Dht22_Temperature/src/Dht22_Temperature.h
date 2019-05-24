@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
 #include <Dht22.h>
 #include <IotSensor.h>
 

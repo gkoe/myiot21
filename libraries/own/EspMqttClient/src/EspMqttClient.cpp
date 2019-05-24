@@ -25,16 +25,11 @@ int EspMqttClientClass::getMqttPort() { return _mqttPort; }
 static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 {
   client = event->client;
-  int msg_id;
+  // int msg_id;
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
   char topic[LENGTH_TOPIC];
   char payload[LENGTH_PAYLOAD];
-  int mainTopicLength = 0;
-  int restTopicLength = 0;
-  // int topicLen;
-  // int payloadLen;
 
-  // your_context_t *context = event->context;
   switch (event->event_id)
   {
   case MQTT_EVENT_BEFORE_CONNECT:
@@ -42,13 +37,14 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     Logger.info("EspMqttClient, mqtt_event_handler()", loggerMessage);
     break;
   case MQTT_EVENT_CONNECTED:
-    char registeredTopic[LENGTH_TOPIC];
-    sprintf(registeredTopic, "%s/#", EspMqttClient.getMainTopic());
     Logger.info("EspMqttClient, mqtt_event_handler()", "MQTT_EVENT_CONNECTED");
-    msg_id = esp_mqtt_client_subscribe(client, registeredTopic, 0);
-    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "%s, Result: %d", registeredTopic, msg_id);
-    Logger.info("EspMqttClient, mqtt_event_handler, Topic subscribed", loggerMessage);
     mqttIsConnected = true;
+    EspMqttClient.addSubscriptionsToBroker();
+    // char registeredTopic[LENGTH_TOPIC];
+    // sprintf(registeredTopic, "%s/#", EspMqttClient.getMainTopic());
+    // msg_id = esp_mqtt_client_subscribe(client, registeredTopic, 0);
+    // snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "%s, Result: %d", registeredTopic, msg_id);
+    // Logger.info("EspMqttClient, mqtt_event_handler, Topic subscribed", loggerMessage);
     break;
   case MQTT_EVENT_DISCONNECTED:
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "mqtt_event_handler(),  MQTT_EVENT_DISCONNECTED");
@@ -66,11 +62,9 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     Logger.info("EspMqttClient, mqtt_event_handler()", "MQTT_EVENT_PUBLISHED");
     break;
   case MQTT_EVENT_DATA:
-    mainTopicLength = strlen(EspMqttClient.getMainTopic());
-    restTopicLength = event->topic_len - mainTopicLength - 1; // wegen / hinter maintopic
-    strncpy(topic, event->topic + mainTopicLength + 1, restTopicLength);
+    strncpy(topic, event->topic, event->topic_len);
     strncpy(payload, event->data, event->data_len);
-    topic[restTopicLength] = 0;
+    topic[event->topic_len] = 0;
     payload[event->data_len] = 0;
     // printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
     // printf("DATA=%.*s\r\n", event->data_len, event->data);
@@ -121,8 +115,25 @@ void EspMqttClientClass::notifySubscribers(char *topic, char *payload)
     Logger.info("MqttClient notify Subscribers, subscribed topic: ", subscriptionPtr->topic);
     if (strStartsWith(topic, subscriptionPtr->topic))
     {
+      char loggerMessage[LENGTH_LOGGER_MESSAGE];
+      sprintf(loggerMessage, "Subscriber MATCH, Topic: %s, Filter: %s", topic, subscriptionPtr->topic);
+      Logger.info("EspMqttClient, notifySubscribers()", loggerMessage);
+
       subscriptionPtr->subscriberCallback(topic, payload);
     }
+  }
+}
+
+void EspMqttClientClass::addSubscriptionsToBroker()
+{
+  char loggerMessage[LENGTH_LOGGER_MESSAGE];
+  Logger.info("EspMqttClient;addSubscriptionsToBroker()", "Start");
+  for (std::list<MqttSubscription *>::iterator it = _mqttSubscriptions.begin(); it != _mqttSubscriptions.end(); it++)
+  {
+    MqttSubscription *subscriptionPtr = *it;
+    esp_err_t err = esp_mqtt_client_subscribe(client, subscriptionPtr->topic, 0);
+    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "%s, Result: %d", subscriptionPtr->topic, err);
+    Logger.error("EspMqttClient, mqtt_event_handler, Topic subscription sent; result: ", loggerMessage);
   }
 }
 
@@ -143,7 +154,7 @@ void EspMqttClientClass::addSubscription(MqttSubscription *subscriptionPtr)
   _mqttSubscriptions.push_back(subscriptionPtr);
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
   sprintf(loggerMessage, "Subscription: %s", subscriptionPtr->topic);
-  Logger.info("MqttClient add Subscription", loggerMessage);
+  Logger.info("MqttClient;addSubscription()", loggerMessage);
 }
 
 /**
