@@ -17,7 +17,7 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
 	_time = EspTime.getTime();
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sprintf(loggerMessage, "Sensor initialized: %s", name);
-	Logger.debug("Sensor Constructor", loggerMessage);
+	Logger.debug("Sensor;Constructor", loggerMessage);
 }
 
 /**
@@ -37,7 +37,7 @@ void IotSensor::setMeasurement(float value)
 		_time = time;
 		char loggerMessage[LENGTH_LOGGER_MESSAGE];
 		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f %s, Time: %ld", _name, _measurement, _unit, _time);
-		Logger.info("Sensor set Measurement", loggerMessage);
+		Logger.info("Sensor;set Measurement", loggerMessage);
 		char fullTopic[LENGTH_TOPIC];
 		//!sprintf(fullTopic, "%s/%s", Thing.getName(), _name);
 		//Serial.println(_thingName);
@@ -45,10 +45,10 @@ void IotSensor::setMeasurement(float value)
 		char payload[LENGTH_TOPIC];
 		getMqttPayload(payload, value);
 		sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
-		Logger.debug("Sensor set Measurement", loggerMessage);
+		Logger.debug("Sensor;set Measurement", loggerMessage);
 		EspMqttClient.publish(fullTopic, payload);
 		sprintf(loggerMessage, "%s: %.1f%s,Time: %ld",_name, _measurement, _unit, _time);
-		Logger.debug("Sensor set Measurement", loggerMessage);
+		Logger.debug("Sensor;set Measurement", loggerMessage);
 	}
 }
 

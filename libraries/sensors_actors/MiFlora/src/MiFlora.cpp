@@ -45,26 +45,26 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
 {
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
     // sprintf(loggerMessage, "Forming a connection to Flora device at %s", miFlora->macAddress);
-    // Logger.info("MiFlora, setMiFloraSensorValues()", loggerMessage);
+    // Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
     // Connect to the remove BLE Server.
     BLEAddress bleAddress = BLEAddress(std::string(miFlora->macAddress));
     if (!_bleClient->connect(bleAddress))
     {
         sprintf(loggerMessage, "No connection to: %s", miFlora->macAddress);
-        Logger.error("MiFlora, setMiFloraSensorValues()", loggerMessage);
+        Logger.error("MiFlora;setMiFloraSensorValues()", loggerMessage);
         return false;
     }
     sprintf(loggerMessage, "Connected with: %s", miFlora->macAddress);
-    Logger.info("MiFlora, setMiFloraSensorValues()", loggerMessage);
+    Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
 
     // Obtain a reference to the service we are after in the remote BLE server.
     BLERemoteService *pRemoteService = _bleClient->getService(serviceUUID);
     if (pRemoteService == nullptr)
     {
-        Logger.error("MiFlora, setMiFloraSensorValues()", "Failed to find our service UUID");
+        Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find our service UUID");
         return false;
     }
-    // Logger.info("MiFlora, setMiFloraSensorValues()", "Found our service");
+    // Logger.info("MiFlora;setMiFloraSensorValues()", "Found our service");
 
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_write_mode);
     uint8_t buf[2] = {0xA0, 0x1F};
@@ -77,14 +77,14 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     //Serial.println(pRemoteService->toString().c_str());
     if (pRemoteCharacteristic == nullptr)
     {
-        Logger.error("MiFlora, setMiFloraSensorValues()", "Failed to find our characteristic UUID");
+        Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find our characteristic UUID");
         closeBleConnection();
         return false;
     }
     // Read the value of the characteristic.
     std::string value = pRemoteCharacteristic->readValue();
     // sprintf(loggerMessage, "Found our characteristic UUID");
-    // Logger.info("MiFlora, setMiFloraSensorValues()", loggerMessage);
+    // Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
 
     const char *val = value.c_str();
 
@@ -109,11 +109,11 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     // printf("!!! set conductivity %d\n", conductivity);
     miFlora->conductivitySensor->setMeasurement(conductivity);
 
-    // Logger.info("MiFlora, setMiFloraSensorValues()", "Trying to retrieve battery level");
+    // Logger.info("MiFlora;setMiFloraSensorValues()", "Trying to retrieve battery level");
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_version_battery);
     if (pRemoteCharacteristic == nullptr)
     {
-        Logger.error("MiFlora, setMiFloraSensorValues()", "Failed to find battery level characteristic UUID");
+        Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find battery level characteristic UUID");
         //Serial.println(uuid_sensor_data.toString().c_str());
         //_bleClient->disconnect();
         return false;
@@ -132,7 +132,7 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
         // printf("\n");
         int batteryLevel = val2[0];
         // sprintf(loggerMessage, "batterylevel: %i", batteryLevel);
-        // Logger.info("MiFlora, setMiFloraSensorValues()", loggerMessage);
+        // Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
         // float batteryLevel = (float)val2[0];
         miFlora->batteryLevelSensor->setMeasurement(batteryLevel);
     }
