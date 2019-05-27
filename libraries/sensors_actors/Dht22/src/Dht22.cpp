@@ -214,7 +214,7 @@ int Dht22::readDht()
 
         // -- check to see if after >70us rx data is a 0 or a 1
 
-        uSec = getSignalLevel(75, 1);
+        uSec = getSignalLevel(80, 1);  //! 75
         if (uSec < 0)
             return DHT_TIMEOUT_ERROR;
 
