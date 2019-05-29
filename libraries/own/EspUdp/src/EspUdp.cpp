@@ -56,6 +56,8 @@ bool isValidIp(char *text)
         Logger.error("EspUdp;isValidIp()", loggerMessage);
         return false;
     }
+    // sprintf(loggerMessage, "Valid IpAddress: %s", text);
+    // Logger.info("EspUdp;isValidIp()", loggerMessage);
     return true;
 }
 

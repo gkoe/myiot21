@@ -12,7 +12,7 @@
 /*
   Alle 10 Sekunden CO2-Wert messen und in field speichern
 */
-void measurementInLoopTask(void *pvParameter)
+void mhzMeasurementInLoopTask(void *pvParameter)
 {
   Mhz *mhzPtr = (Mhz *)pvParameter;
 
@@ -47,8 +47,8 @@ Mhz::Mhz(gpio_num_t rxPin, gpio_num_t txPin, const char *thingName, const char *
   _data = (uint8_t *)malloc(BUF_SIZE);
   _lastMeasurementMilliSeconds = SystemService.getMillis();
   calibrate();
-  xTaskCreate(measurementInLoopTask,   /* Task function. */
-              "measurementInLoopTask", /* String with name of task. */
+  xTaskCreate(mhzMeasurementInLoopTask,   /* Task function. */
+              "mhzMeasurementInLoopTask", /* String with name of task. */
               4096,                    /* Stack size in words. */
               this,                    /* Parameter passed as input of the task */
               1,                       /* Priority of the task. */

@@ -17,7 +17,7 @@
 // #include <sstream>
 
 #define SCAN_TIME 10 // seconds
-RTC_DATA_ATTR int miFloraIndex = 0;
+//RTC_DATA_ATTR int miFloraIndex = 0;
 
 #define btoa(x) ((x) ? "true" : "false")
 
@@ -69,8 +69,9 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_write_mode);
     uint8_t buf[2] = {0xA0, 0x1F};
     pRemoteCharacteristic->writeValue(buf, 2, true);
+    Logger.info("MiFlora;setMiFloraSensorValues()", "written A0 1F to characteristics");
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(1000 / portTICK_PERIOD_MS); //! war 500
 
     // Obtain a reference to the characteristic in the service of the remote BLE server.
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_sensor_data);
@@ -83,8 +84,8 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     }
     // Read the value of the characteristic.
     std::string value = pRemoteCharacteristic->readValue();
-    // sprintf(loggerMessage, "Found our characteristic UUID");
-    // Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
+    sprintf(loggerMessage, "Found our characteristic UUID");
+    Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
 
     const char *val = value.c_str();
 
@@ -109,7 +110,7 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     // printf("!!! set conductivity %d\n", conductivity);
     miFlora->conductivitySensor->setMeasurement(conductivity);
 
-    // Logger.info("MiFlora;setMiFloraSensorValues()", "Trying to retrieve battery level");
+    Logger.info("MiFlora;setMiFloraSensorValues()", "Trying to retrieve battery level");
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_version_battery);
     if (pRemoteCharacteristic == nullptr)
     {
@@ -188,11 +189,16 @@ void readValuesFromMiFloraTask(miflora_t *miFlora)
     MiFlora.closeBleConnection();
 }
 
+bool compareByRssi(const miflora_t *first, const miflora_t *second)
+{
+    return (first->rssiSensor < second->rssiSensor);
+}
+
 void scanMiFlorasTask(void *voidPtr)
 {
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
     Logger.info("MiFlora;scanMiFlorasTask()", "start");
-    MiFloraMap *miFloras = (MiFloraMap *)voidPtr;
+    MiFloraList *miFloras = (MiFloraList *)voidPtr;
     // Serial.printf("!!! miFloras in search, Count: %d\n", miFloras->size());
     BLEScan *pBLEScan = BLEDevice::getScan(); //create new scan
     // pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
@@ -231,25 +237,32 @@ void scanMiFlorasTask(void *voidPtr)
                 sprintf(loggerMessage, "MiFlora %d, address: %s, rssi: %d", idx, macAddress, rssi);
                 Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
                 miflora_t *miFlora;
-                if (miFloras->find(macAddress) == miFloras->end())
-                { // MiFlora ist nicht in Map
-                    //printf("!!! MiFlora not in map\n");
-                    miFlora = new miflora_t();
-                    strcpy(miFlora->macAddress, macAddress);
-                    miFloras->insert({miFlora->macAddress, miFlora});
-                    newMiFlorasCounter++;
-                    // Serial.printf("!!! New MiFlora, MAC: %s\n", miFlora->macAddress);
-                }
-                else
-                { // MiFlora ist in Map
-                    // Serial.println("!!! MiFlora in map");
-                    miFlora = miFloras->at(macAddress);
-                }
+                miFlora = new miflora_t();
+                strcpy(miFlora->macAddress, macAddress);
+                miFloras->push_back(miFlora);
+                newMiFlorasCounter++;
+
+                // miflora_t *miFlora;
+                // if (miFloras->find(macAddress) == miFloras->end())
+                // { // MiFlora ist nicht in Map
+                //     //printf("!!! MiFlora not in map\n");
+                //     miFlora = new miflora_t();
+                //     strcpy(miFlora->macAddress, macAddress);
+                //     miFloras->insert({miFlora->macAddress, miFlora});
+                //     newMiFlorasCounter++;
+                //     // Serial.printf("!!! New MiFlora, MAC: %s\n", miFlora->macAddress);
+                // }
+                // else
+                // { // MiFlora ist in Map
+                //     // Serial.println("!!! MiFlora in map");
+                //     miFlora = miFloras->at(macAddress);
+                // }
             }
         }
     }
     // pBLEScan->clearResults();
     // Serial.println("!!! Scan done!");
+    miFloras->sort(compareByRssi);
     int miFlorasCounter = miFloras->size();
     sprintf(loggerMessage, "Scanned mifloras: %d, new: %d", miFlorasCounter, newMiFlorasCounter);
     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
@@ -259,13 +272,16 @@ void scanMiFlorasTask(void *voidPtr)
         MiFlora.closeBleConnection();
         return;
     }
+    int miFloraIndex = EspConfig.getNvsIntValue("mifloraindex");
     if (miFloraIndex >= miFlorasCounter)
     {
         miFloraIndex = 0;
+        EspConfig.setNvsIntValue("mifloraindex", 0);
     }
 
-    MiFloraMap::iterator it = miFloras->begin();
+    MiFloraList::iterator it = miFloras->begin();
     int index = 0;
+
     while (index < miFloraIndex && it != miFloras->end())
     {
         it++;
@@ -276,11 +292,12 @@ void scanMiFlorasTask(void *voidPtr)
         MiFlora.closeBleConnection();
         return;
     }
-    miflora_t *miFlora = it->second;
+    miflora_t *miFlora = *it;
     sprintf(loggerMessage, "MiFlora %i to read: %s", miFloraIndex, miFlora->macAddress);
     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
     readValuesFromMiFloraTask(miFlora);
     miFloraIndex++;
+    EspConfig.setNvsIntValue("mifloraindex", miFloraIndex);
     MiFlora.closeBleConnection();
     vTaskDelete(NULL);
 }
@@ -314,7 +331,7 @@ void MiFloraClass::readNextMiFlora()
 
 void MiFloraClass::init()
 {
-    _miFloras = new MiFloraMap();
+    _miFloras = new MiFloraList();
     BLEDevice::init("");
     _bleClient = BLEDevice::createClient();
 }

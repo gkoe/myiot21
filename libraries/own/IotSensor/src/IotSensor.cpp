@@ -47,10 +47,10 @@ void IotSensor::setMeasurement(float value)
 		char payload[LENGTH_TOPIC];
 		getMqttPayload(payload, value);
 		sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
-		Logger.info("Sensor;set Measurement", loggerMessage);
+		Logger.verbose("Sensor;set Measurement", loggerMessage);
 		EspMqttClient.publish(fullTopic, payload);
 		sprintf(loggerMessage, "%s: %.1f%s,Time: %ld",_name, _publishedMeasurement, _unit, _time);
-		Logger.info("Sensor;set Measurement", loggerMessage);
+		Logger.verbose("Sensor;set Measurement", loggerMessage);
 	}
 }
 

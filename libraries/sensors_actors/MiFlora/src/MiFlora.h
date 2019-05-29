@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <list>
 #include <functional>
 #include <cstring>
 #include <BLEClient.h>
@@ -26,7 +26,7 @@ struct miflora_t
   IotSensor* conductivitySensor;
 };
 
-typedef std::map<const char *, miflora_t *, StrCompare> MiFloraMap;
+typedef std::list<miflora_t *> MiFloraList;
 
 struct cmp_str
 {
@@ -47,9 +47,8 @@ public:
   void readNextMiFlora();
 
 private:
-  MiFloraMap* _miFloras;
+  MiFloraList* _miFloras;
   BLEClient*  _bleClient;
-  int _actMiFloraIndex = 0;
   TaskHandle_t* _scanTask=nullptr;
   TaskHandle_t* _readTask=nullptr;
 };
