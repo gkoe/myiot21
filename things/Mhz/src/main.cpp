@@ -21,7 +21,6 @@
 #define UART_TXD (GPIO_NUM_12)
 #define UART_RXD (GPIO_NUM_13)
 
-
 extern "C"
 {
   void app_main(void);
@@ -48,13 +47,15 @@ void app_main()
   HttpServer.init();
   Logger.info("MhzThing, app_main()", "HttpServer started");
   EspTime.init();
-  EspMqttClient.init(EspConfig.getThingName());
   EspUdp.init();
+  UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
+  Logger.addLoggerTarget(udpLoggerTargetPtr);
+  EspMqttClient.init(EspConfig.getThingName());
   Thing.init();
   Logger.info("MhzThing, app_main()", "Thing created");
   // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
-	Mhz* mhzPtr = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0);
-	Thing.addSensor(mhzPtr);
+  Mhz *mhzPtr = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0);
+  Thing.addSensor(mhzPtr);
   //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
 
   while (true)

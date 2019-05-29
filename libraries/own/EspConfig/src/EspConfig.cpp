@@ -8,6 +8,7 @@
 
 #include <Constants.h>
 #include <EspConfig.h>
+#include <LoggerTarget.h>
 #include <Logger.h>
 
 void EspConfigClass::init()

@@ -16,23 +16,24 @@
 #define LED_BUILTIN_PIN 16 // WEMOS MINI32 2, TTGO 16, Lolin 5, sonst 21
 
 const char *SERIAL_LOGGER_TAG = "SLT";
-#define SLEEP_DURATION  720ll // duration of sleep between flora connection attempts in seconds (must be constant with "ll" suffix)
-#define SLEEP_WAIT 90         // time until esp32 is put into deep sleep mode. must be sufficient to connect to wlan, connect to xiaomi flora device & push measurement data to MQTT
-
+#define SLEEP_DURATION 720ll // duration of sleep between flora connection attempts in seconds (must be constant with "ll" suffix)
+#define SLEEP_WAIT 90		 // time until esp32 is put into deep sleep mode. must be sufficient to connect to wlan, connect to xiaomi flora device & push measurement data to MQTT
 
 //>>>>>>>>>>>>>>>>>>>> Thingspezifisch
 #include <MiFlora.h>
 //<<<<<<<<<<<<<<<<<<<<<<<
 
-void goToDeepSleep(){
-  esp_sleep_enable_timer_wakeup(SLEEP_DURATION * 1000000ll);
-  Logger.info("MiFloraGateway;goToDeepSleep()", "Going to sleep now.");
-  esp_deep_sleep_start();
+void goToDeepSleep()
+{
+	esp_sleep_enable_timer_wakeup(SLEEP_DURATION * 1000000ll);
+	Logger.info("MiFloraGateway;goToDeepSleep()", "Going to sleep now.");
+	esp_deep_sleep_start();
 }
 
-void taskDeepSleep( void * parameter ){
-  delay(SLEEP_WAIT * 1000);
-  goToDeepSleep();
+void taskDeepSleep(void *parameter)
+{
+	delay(SLEEP_WAIT * 1000);
+	goToDeepSleep();
 }
 
 void setup()
@@ -57,18 +58,20 @@ void setup()
 	HttpServer.init();
 	Logger.info("MiFloraGateway, app_main()", "HttpServer started");
 	EspTime.init();
-	EspMqttClient.init(thingName);
 	EspUdp.init();
+	UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
+	Logger.addLoggerTarget(udpLoggerTargetPtr);
+	EspMqttClient.init(thingName);
 	Thing.init();
 	Logger.info("MiFloraGateway, app_main()", "Thing created");
-	xTaskCreate(      taskDeepSleep,          /* Task function. */
-                    "TaskDeepSleep",        /* String with name of task. */
-                    4000,                  /* Stack size in words. */
-                    NULL,                   /* Parameter passed as input of the task */
-                    1,                      /* Priority of the task. */
-                    NULL);                  /* Task handle. */
-  
-  	MiFlora.init();
+	xTaskCreate(taskDeepSleep,   /* Task function. */
+				"TaskDeepSleep", /* String with name of task. */
+				4000,			 /* Stack size in words. */
+				NULL,			 /* Parameter passed as input of the task */
+				1,				 /* Priority of the task. */
+				NULL);			 /* Task handle. */
+
+	MiFlora.init();
 	MiFlora.readNextMiFlora();
 }
 

@@ -16,6 +16,7 @@
 
 #include <EspUdp.h>
 #include <Constants.h>
+#include <LoggerTarget.h>
 #include <Logger.h>
 #include <UdpLoggerTarget.h>
 
@@ -64,7 +65,7 @@ bool isValidIp(char *text)
 static void udp_server_task(void *pvParameters)
 {
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    char ipAddressText[128];
+    char data[128];
     char addr_str[128];
     int addr_family;
     int ip_protocol;
@@ -101,10 +102,11 @@ static void udp_server_task(void *pvParameters)
 
         while (1)
         {
+            vTaskDelay(10 / portTICK_PERIOD_MS);
             // Logger.info("EspUdp; udp_server_task()", "Waiting for data");
             struct sockaddr_in6 source_addr; // Large enough for both IPv4 or IPv6
             socklen_t socklen = sizeof(source_addr);
-            int len = recvfrom(sock, ipAddressText, sizeof(ipAddressText) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
+            int len = recvfrom(sock, data, sizeof(data) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
             // Logger.info("EspUdp; udp_server_task()", "Data received");
 
             // Error occurred during receiving
@@ -127,37 +129,26 @@ static void udp_server_task(void *pvParameters)
                     inet6_ntoa_r(source_addr.sin6_addr, addr_str, sizeof(addr_str) - 1);
                 }
 
-                ipAddressText[len] = 0; // Null-terminate whatever we received and treat like a string...
-                // sprintf(loggerMessage, "Logger Address %s", ipAddressText);
-                // Logger.info("EspUdp; udp_server_task()", loggerMessage);
-                if (!isValidIp(ipAddressText))
+                data[len] = 0;                      // Null-terminate whatever we received and treat like a string...
+                if (data[0] < '0' || data[0] > '5') // Verbose bis NoLog
                 {
-                    sprintf(loggerMessage, "UdpLoggerTartget Address %s is invalid", ipAddressText);
-                    Logger.error("EspUdp; udp_server_task()", loggerMessage);
-                }
-                else
-                {
-                    sprintf(loggerMessage, "UdpLogger registered!");
-                    int err = sendto(sock, loggerMessage, strlen(loggerMessage), 0, (struct sockaddr *)&source_addr, sizeof(source_addr));
-                    if (err < 0)
+                    if (data[0] == 'x')
                     {
-                        sprintf(loggerMessage, "Error occurred during sending: errno %d", errno);
-                        Logger.error("EspUdp; udp_server_task()", loggerMessage);
-                        break;
+                        Logger.info("EspUdp;echo()", "x");
                     }
                     else
                     {
-                        LoggerTarget *target = Logger.getLoggerTarget(ipAddressText);
-                        if (target == nullptr) // erste Anfrage des Udp-Clients
-                        {
-                            target = new UdpLoggerTarget(ipAddressText, LOG_LEVEL_INFO);
-                            Logger.addLoggerTarget(target);
-                            sprintf(loggerMessage, "Logger registered:%s", ipAddressText);
-                            Logger.info("EspUdp; udp_server_task()", loggerMessage);
-                        }
-                        // sprintf(loggerMessage, "%s;%d", ipAddressText, target->getLogLevel());
-                        // Logger.info("EspUdp;online", loggerMessage);
+                        sprintf(loggerMessage, "UdpLogger LogLevel %s is invalid", data);
+                        Logger.error("EspUdp; udp_server_task()", loggerMessage);
                     }
+                }
+                else
+                {
+                    int logLevel = data[0] - '0';
+                    LoggerTarget *loggerTarget = Logger.getLoggerTarget("ULT");
+                    loggerTarget->setLogLevel(logLevel);
+                    sprintf(loggerMessage, "Data: %s, UdpLogger LogLevel set to %i", data, logLevel);
+                    Logger.info("EspUdp; udp_server_task()", loggerMessage);
                 }
             }
         }
@@ -175,12 +166,12 @@ static void udp_server_task(void *pvParameters)
 
 bool EspUdpClass::sendUdpMessage(const char *ipAddress, const int port, const char *message)
 {
-    //printf("EspUdp; sendUdpMessage(); Start");
+    //printf("!!! EspUdp; sendUdpMessage(); Start\n");
     char addr_str[128];
     // int addr_family;
     // int ip_protocol;
 
-    char loggerMessage[LENGTH_LOGGER_MESSAGE];
+    //char loggerMessage[LENGTH_LOGGER_MESSAGE];
     struct sockaddr_in dest_addr;
     dest_addr.sin_addr.s_addr = inet_addr(ipAddress);
     dest_addr.sin_family = AF_INET;
@@ -190,7 +181,7 @@ bool EspUdpClass::sendUdpMessage(const char *ipAddress, const int port, const ch
 
     if (_clientSocket < 0)
     {
-        printf("!!!! EspUdp; udp_client_task();clientSocket lower 0");
+        printf("!!!! EspUdp; udp_client_task();clientSocket lower 0: %d\n", _clientSocket);
     }
 
     inet_ntoa_r(dest_addr.sin_addr, addr_str, sizeof(addr_str) - 1);
@@ -198,10 +189,10 @@ bool EspUdpClass::sendUdpMessage(const char *ipAddress, const int port, const ch
     int err = sendto(_clientSocket, message, strlen(message), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
     if (err < 0)
     {
-        printf(loggerMessage, "!!!! EspUdp; udp_client_task();Error occurred during sending: errno %d", errno);
+        printf("!!!! EspUdp; udp_client_task();Error occurred during sending: errno %d\n", errno);
         return false;
     }
-    //printf("EspUdp; udp_client_task(); Message sent: %s", message);
+    //printf("!!! EspUdp; udp_client_task(); Message sent: %s to %s:%i", message, ipAddress,port);
     return true;
 }
 
