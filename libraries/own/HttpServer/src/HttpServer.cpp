@@ -98,6 +98,17 @@ std::map<char *, char *> getQueryParams(char *queryString)
     return keyValuePairs;
 }
 
+static esp_err_t getRestartHandler(httpd_req_t *req)
+{
+    char loggerMessage[LENGTH_LOGGER_MESSAGE];
+    sprintf(loggerMessage, "Restart ESP by Http");
+    Logger.info("HttpServer;getRestartHandler()", loggerMessage);
+    vTaskDelay(1000 / portTICK_RATE_MS);
+    esp_restart();
+    httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
+    return ESP_OK;
+}
+
 /**
  * Die Route /setconfig?key1=xxx&key2=yyy... setzt die
  * entsprechenden Config-Strings im NVS
@@ -175,6 +186,12 @@ static const httpd_uri_t setconfig = {
     .handler = setconfigHandler,
     .user_ctx = nullptr};
 
+static const httpd_uri_t restart = {
+    .uri = "/restart",
+    .method = HTTP_GET,
+    .handler = getRestartHandler,
+    .user_ctx = nullptr};
+
 static const httpd_uri_t echo = {
     .uri = "/echo",
     .method = HTTP_GET,
@@ -208,6 +225,7 @@ httpd_handle_t HttpServerClass::startWebserver()
         httpd_register_uri_handler(server, &setconfig);
         httpd_register_uri_handler(server, &getconfig);
         httpd_register_uri_handler(server, &clearconfig);
+        httpd_register_uri_handler(server, &restart);
         // httpd_register_uri_handler(server, &testmqttrequest);
         return server;
     }

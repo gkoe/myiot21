@@ -96,7 +96,7 @@ void IotActor::sync()
 		setActor(_settedState);
 		if (strcmp(_currentState, _lastReportedState) != 0) {
 			char fullTopic[LENGTH_TOPIC];
-			sprintf(fullTopic, "%s/%s/state", EspConfig.getThingName(), _name);
+			sprintf(fullTopic, "%s/state", _name);
 			char payload[LENGTH_PAYLOAD];
 			strcpy(payload, _currentState);
 			char loggerMessage[LENGTH_LOGGER_MESSAGE];

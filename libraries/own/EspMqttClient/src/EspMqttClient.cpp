@@ -137,7 +137,7 @@ void EspMqttClientClass::addSubscriptionsToBroker()
     MqttSubscription *subscriptionPtr = *it;
     esp_err_t err = esp_mqtt_client_subscribe(client, subscriptionPtr->topic, 0);
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic subscription sent: %s, Result: %d", subscriptionPtr->topic, err);
-    Logger.error("EspMqttClient;addSubscriptionsToBroker()", loggerMessage);
+    Logger.info("EspMqttClient;addSubscriptionsToBroker()", loggerMessage);
   }
 }
 
