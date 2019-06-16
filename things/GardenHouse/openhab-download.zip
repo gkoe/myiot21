@@ -867,7 +867,7 @@
         <input type="hidden" name="filterByUnLinkedRepo" value="" id="filterByUnLinkedRepo" />
         <input type="hidden" name="pkgPath" value="/openhab/mvn/openhab-distro" id="pkgPath" />
         <input type="submit" name="unlinkPackageToRepoSubmit" style="display:none" value="unlinkPackageToRepoSubmit" id="unlinkPackageToRepoSubmit" />
-    <input id='sessiontHr3nS' type='hidden' value='XPZNWwycq2XQ0iiLafChmzgTS9k3AHYrg3cYdZqV' name='sessiontHr3nS'><input id='AUTH_KEY_SUBMIT_REQUEST' name='AUTH_KEY_SUBMIT_REQUEST' type='hidden' value='sessiontHr3nS'></form>
+    <input id='sessionMYIMyJ' type='hidden' value='cFK8c7HBdsAweY10Uibs2EmbpvpUFEZ6brqbSpmk' name='sessionMYIMyJ'><input id='AUTH_KEY_SUBMIT_REQUEST' name='AUTH_KEY_SUBMIT_REQUEST' type='hidden' value='sessionMYIMyJ'></form>
     <div class="unlinkPackageModal unlinkPackageModal">
         <div class="title" style="text-align: left">Unlink this package from one of my repositories</div>
         

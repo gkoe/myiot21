@@ -55,23 +55,23 @@ void measureDistanceInLoopTask(void *pvParameter)
         {
             switch (errorCode)
             {
-                case ESP_ERR_ULTRASONIC_PING:
-                    printf("!!! Error reading ultrasonic, Cannot ping (device is in invalid state)\n");
-                    Logger.error("ultrasonic;measureDistanceInLoopTask()", "Cannot ping (device is in invalid state)");
-                    break;
-                case ESP_ERR_ULTRASONIC_PING_TIMEOUT:
-                    //printf("!!! Error reading ultrasonic, Ping timeout (no device found)\n");
-                    break;
-                case ESP_ERR_ULTRASONIC_ECHO_TIMEOUT:
+            case ESP_ERR_ULTRASONIC_PING:
+                printf("!!! Error reading ultrasonic, Cannot ping (device is in invalid state)\n");
+                Logger.error("ultrasonic;measureDistanceInLoopTask()", "Cannot ping (device is in invalid state)");
+                break;
+            case ESP_ERR_ULTRASONIC_PING_TIMEOUT:
+                //printf("!!! Error reading ultrasonic, Ping timeout (no device found)\n");
+                break;
+            case ESP_ERR_ULTRASONIC_ECHO_TIMEOUT:
 
-                    printf("!!! Error reading ultrasonic, Echo timeout (i.e. distance too big)\n");
-                    Logger.error("ultrasonic;measureDistanceInLoopTask()", "Echo timeout (i.e. distance too big)");
-                    break;
-                default:
-                    printf("%d\n", errorCode);
+                printf("!!! Error reading ultrasonic, Echo timeout (i.e. distance too big)\n");
+                Logger.error("ultrasonic;measureDistanceInLoopTask()", "Echo timeout (i.e. distance too big)");
+                break;
+            default:
+                printf("%d\n", errorCode);
             }
         }
-        vTaskDelay(200 / portTICK_RATE_MS);
+        vTaskDelay(500 / portTICK_RATE_MS);
     }
 }
 
@@ -104,6 +104,11 @@ void Ultrasonic::setNextDistance(uint32_t distance)
     {
         _actIndex = 0;
     }
+    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+    taskENTER_CRITICAL(&myMutex);
+    //critical section
+    _actDistance = getAverageDistance();
+    taskEXIT_CRITICAL(&myMutex);
 }
 
 esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
@@ -181,5 +186,5 @@ float Ultrasonic::getAverageDistance()
 */
 void Ultrasonic::measure()
 {
-    setMeasurement(getAverageDistance());
+    setMeasurement(_actDistance);
 }

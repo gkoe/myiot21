@@ -117,7 +117,8 @@ void EspMqttClientClass::notifySubscribers(char *topic, char *payload)
     sprintf(loggerMessage, " subscribed topic: %s", subscriptionPtr->topic);
 
     Logger.info("EspMqttClient notifySubscribers()", loggerMessage);
-    if (strStartsWith(topic, subscriptionPtr->topic))
+    //if (strStartsWith(topic, subscriptionPtr->topic))
+    if (strcmp(topic, subscriptionPtr->topic)==0)
     {
       char loggerMessage[LENGTH_LOGGER_MESSAGE];
       sprintf(loggerMessage, "Subscriber MATCH, Topic: %s, Filter: %s", topic, subscriptionPtr->topic);
@@ -185,6 +186,10 @@ static esp_err_t testmqttrequestHandler(httpd_req_t *req)
   }
   httpd_resp_send(req, myprivate_response, strlen(myprivate_response));
   return ESP_OK;
+}
+
+bool EspMqttClientClass::isMqttConnected(){
+  return mqttIsConnected;
 }
 
 static const httpd_uri_t testmqttrequest = {
@@ -257,6 +262,8 @@ bool EspMqttClientClass::publish(const char *topic, const char *payload)
   // publish with retained-flag
   char totalTopic[LENGTH_TOPIC];
   sprintf(totalTopic, "%s/%s", _mainTopic, topic);
+  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s to publish", totalTopic, payload);
+  Logger.info("EspMqttClient;vor publish()", loggerMessage);
   int result = -1;
   result = esp_mqtt_client_publish(client, totalTopic, payload, 0, 0, 1);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s published, result: %d", totalTopic, payload, result);

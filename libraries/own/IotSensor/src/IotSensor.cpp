@@ -1,3 +1,6 @@
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "IotSensor.h"
 #include <EspTime.h>
 #include <EspMqttClient.h>
@@ -11,7 +14,7 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
 	strcpy(_name, name);
 	strcpy(_unit, unit);
 	_threshold = threshold;
-	_maxIntervall=maxIntervall;
+	_maxIntervall = maxIntervall;
 	_publishedMeasurement = 0;
 	_lastMeasurement = 0;
 	_time = EspTime.getTime();
@@ -27,13 +30,19 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
  */
 void IotSensor::setMeasurement(float value)
 {
+	portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+	portENTER_CRITICAL(&myMutex);
+	//critical section
 	_lastMeasurement = value;
+	portEXIT_CRITICAL(&myMutex);
+
 	float delta = value - _publishedMeasurement;
-	if(delta < 0.0){
+	if (delta < 0.0)
+	{
 		delta = delta * (-1.0);
-	} 
+	}
 	long time = EspTime.getTime();
-	if (time > _time && (delta >= _threshold || time > _time + _maxIntervall))  // nicht in gleicher Sekunde mehrere Werte publishen
+	if (time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
 		char loggerMessage[LENGTH_LOGGER_MESSAGE];
 		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld", _name, _publishedMeasurement, _unit, value, _unit, time, _time);
@@ -48,8 +57,13 @@ void IotSensor::setMeasurement(float value)
 		getMqttPayload(payload, value);
 		sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
 		Logger.verbose("Sensor;set Measurement", loggerMessage);
+		// portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+		// portENTER_CRITICAL(&myMutex);
+		// //critical section
 		EspMqttClient.publish(fullTopic, payload);
-		sprintf(loggerMessage, "%s: %.1f%s,Time: %ld",_name, _publishedMeasurement, _unit, _time);
+		// portEXIT_CRITICAL(&myMutex);
+
+		sprintf(loggerMessage, "%s: %.1f %s,Time: %ld", _name, _publishedMeasurement, _unit, _time);
 		Logger.verbose("Sensor;set Measurement", loggerMessage);
 	}
 }
@@ -74,3 +88,8 @@ void IotSensor::getMqttPayload(char *payload, float measurement)
 }
 
 //void IotSensor::measure(){}
+
+bool IotSensor::getPinState(gpio_num_t pin)
+{
+	return gpio_input_get() & (1 << pin);
+}

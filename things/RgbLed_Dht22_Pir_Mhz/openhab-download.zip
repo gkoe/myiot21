@@ -45,29 +45,29 @@
 <link rel="shortcut icon" href="/assets/favicon.png"/>
 <script type="text/javascript" src="/assets/lib/jquery-1.11.1.min.js"></script>
 <script type="text/javascript"
-        src="/assets/lib/jquery-ui.js?v=12613"></script>
+        src="/assets/lib/jquery-ui.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/bootstrap.min.js?v=12613"></script>
+        src="/assets/lib/bootstrap.min.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/handlebars.js?v=12613"></script>
+        src="/assets/lib/handlebars.js?v=12616"></script>
 <script type="text/javascript" src="/assets/lib/select2.min.js"></script>
 <script type="text/javascript" src="/assets/lib/datatables.min.js"></script>
-<script type="text/javascript" src="/assets/lib/widgeter.js?v=12613"></script>
-<script type="text/javascript" src="/assets/lib/resident.js?v=12613"></script>
-<script type="text/javascript" src="/assets/lib/flow.js?v=12613"></script>
+<script type="text/javascript" src="/assets/lib/widgeter.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/resident.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/flow.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/perfect-scrollbar.min.js?v=12613"></script>
+        src="/assets/lib/perfect-scrollbar.min.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/clipboard.min.js?v=12613"></script>
+        src="/assets/lib/clipboard.min.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/filesize.min.js?v=12613"></script>
+        src="/assets/lib/filesize.min.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/moment.min.js?v=12613"></script>
+        src="/assets/lib/moment.min.js?v=12616"></script>
 <script type="text/javascript"
-        src="/assets/lib/moment.time.js?v=12613"></script>
+        src="/assets/lib/moment.time.js?v=12616"></script>
 <script type="text/javascript" src="/assets/lib/hammer.min.js"></script>
-<script type="text/javascript" src="/assets/lib/require.js?v=12613"></script>
-<script type="text/javascript" src="/assets/utils/StringUtils.js?v=12613"></script>
+<script type="text/javascript" src="/assets/lib/require.js?v=12616"></script>
+<script type="text/javascript" src="/assets/utils/StringUtils.js?v=12616"></script>
 <script>
     requirejs.config({
         baseUrl: '/assets/bintray-widgets/',
@@ -78,7 +78,7 @@
             templates  : '../../assets',
             css        : '../../stylesheets'
         },
-	    urlArgs    : 'v=12613'
+	    urlArgs    : 'v=12616'
     });
 </script>
 <link rel="stylesheet" type="text/css" href="/assets/lib/bootstrap.min.css"/>
@@ -867,7 +867,7 @@
         <input type="hidden" name="filterByUnLinkedRepo" value="" id="filterByUnLinkedRepo" />
         <input type="hidden" name="pkgPath" value="/openhab/mvn/openhab-distro" id="pkgPath" />
         <input type="submit" name="unlinkPackageToRepoSubmit" style="display:none" value="unlinkPackageToRepoSubmit" id="unlinkPackageToRepoSubmit" />
-    <input id='sessiondmBiIx' type='hidden' value='EpaYIydgnFoGJGM7iChBVoN6VwL7nhrQCP1z5zSH' name='sessiondmBiIx'><input id='AUTH_KEY_SUBMIT_REQUEST' name='AUTH_KEY_SUBMIT_REQUEST' type='hidden' value='sessiondmBiIx'></form>
+    <input id='sessionR3GOzZ' type='hidden' value='IivVadRETKaRZNYLXMago5HASPIAHKSOFk9MsOXx' name='sessionR3GOzZ'><input id='AUTH_KEY_SUBMIT_REQUEST' name='AUTH_KEY_SUBMIT_REQUEST' type='hidden' value='sessionR3GOzZ'></form>
     <div class="unlinkPackageModal unlinkPackageModal">
         <div class="title" style="text-align: left">Unlink this package from one of my repositories</div>
         

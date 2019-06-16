@@ -1,5 +1,5 @@
 #pragma once
-
+#include "esp_system.h"
 #include <Constants.h>
 
 /*
@@ -49,6 +49,8 @@ class IotSensor
 	// virtual void measure()=0; // abstrakte Sensoren können nicht in Liste verwaltet werden
 
 	virtual void getMqttPayload(char* payload, float measurement);  //! wozu der char* als Rückgabetyp
+
+	static bool getPinState(gpio_num_t pin);
 
   protected:
 
