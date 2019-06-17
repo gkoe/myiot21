@@ -32,10 +32,5 @@ void Contact::measure()
   {
     value = 0.0;
   }
-  portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-  taskENTER_CRITICAL(&myMutex);
-  //critical section
-  //_isOn = isNowOn;
   setMeasurement(value);
-  taskEXIT_CRITICAL(&myMutex);
 }

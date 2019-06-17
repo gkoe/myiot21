@@ -43,7 +43,7 @@ private:
     uint32_t _lastDistances[10];
     int _actIndex = 0;
 
-    float _actDistance = -1;
+    volatile float _actDistance = -1;
 
     virtual void measure();
 };

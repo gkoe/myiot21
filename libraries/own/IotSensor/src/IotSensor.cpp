@@ -30,11 +30,11 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
  */
 void IotSensor::setMeasurement(float value)
 {
-	portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-	portENTER_CRITICAL(&myMutex);
+	// portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+	// portENTER_CRITICAL(&myMutex);
 	//critical section
 	_lastMeasurement = value;
-	portEXIT_CRITICAL(&myMutex);
+	// portEXIT_CRITICAL(&myMutex);
 
 	float delta = value - _publishedMeasurement;
 	if (delta < 0.0)

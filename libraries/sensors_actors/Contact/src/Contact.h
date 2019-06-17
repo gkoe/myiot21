@@ -10,5 +10,4 @@ class Contact : public IotSensor
 
   private:
     gpio_num_t _pin;
-    //bool _isOn; 
 };

@@ -71,9 +71,9 @@ void app_main()
   // IotSensor *waterEmptyContact =
   //     new Contact(CONTACT_PIN, thingName, "watercontact", "", 0.2);
   // Thing.addSensor(waterEmptyContact);
-  // IotSensor *waterlevel =
-  //     new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, thingName, "waterlevel", "cm", 0.5);
-  // Thing.addSensor(waterlevel);
+  IotSensor *waterlevel =
+      new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, thingName, "waterlevel", "cm", 0.5);
+  Thing.addSensor(waterlevel);
   IotActor *powerLeft =
       new PowerSwitch(POWER_LEFT, false, thingName, "powerleft");
   Thing.addActor(powerLeft);

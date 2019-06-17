@@ -19,7 +19,7 @@
 #define PING_TIMEOUT 6000
 #define ROUNDTRIP 58
 
-static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+//static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
 static inline uint32_t get_time_us()
 {
@@ -30,12 +30,14 @@ static inline uint32_t get_time_us()
 
 #define timeout_expired(start, len) ((uint32_t)(get_time_us() - (start)) >= (len))
 
+/* 
 #define RETURN_CRTCAL(MUX, RES)  \
     do                           \
     {                            \
         portEXIT_CRITICAL(&MUX); \
         return RES;              \
     } while (0)
+*/
 
 void measureDistanceInLoopTask(void *pvParameter)
 {
@@ -104,17 +106,17 @@ void Ultrasonic::setNextDistance(uint32_t distance)
     {
         _actIndex = 0;
     }
-    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-    taskENTER_CRITICAL(&myMutex);
+    // portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+    // taskENTER_CRITICAL(&myMutex);
     //critical section
     _actDistance = getAverageDistance();
-    taskEXIT_CRITICAL(&myMutex);
+    // taskEXIT_CRITICAL(&myMutex);
 }
 
 esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
 {
 
-    portENTER_CRITICAL(&mux);
+    // portENTER_CRITICAL(&mux);
 
     // Ping: Low for 2..4 us, then high 10 us
     gpio_set_level(_triggerPin, 0);
@@ -125,14 +127,16 @@ esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
 
     // Previous ping isn't ended
     if (gpio_get_level(_echoPin))
-        RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_PING);
+        return ESP_ERR_ULTRASONIC_PING;
+    // RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_PING);
 
     // Wait for echo
     uint32_t start = get_time_us();
     while (!gpio_get_level(_echoPin))
     {
         if (timeout_expired(start, PING_TIMEOUT))
-            RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_PING_TIMEOUT);
+            return ESP_ERR_ULTRASONIC_PING_TIMEOUT;
+        // RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_PING_TIMEOUT);
     }
 
     // got echo, measuring
@@ -143,9 +147,10 @@ esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
     {
         time = get_time_us();
         if (timeout_expired(echo_start, meas_timeout))
-            RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_ECHO_TIMEOUT);
+            return ESP_ERR_ULTRASONIC_ECHO_TIMEOUT;
+            // RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_ECHO_TIMEOUT);
     }
-    portEXIT_CRITICAL(&mux);
+    // portEXIT_CRITICAL(&mux);
 
     *distance = (time - echo_start) / ROUNDTRIP;
 
