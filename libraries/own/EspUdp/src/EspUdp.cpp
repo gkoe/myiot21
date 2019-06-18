@@ -134,7 +134,7 @@ static void udp_server_task(void *pvParameters)
                 {
                     if (data[0] == 'x')
                     {
-                        Logger.info("EspUdp;echo()", "x");
+                        Logger.info("EspUdp;echo()", "OK");
                     }
                     else
                     {
