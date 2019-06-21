@@ -8,13 +8,15 @@
 #include <string.h>
 #include <Logger.h>
 
-IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall)
+IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall, float minValue, float maxValue)
 {
 	strcpy(_thingName, thingName);
 	strcpy(_name, name);
 	strcpy(_unit, unit);
 	_threshold = threshold;
 	_maxIntervall = maxIntervall;
+	_minValue = minValue;
+	_maxValue = maxValue;
 	_publishedMeasurement = 0;
 	_lastMeasurement = 0;
 	_time = EspTime.getTime();
@@ -30,6 +32,20 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
  */
 void IotSensor::setMeasurement(float value)
 {
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	if (value < _minValue)
+	{
+		sprintf(loggerMessage, "%s, Illegal value: %.1f lower than minValue %.1f", _name,  value, _minValue);
+		Logger.error("Sensor;set Measurement", loggerMessage);
+		return;
+	}
+	if (value > _maxValue)
+	{
+		sprintf(loggerMessage, "%s, Illegal value: %.1f greater than maxValue %.1f", _name,  value, _maxValue);
+		Logger.error("Sensor;set Measurement", loggerMessage);
+		return;
+	}
+
 	// portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 	// portENTER_CRITICAL(&myMutex);
 	//critical section
@@ -44,7 +60,6 @@ void IotSensor::setMeasurement(float value)
 	long time = EspTime.getTime();
 	if (time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
-		char loggerMessage[LENGTH_LOGGER_MESSAGE];
 		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld", _name, _publishedMeasurement, _unit, value, _unit, time, _time);
 		Logger.info("Sensor;set Measurement", loggerMessage);
 		_publishedMeasurement = value;

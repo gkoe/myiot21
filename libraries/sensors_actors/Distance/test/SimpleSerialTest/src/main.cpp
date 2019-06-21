@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <ultrasonic.h>
+#include <Distance.h>
 
 #include <EspConfig.h>
 #include "Logger.h"
@@ -27,22 +27,22 @@ void app_main()
 {
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
   printf("===============\n");
-  printf("Ultrasonic-Test\n");
+  printf("Distance-Test\n");
   printf("===============\n");
   EspConfig.init();
   Logger.init("ThingTest");
   SerialLoggerTarget *serialLoggerTarget = new SerialLoggerTarget(SERIAL_LOGGER_TAG, LOG_LEVEL_VERBOSE);
   Logger.addLoggerTarget(serialLoggerTarget);
   SystemService.init();
-  Logger.info("UltrasonicTest;app_main()", "Initialize Ultrasonic!");
+  Logger.info("DistanceTest;app_main()", "Initialize Distance!");
 
-  Ultrasonic *ultrasonic = new Ultrasonic(TRIGGER_GPIO, GPIO_NUM_19, "Ultrasonic", "waterlevel", "cm", 0.1);
+  Distance *distance = new Distance(TRIGGER_GPIO, GPIO_NUM_19, "Distance", "waterlevel", "cm", 0.1);
 
   while (true)
   {
-    float cm = ultrasonic->getAverageDistance();
+    float cm = distance->getAverageDistance();
     sprintf(loggerMessage, "Distance:  %.1f", cm);
-    Logger.info("UltrasonicTest;app_main()", loggerMessage);
+    Logger.info("DistanceTest;app_main()", loggerMessage);
     vTaskDelay(5000 / portTICK_RATE_MS);
     SystemService.checkSystem();
   }

@@ -18,10 +18,10 @@
 
 #define MAX_DISTANCE 200
 
-class Ultrasonic : public IotSensor
+class Distance : public IotSensor
 {
 public:
-    Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold);
+    Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold);
     float readDistance();
 
     /**

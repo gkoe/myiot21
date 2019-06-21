@@ -20,7 +20,7 @@
 
 #include <PowerSwitch.h>
 #include <Contact.h>
-#include <ultrasonic.h>
+#include <Distance.h>
 
 extern "C"
 {
@@ -72,7 +72,7 @@ void app_main()
   //     new Contact(CONTACT_PIN, thingName, "watercontact", "", 0.2);
   // Thing.addSensor(waterEmptyContact);
   IotSensor *waterlevel =
-      new Ultrasonic(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, thingName, "waterlevel", "cm", 0.5);
+      new Distance(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN, thingName, "waterlevel", "cm", 0.5);
   Thing.addSensor(waterlevel);
   IotActor *powerLeft =
       new PowerSwitch(POWER_LEFT, false, thingName, "powerleft");

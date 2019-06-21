@@ -69,6 +69,7 @@ static void udp_server_task(void *pvParameters)
     char addr_str[128];
     int addr_family;
     int ip_protocol;
+    uint8_t lastChar = ' ';
 
     while (1)
     {
@@ -123,32 +124,36 @@ static void udp_server_task(void *pvParameters)
                 if (source_addr.sin6_family == PF_INET)
                 {
                     inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr.s_addr, addr_str, sizeof(addr_str) - 1);
+                    // sprintf(loggerMessage, "Sourceaddress of udp-packet: %s", addr_str);
+                    // Logger.info("EspUdp; udp_server_task()", loggerMessage);
                 }
                 else if (source_addr.sin6_family == PF_INET6)
                 {
                     inet6_ntoa_r(source_addr.sin6_addr, addr_str, sizeof(addr_str) - 1);
                 }
 
-                data[len] = 0;                      // Null-terminate whatever we received and treat like a string...
-                if (data[0] < '0' || data[0] > '5') // Verbose bis NoLog
-                {
-                    if (data[0] == 'x')
-                    {
-                        Logger.info("EspUdp;echo()", "OK");
-                    }
-                    else
-                    {
-                        sprintf(loggerMessage, "UdpLogger LogLevel %s is invalid", data);
-                        Logger.error("EspUdp; udp_server_task()", loggerMessage);
-                    }
-                }
-                else
+                data[len] = 0;                        // Null-terminate whatever we received and treat like a string...
+                if (data[0] >= '0' && data[0] <= '5') // Verbose bis NoLog
                 {
                     int logLevel = data[0] - '0';
                     LoggerTarget *loggerTarget = Logger.getLoggerTarget("ULT");
                     loggerTarget->setLogLevel(logLevel);
                     sprintf(loggerMessage, "Data: %s, UdpLogger LogLevel set to %i", data, logLevel);
                     Logger.info("EspUdp; udp_server_task()", loggerMessage);
+                }
+                else if ((data[0] >= 'A' && data[0] <= 'Z') || (data[0] >= 'a' && data[0] <= 'z'))
+                {
+                    if (data[0] != lastChar)
+                    {
+                        sprintf(loggerMessage, "acknowledged: %s to %s", data, addr_str);
+                        Logger.info("EspUdp;echo()", loggerMessage);
+                        lastChar = data[0];
+                    }
+                }
+                else
+                {
+                    sprintf(loggerMessage, "UdpLogger UdpMessage %s is invalid", data);
+                    Logger.error("EspUdp; udp_server_task()", loggerMessage);
                 }
             }
         }

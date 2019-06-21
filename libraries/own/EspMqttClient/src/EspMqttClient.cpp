@@ -258,12 +258,12 @@ bool EspMqttClientClass::publish(const char *topic, const char *payload)
     return false;
   }
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
-  Logger.info("EspMqttClient;publish", "Start");
+  Logger.debug("EspMqttClient;publish", "Start");
   // publish with retained-flag
   char totalTopic[LENGTH_TOPIC];
   sprintf(totalTopic, "%s/%s", _mainTopic, topic);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s to publish", totalTopic, payload);
-  Logger.info("EspMqttClient;vor publish()", loggerMessage);
+  Logger.debug("EspMqttClient;vor publish()", loggerMessage);
   int result = -1;
   result = esp_mqtt_client_publish(client, totalTopic, payload, 0, 0, 1);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s published, result: %d", totalTopic, payload, result);

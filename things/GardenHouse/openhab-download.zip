@@ -1,0 +1,1236 @@
+
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" ><![endif]-->
+<html class="no-js" lang="en">
+<head>
+
+    
+<!-- Google Tag Manager -->
+
+
+
+
+<script>
+    dataLayer = [{
+        userId: "anonymous",
+        ownerOrganizationTypes: [
+    
+],
+        currentlyOwnerOnTrial: false
+
+    }];
+    (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({
+            'gtm.start': new Date().getTime(), event: 'gtm.js'
+        });
+        var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src =
+            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-NJXXMQ');</script>
+<!-- End Google Tag Manager -->
+
+
+    <meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+<title>Package openhab-distro - openhab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="twitter:account_id" content="1465737514"/>
+<meta property="og:image" content="http://www.bintray.com/assets/bintray-logo.png"/>
+
+<link rel="shortcut icon" href="/assets/favicon.png"/>
+<script type="text/javascript" src="/assets/lib/jquery-1.11.1.min.js"></script>
+<script type="text/javascript"
+        src="/assets/lib/jquery-ui.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/bootstrap.min.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/handlebars.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/select2.min.js"></script>
+<script type="text/javascript" src="/assets/lib/datatables.min.js"></script>
+<script type="text/javascript" src="/assets/lib/widgeter.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/resident.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/flow.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/perfect-scrollbar.min.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/clipboard.min.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/filesize.min.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/moment.min.js?v=12616"></script>
+<script type="text/javascript"
+        src="/assets/lib/moment.time.js?v=12616"></script>
+<script type="text/javascript" src="/assets/lib/hammer.min.js"></script>
+<script type="text/javascript" src="/assets/lib/require.js?v=12616"></script>
+<script type="text/javascript" src="/assets/utils/StringUtils.js?v=12616"></script>
+<script>
+    requirejs.config({
+        baseUrl: '/assets/bintray-widgets/',
+        paths  : {
+            controllers: '../bintray-views',
+            core       : '../',
+            lib        : '../lib',
+            templates  : '../../assets',
+            css        : '../../stylesheets'
+        },
+	    urlArgs    : 'v=12616'
+    });
+</script>
+<link rel="stylesheet" type="text/css" href="/assets/lib/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/nv.d3.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/perfect-scrollbar.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/github_markdown/github_markdown.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/select2.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/select2-bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/dataTables/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/lib/dataTables/dataTables.fontAwesome.css"/>
+
+
+
+    
+    <meta name="layout" content="main">
+    
+    
+    
+    
+    
+
+    <meta name="description" content="">
+
+    <script type="text/javascript" src="/assets/core-122c1e86ac269c81cb1a45020012c998.js" ></script><link rel="stylesheet" href="/assets/bintray-387188e8aa5167ccd2132003dcaaa018.css"/>
+
+    <script>trayGeneral.testIfFrame();</script>
+
+    
+<script type="text/javascript">
+    function showhideUserAlertMessageBox(type, content, msgType) {
+        
+        trayAlert.deploy(content, type, '/assets//', "", msgType);
+    }
+
+    function buildUpgradePlanButton() {
+    	return
+        var element = $.parseHTML('');
+        return element.pop().data;
+    }
+
+    /* Display User Alerts */
+    jQuery(document).ready(function () {
+        
+        
+        
+        
+    })
+</script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            refreshTime();
+        });
+    </script>
+
+</head>
+
+<body data-rel="/">
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<section class="layout-loggedIn globalContainer">
+    <section class="main-content-wrapper">
+        
+
+
+
+
+
+
+
+
+
+
+    
+    
+
+
+
+<header class="bintray-header animatedBackground ">
+    <div class="container">
+        <nav class="navbar">
+            <div>
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <a class="navbar-brand"
+                       href="/">
+                        <img src="/assets/homepage-logos/bintray-logo-2c8440c4b7cc3d118552ded6815c3ce1.svg" />
+                    </a>
+                    <ul style="margin-top:16px;">
+
+                        <li class="pricing-button pull-right visible-xs">
+                            <a href="https://www.jfrog.com/confluence/display/BT/Bintray+REST+API" target="_blank">API</a>
+                        </li>
+
+                        <li class="visible-xs pricing-button pull-right">
+                            <a href="/account/pricing?tab=account&amp;type=pricing"><span>Pricing</span></a>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse">
+                    
+                        <form class="navbar-form navbar-left header-search" id="header-search-form"
+                              action="/search" method="get"
+                              data-widget="search" role="search">
+                            <div class="form-group search-container">
+
+                                <span class="search-multi"></span>
+
+                                <input type="search" class="search-box" name="query" id="search"
+                                       placeholder="Search Bintray" autocomplete="off"/>
+
+                                <div class="search-dropdown"></div>
+
+                                <button class="icon"><i class="glyph glyph-magnify search-caret"></i></button>
+                            </div>
+                        </form>
+                    
+                    <ul class="nav navbar-nav navbar-right user-area">
+
+                        
+                            
+                        
+
+                        
+                            
+                        
+
+
+
+
+
+
+                        
+                            
+
+                                <li class="pricing-button" >
+                                    <a href="https://www.jfrog.com/confluence/display/BT/Bintray+REST+API" target="_blank"><span style="padding: 0">API</span></a>
+                                </li>
+
+                                <li class="pricing-button" >
+                                    <a href="https://www.jfrog.com/confluence/display/BT/Welcome+to+JFrog+Bintray" target="_blank"><span style="padding: 0">User Guide</span></a>
+                                </li>
+
+                                <li class="pricing-button" bt-id="pricingButton">
+                                    <a href="/account/pricing?tab=account&amp;type=pricing"><span style="padding: 0">Pricing</span></a>
+                                </li>
+
+                            
+                        
+
+                        
+                            <li class="user-login-button">
+                                <a id="login-button"
+                                   href="/login?forwardedFrom=%2Fopenhab%2Fmvn%2Fopenhab-distro">
+                                    Sign In
+                                </a>
+                            </li>
+                        
+
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+    </div>
+</header>
+
+<div id="tlsSunsetNotificationContainer" style="display: none;">
+    <div class="" style="width: 100%;">
+        <div id="tlsSunsetNotification" >
+            <div class="flex-wrapper">
+                <div><span class="icon bell"></span></div>
+                <span class="">From June 24, 2018, all JFrog Cloud services will stop supporting the TLS 1.0 and 1.1 protocols which have been deprecated, but will continue to support TLS 1.2. For more details,  <a
+                    target="_blank"
+                    href="https://jfrog.com/knowledge-base/why-am-i-failing-to-work-with-jfrog-saas-service-with-tls-1-0-1-1/">click here</a>
+                | <a id="discardSunsetNotification">Hide</a>
+                </span>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        if (window.location.search ==='?create'){
+            flow.createFlow('intro')
+        }
+        var expiry = new Date(2018, 7, 25, 0, 0, 0, 0);
+        var today = new Date();
+        if (today < expiry) {
+            var isAuthenticated = false;
+            if (isAuthenticated) {
+                if (!localStorage.disableSunsetNotification) {
+                    $('#tlsSunsetNotificationContainer').show();
+                }
+            }
+            $("#discardSunsetNotification").click(function () {
+                localStorage.disableSunsetNotification = true;
+                $('#tlsSunsetNotificationContainer').hide();
+            });
+
+        }
+    });
+</script>
+
+
+
+
+
+        
+
+<div id="show-pkg" role="main">
+    
+        <div itemscope itemtype="http://data-vocabulary.org/Review-aggregate">
+            
+
+
+
+<div class="page-titlebar">
+
+    <div class="container">
+
+        <div class="row centered-flex-block">
+
+            
+            <div class="col-xs-9 col-lg-9 centered-flex-inline-block">
+                <div class="titlebar-avatar">
+                    
+                        <div class='avatar-icon avatar-small avatar-org avatar-icon-contain' data-tooltip='openHAB' style='height:50px; width:50px; display:block; background-image: url(https://bintray-binary-objects-or-production.s3-accelerate.amazonaws.com/a0eee6f13cae1ff902b32c4e5de7a439d82f2ba6f93187f9362a79e501053813);' ></div>
+                    
+                    
+                </div>
+
+                <div class="titlebar-details">
+                    <div class="titlebar-breadcrumbs">
+                        
+
+
+    <span class="crumb">
+        <a href="/openhab" title="openhab">openhab</a>
+    </span>
+    <span class="separator">&#47;</span>
+
+<span class="crumb">
+    <a href="/openhab/mvn" title="mvn">mvn</a>
+</span>
+
+    <span class="separator">&#47;</span>
+    <span class="crumb">
+        <a href="/openhab/mvn/openhab-distro" title="openhab-distro">openhab-distro</a>
+    </span>
+    
+
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="col-xs-3 col-lg-3">
+                <div class="pkg-downloadlink-box">
+                    <div>
+                        <span data-widget="copy"
+                              data-copy-target="#repo-dl-link-text">
+                            <span class="glyph glyph-copy"
+                                  data-toggle="tooltip"
+                                  data-placement="top"
+                                  title="Copy To Clipboard"></span>
+                        </span>
+                        <span>
+                            <data id="repo-dl-link-text" class="copylabel">
+                                
+                                <a target="_blank" href="https://dl.bintray.com/openhab/mvn">https://dl.bintray.com/openhab/mvn</a>
+                            </data>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <script>
+			window['created-repo'] = '/openhab/mvn'
+			jQuery(window).load(function () {
+				widgets.listen('github-auth-failed', function (data) {
+					trayAlert.deploy(data.error, 'error', '', '')
+				})
+			});
+        </script>
+
+        <div class="row hidden-xs">
+            <div class="col-lg-12">
+                
+                <div class="titlebar-menu">
+                    <ul>
+                        <li data-id="ownedBy_block" class="owned-by">
+                            Owned by
+                            <a href="/openhab" class="menutext user" title="openHAB Foundation e.V.">
+                                openHAB Found&hellip;
+                            </a>
+                        </li>
+
+                    
+                        
+                            <li class="rating-box" id="rating_box">
+
+
+
+
+
+    <span itemprop="rating" itemscope itemtype="http://data-vocabulary.org/Rating">
+        <div itemprop="average" content="5.0"></div>
+    </span>
+
+
+    <script>
+        
+
+        
+    </script>
+
+
+<div class="ratingDisplay">
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_1" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_2" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_3" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_4" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_5" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+        <div class="tdRating">
+            
+                <div class="ratingsPageHeadLabel">
+                    
+                        (<span itemprop="votes">2</span>)
+                    
+                </div>
+            
+        </div>
+</div></li>
+                        
+
+                    
+                        
+                            
+                        
+
+                    
+                        
+
+
+                    
+                        
+
+                    
+                        
+
+
+                    
+                        
+
+
+
+
+                    
+                        
+                            
+                                
+                                    
+                                        
+                                            
+                                                <li id="report_block">
+                                                    
+                                                    <a onclick="void(0); loginToBintray('/openhab/mvn/openhab-distro')">
+                                                        <div class="text"><span
+                                                                class="glyph glyph-exclaim"></span> Report
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            
+                                        
+                                    
+                                
+                            
+                        
+
+
+                    
+                        
+
+                        
+                            
+                        
+
+
+                    
+                        <li>
+                            <div id="repoTypeIcon" class="float-right MAVEN"></div>
+                        </li>
+                    </ul>
+
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="page-head-mobile-menu visible-xs">
+
+            <div class="row">
+                <div class="col-xs-8">
+                    <div data-id="ownedBy_block" class="owned-by">
+                        Owned by
+                        <a href="/openhab" class="menutext user" title="openHAB Foundation e.V.">
+                            openHAB Found&hellip;
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-xs-4">
+                    
+                    <div id="repoTypeIcon" class="MAVEN mobile"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    
+                        <div class="rating-box" id="rating_box">
+
+
+
+
+
+    <span itemprop="rating" itemscope itemtype="http://data-vocabulary.org/Rating">
+        <div itemprop="average" content="5.0"></div>
+    </span>
+
+
+    <script>
+        
+
+        
+    </script>
+
+
+<div class="ratingDisplay">
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_1" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_2" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_3" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_4" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+            <div>
+                
+                    
+                    
+                
+                
+                    
+                        
+                        <div title="Must be logged-in in order to rate">
+                            <div id="star_score_5" class="star star on">
+                                <span style="width:100%;"/>
+                            </div>
+                        </div>
+                    
+                
+            </div>
+        
+        <div class="tdRating">
+            
+                <div class="ratingsPageHeadLabel">
+                    
+                        (<span itemprop="votes">2</span>)
+                    
+                </div>
+            
+        </div>
+</div></div>
+                    
+                </div>
+            </div>
+
+            <div id="mobile-actions">
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" class="pkg-navbar navbar-toggle collapsed" data-toggle="collapse"
+                                data-target="#pagehead-tabs-collapse" aria-expanded="false">
+                            Actions&nbsp;&nbsp;&nbsp;<span class="glyph glyph-wrench"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="collapse navbar-collapse" id="pagehead-tabs-collapse">
+
+                        
+                            
+                                
+                            
+
+                        
+                            
+
+
+                        
+                            
+
+                        
+                            
+
+
+                        
+                            
+
+
+
+
+                        
+                        
+                        
+                        
+                        
+                        
+
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+
+
+                        
+                            
+
+                            
+                                
+                            
+                        </div>
+                    </div>
+                </div>
+                <script>
+					if (!$('#pagehead-tabs-collapse').children().length) {
+						$('#mobile-actions').remove();
+					}
+                </script>
+            </div>
+
+        </div>
+    
+        
+
+        
+            <a href="/package/buildSettings?pkgPath=%2Fopenhab%2Fmvn%2Fopenhab-distro" class="setMeUpBuildTool hidden-xs" data-contain="true" data-preload="true" data-widget="lightbox" data-container="build-settings-lightbox" onclick="return false"><span class="glyph glyph-wrench"></span> Set Me Up!</a>
+        
+
+    
+        <div id="block-avatar-description">
+
+            <div class="thumb-box align-top">
+                <div class="thumb">
+                    
+                        <div class='avatar-icon avatar-large description-icon ' style='height:90px; width:90px; background-image: url(/assets/default/package-9972d5623a97c0acfaaa50837c0bf30f.png);' data-tooltip="openhab-distro"></div>
+                    
+                </div>
+
+                <div class="text">
+                    
+                    
+                        
+
+                        
+
+                        
+
+                            
+
+
+                            
+                            
+                                
+                                    <div class="placeholder-full">
+                                        <div class="text">This package has no description yet.</div>
+                                    </div>
+                                
+                            
+
+                        
+                    
+                    <ul class="description-tags">
+                        
+                            
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        
+
+
+        <div class="unlinkPackageModal-container unlinkPackageModal-container">
+    
+    <form action="/package/unlink" method="post" name="unlinkPackageToRepoForm" id="unlinkPackageToRepoForm" >
+        <input type="hidden" name="filterByUnLinkedRepo" value="" id="filterByUnLinkedRepo" />
+        <input type="hidden" name="pkgPath" value="/openhab/mvn/openhab-distro" id="pkgPath" />
+        <input type="submit" name="unlinkPackageToRepoSubmit" style="display:none" value="unlinkPackageToRepoSubmit" id="unlinkPackageToRepoSubmit" />
+    <input id='sessionGWSNGC' type='hidden' value='1S0TJul1uEYzFxt13a0aojqgSg2TFNiL2V1V5wF1' name='sessionGWSNGC'><input id='AUTH_KEY_SUBMIT_REQUEST' name='AUTH_KEY_SUBMIT_REQUEST' type='hidden' value='sessionGWSNGC'></form>
+    <div class="unlinkPackageModal unlinkPackageModal">
+        <div class="title" style="text-align: left">Unlink this package from one of my repositories</div>
+        
+
+    
+    
+    
+    
+
+
+
+<input type="text" autocomplete="off" name="filterInputTargetRepo" id="filterInputTargetRepo"
+       placeholder="Repo name"
+       onkeyup="pickList.runSearch(event, '/repo/userLinkedReposAsJson', {
+           query   : jQuery(this).val(),
+           repoPath: '/openhab/mvn/openhab-distro'
+       }, this, 'repos');">
+
+<input type="text" id="userSelectedRepoPathForSearchFilter" class="userSelectedRepo">
+
+<div id="clear-UserSelectedRepoPathForSearchFilter" class="userSelectedRepo"
+     onclick="globalSearch.resetRepoFilterSearch();"></div>
+
+
+<div class="list-loading" style="display: none">
+    <span class="glyph glyph-hourglass spinning"></span>
+</div>
+
+<div class="resultTemplate" style="display:none;">
+    <div class="entry-row">
+        <div class="thumb">
+            <div class="avatar"></div>
+        </div>
+
+        <div class="text">
+            <div class="name" onclick=""></div>
+        </div>
+
+        <div class="actions">
+            <span onclick="unlinkPackage.toRepo(this)" class="glyph glyph-accept"></span>
+        </div>
+    </div>
+</div>
+
+
+<ul class="Results">
+</ul>
+    </div>
+</div>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+		jQuery(".notAuuthed-pageReTrack").click(function (event) {
+			document.cookie = "originalActionURI=;expires=Thu, 01-Jan-70 00:00:01 GMT;path=/";
+			
+			var pageReTrackPath = window.location.pathname;
+			originalActionURIExpiry = new Date();
+			originalActionURIExpiry.setTime(originalActionURIExpiry.getTime() + (15 * 60 * 1000)); // Fifteen minutes
+			document.cookie = "originalActionURI=" + pageReTrackPath + ";path=/;expires=" + originalActionURIExpiry.toGMTString();
+		})
+
+    </script>
+
+
+<script>
+	$(function () {
+		$('[data-toggle="tooltip"]').tooltip()
+	})
+</script>
+
+        </div>
+    
+
+    <div id="renderPkgPage">
+        
+            
+
+    
+    <div class="container">
+        <button type="button" class="pkg-navbar navbar-toggle collapsed" data-toggle="collapse" data-target="#pkg-tabs-collapse" aria-expanded="false">
+            Choose view&nbsp;&nbsp;&nbsp;<span class="glyph glyph-caret-down"></span>
+        </button>
+        <div class="collapse navbar-collapse layout-tabs" id="pkg-tabs-collapse">
+            <a href="/package/info/openhab/mvn/openhab-distro"> <div class='viewselector general viewIsSelected'> <div class='text'>General </div></div></a><a href="/package/readme/openhab/mvn/openhab-distro"> <div class='viewselector read' data-tabkey='read'> <div class='text'>Readme</div></div></a><a href="/package/release/openhab/mvn/openhab-distro"> <div class='viewselector release' data-tabkey='release'> <div class='text'>Release Notes</div></div></a><a href="/package/reviews/openhab/mvn/openhab-distro"> <div class='viewselector reviews' data-tabkey='reviews'> <div class='text'>Reviews (0)</div></div></a><a href="/package/statistics/openhab/mvn/openhab-distro"> <div class='viewselector statistics' data-tabkey='statistics'> <div class='text'>Statistics</div></div></a><a href="/package/files/openhab/mvn/openhab-distro"> <div class='viewselector files' data-tabkey='files'> <div class='text'>Files</div></div></a>
+            <div class="loading float-right" style="display: none;"><span class="glyph glyph-hourglass spinning"></span></div>
+        </div>
+    </div>
+
+<div id="main-content" class="container minBodySize">
+    
+        <div id="render_here"></div>
+        <script>
+            jQuery.ajax({type:'POST',data:{'pkgPath': '\u002fopenhab\u002fmvn\u002fopenhab-distro'}, url:'/package/generalTab',success:function(data,textStatus){jQuery('#render_here').html(data);},error:function(XMLHttpRequest,textStatus,errorThrown){}});
+        </script>
+    
+</div>
+        
+    </div>
+
+    <script>
+		var mcBubbleTimeout;
+		var mcBubble = jQuery(".helpbubble.mavencentral");
+
+		jQuery(".viewselector.central").hover(function () {
+			clearTimeout(mcBubbleTimeout);
+			var t = jQuery(".viewselector.central").offset();
+			var h = jQuery(".helpbubble").height();
+			mcBubble.css("visibility", "hidden").css("display", "block").offset(
+				{left: t.left - 60, top: t.top - h - 20}).css("visibility", "visible");
+		}, function () {
+			clearTimeout(mcBubbleTimeout);
+			mcBubbleTimeout = setTimeout(function () {
+				closeMcBubble();
+			}, 1000);
+		})
+
+		jQuery(".helpbubble.mavencentral").hover(function () {
+			clearTimeout(mcBubbleTimeout);
+		}, function () {
+			mcBubbleTimeout = setTimeout(function () {
+				closeMcBubble();
+			}, 1000);
+		})
+
+		function closeMcBubble() {
+			mcBubble.css("display", "none");
+		}
+
+
+    </script>
+    <script>
+		// package page button
+		(function () {
+			if ($('.new-look-button').length > 0) {
+				return;
+			}
+			$(".nav.navbar-nav.navbar-right.user-area").prepend(
+				'<li class="new-look-button-wrapper"> <a href="" class=""> <div class="new-look-button"> <span>Go to New Look</span> </div> </a> </li>');
+
+			function redirectToNewUI(data) {
+				console.log("success" + data.toString());
+				window.location.href = data.redirectUrl;
+			};
+			$('.new-look-button')
+				.click(function (e) {
+
+					e.preventDefault();
+					e.stopPropagation();
+					sendToggle();
+				});
+
+			function sendToggle() {
+				jQuery.ajax({
+					type: 'POST',
+					data: {
+						'enableNewUi': 'true',
+						'pkg': 'openhab-distro',
+						'repo': 'mvn',
+						'username': 'openHAB',
+						'viewAction': 'show'
+					},
+					url: '/package/openHAB/mvn/openhab-distro/toggleNewUiButton',
+					success: function (data, textStatus) {
+						redirectToNewUI(data);
+					},
+					error: function (XMLHttpRequest, textStatus, errorThrown) {
+					}
+				})
+			};
+		})();
+    </script>
+
+
+    </section>
+    
+
+<footer class="footer">
+    <div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3 hidden-xs">
+                    <a href="http://www.jfrog.com">
+                        <div class="logo-green"></div>
+                    </a>
+
+                    <div class="linebreak"></div>
+                </div>
+
+                <div class="col-sm-6 col-xs-6">
+                    <div class="row bottom-links">
+                        <div class="col-xs-10 col-xs-offset-1">
+                            <div class="row">
+                                
+                                    
+                                    
+                                       
+                                       
+                                       
+                                        
+                                    
+                                
+                                <ul class="col-sm-6">
+                                    <a href="https://jfrog.com/bintray/bintray-terms-of-service/ " target="_blank"><li>Terms of Service</li></a>
+                                    <a href="https://www.jfrog.com/privacy-policy/" target="_blank"><li>Privacy Policy</li></a>
+                                    <a href="/docs/security.html" target="_blank"><li>Security</li></a>
+                                </ul>
+                                <ul class="col-sm-6">
+                                    <a href="https://bintray.com/docs/usermanual/" target="_blank"><li>User Guide</li></a>
+                                    <a href="https://www.jfrog.com/confluence/display/BT/Bintray+REST+API" target="_blank"><li>REST API</li></a>
+                                    <a href="http://status.bintray.com/" target="_blank"><li>Status</li></a>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-3 columns col-xs-6 text-right">
+                    <div class="left-linebreak hidden-xs"></div>
+                    <a href="https://github.com/bintray" class="socialmedialogos githubcirclelogo"></a>
+                    <a href="https://twitter.com/bintray" target="_blank" rel="nofollow"
+                       class="socialmedialogos twittercirclelogo"></a>
+                    <a href="https://plus.google.com/+Bintray-distribution-platform/posts"
+                       class="socialmedialogos googlepluscirclelogo"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyrightBar">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 columns">
+                    <span>JFrog Bintray</span>        |
+                    <span>&copy; 2019 Bintray All rights reserved</span>
+
+                    <div id='trademark'>
+                        <div>Apache Maven and Maven are trademarks of the Apache Software Foundation. RPM is a trademark of Red Hat, Inc. Debian is a registered trademark of Software in the Public Interest, Inc.
+                        Docker and Docker logo are trademarks or registered trademarks of Docker, Inc. in the United States and/or other countries. Docker, Inc. and other parties may also have trademark rights in other terms used herein.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</footer>
+
+
+<span id="feedbackScript" class="hidden-xs">
+    <!-- Button trigger modal -->
+    <a id="sales_force_feedback"
+        
+            data-toggle="modal"
+            data-target="#salesForceFeedbackModal"
+        
+       class="sales-force-feedback">
+        Feedback
+    </a>
+
+    
+<!-- Modal -->
+<div class="modal fade" id="salesForceFeedbackModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="salesForceFeedbackModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border-radius: 10px;">
+            <div class="modal-body no-padding">
+                <div class="modal-close-btn" onclick="$('#salesForceFeedbackModal').modal('hide');"
+                     style="top: 0; left: inherit; right: 1%; color: black">
+                    <i class="hidden-xs fa fa-times" aria-hidden="true"></i>
+                </div>
+                
+                <iframe id="salesForceFeedbackIframe"
+                        seamless
+                        src="https://jfrog-support.secure.force.com/communityfeedbackPopup">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        if (window.addEventListener) {
+            // For standards-compliant web browsers
+            window.addEventListener("message", receiveIframeMessageFromFeedbackModal, false);
+        } else {
+            window.attachEvent("onmessage", receiveIframeMessageFromFeedbackModal);
+        }
+
+        function receiveIframeMessageFromFeedbackModal(event) {
+            var origin = event.origin || event.originalEvent.origin;
+
+            if (origin !== "https://jfrog-support.secure.force.com") return;
+
+            var eventData = event.data;
+            var iframe = $("#salesForceFeedbackIframe");
+            if (eventData.status) {
+                $('#salesForceFeedbackModal').modal('hide');
+                showhideUserAlertMessageBox('notice', 'Thank you for your request.<br/> We will respond as soon as possible.');
+
+
+            } else if (eventData.scrollHeight) {
+                var scrollHeight = eventData.scrollHeight;
+                if (scrollHeight > iframe.css('height')) {
+                    iframe.css('height', scrollHeight);
+                }
+            }
+        }
+
+        $('#salesForceFeedbackModal').on('hidden.bs.modal', function () {
+            var iframe = $('#salesForceFeedbackIframe');
+            iframe.attr('src', $('#salesForceFeedbackIframe').attr('src'));
+        })
+    })
+</script>
+
+</span>
+
+</section>
+
+<script>
+    $(function () {
+        trayGeneral.initialize();
+        traySubMenu.initialize();
+    });
+</script>
+
+<div id="nommer" data-widget="konamitron3" data-howmany="over9000" style="display: none;"></div>
+
+<span class="bintray-marketing">
+    
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        var google_conversion_id = 986515061;var google_conversion_label = "cFYLCKu8zQQQ9Yy01gM";var google_custom_params = window.google_tag_params;var google_remarketing_only = true;
+        /* ]]> */
+    </script>
+    <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script>
+    <noscript><div style="display:inline;"><img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/986515061/?value=0&amp;label=cFYLCKu8zQQQ9Yy01gM&amp;guid=ON&amp;script=0"/></div></noscript>
+
+    
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        var google_conversion_id = 982905749; var google_conversion_label = "ILq8CJv44wQQlefX1AM";  var google_custom_params = window.google_tag_params; var google_remarketing_only = true;
+        /* ]]> */
+    </script>
+    <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script>
+    <noscript><div style="display:inline;"><img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/982905749/?value=0&amp;label=ILq8CJv44wQQlefX1AM&amp;guid=ON&amp;script=0"/></div></noscript>
+</span>
+</body>
+</html>

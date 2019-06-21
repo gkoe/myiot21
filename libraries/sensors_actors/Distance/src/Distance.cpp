@@ -7,7 +7,7 @@
  * Copyright (C) 2016, 2018 Ruslan V. Uss <unclerus@gmail.com>
  * BSD Licensed as described in the file LICENSE
  */
-#include "ultrasonic.h"
+#include "Distance.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <sys/time.h>
@@ -41,16 +41,16 @@ static inline uint32_t get_time_us()
 
 void measureDistanceInLoopTask(void *pvParameter)
 {
-    Ultrasonic *ultrasonicPtr = (Ultrasonic *)pvParameter;
+    Distance *distancePtr = (Distance *)pvParameter;
     uint32_t distance;
     esp_err_t errorCode;
 
     while (1)
     {
-        errorCode = ultrasonicPtr->measureDistance(&distance);
+        errorCode = distancePtr->measureDistance(&distance);
         if (errorCode == ESP_OK)
         {
-            ultrasonicPtr->setNextDistance(distance);
+            distancePtr->setNextDistance(distance);
             // printf("Distance measured: %d\n", distance);
         }
         else
@@ -77,7 +77,7 @@ void measureDistanceInLoopTask(void *pvParameter)
     }
 }
 
-Ultrasonic::Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold)
+Distance::Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold)
     : IotSensor(thingName, name, unit, threshold)
 {
     gpio_set_direction(triggerPin, GPIO_MODE_OUTPUT);
@@ -98,7 +98,7 @@ Ultrasonic::Ultrasonic(gpio_num_t triggerPin, gpio_num_t echoPin, const char *th
     );
 }
 
-void Ultrasonic::setNextDistance(uint32_t distance)
+void Distance::setNextDistance(uint32_t distance)
 {
     _lastDistances[_actIndex] = distance;
     _actIndex++;
@@ -113,7 +113,7 @@ void Ultrasonic::setNextDistance(uint32_t distance)
     // taskEXIT_CRITICAL(&myMutex);
 }
 
-esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
+esp_err_t Distance::measureDistance(uint32_t *distance)
 {
 
     // portENTER_CRITICAL(&mux);
@@ -157,7 +157,7 @@ esp_err_t Ultrasonic::measureDistance(uint32_t *distance)
     return ESP_OK;
 }
 
-float Ultrasonic::getAverageDistance()
+float Distance::getAverageDistance()
 {
     int minValue = 1000;
     int maxValue = 0;
@@ -189,7 +189,7 @@ float Ultrasonic::getAverageDistance()
 /**
   measure() gets the measurment and set it.
 */
-void Ultrasonic::measure()
+void Distance::measure()
 {
     setMeasurement(_actDistance);
 }

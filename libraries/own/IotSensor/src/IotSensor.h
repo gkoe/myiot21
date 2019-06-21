@@ -20,7 +20,7 @@ class IotSensor
 		der Einheit des Messwertes und der Schwelle, ab der eine Änderung des 
 		Messwertes gemeldet wird.
 	*/
-	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall = 900);
+	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall = 900, float minValue = 0.0, float maxValue = 9999.9);
 
 	/*
 		Liefert den letzten gemessenen Messwert. Dieser muss nicht mit dem 
@@ -50,6 +50,8 @@ class IotSensor
 
 	virtual void getMqttPayload(char* payload, float measurement);  //! wozu der char* als Rückgabetyp
 
+	/// statische Hilfsmethoden
+
 	static bool getPinState(gpio_num_t pin);
 
   protected:
@@ -60,6 +62,8 @@ class IotSensor
 	char _unit[LENGTH_SHORT_TEXT];
 	float _threshold;
 	int _maxIntervall;
+	float _minValue;
+	float _maxValue;
 	float _publishedMeasurement=0.0;		// letzter übertragener Wert
 	float _lastMeasurement=0.0; // letzter gemessener Wert
 	long _time;
