@@ -270,6 +270,7 @@ void scanMiFlorasTask(void *voidPtr)
     if (miFloras->size() == 0)
     {
         MiFlora.closeBleConnection();
+        vTaskDelete(NULL);
         return;
     }
     int miFloraIndex = EspConfig.getNvsIntValue("mifloraindex");
@@ -290,6 +291,7 @@ void scanMiFlorasTask(void *voidPtr)
     if (it == miFloras->end())
     {
         MiFlora.closeBleConnection();
+        vTaskDelete(NULL);
         return;
     }
     miflora_t *miFlora = *it;

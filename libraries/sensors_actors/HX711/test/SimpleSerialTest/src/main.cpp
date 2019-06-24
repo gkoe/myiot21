@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <ultrasonic.h>
 
 #include <EspConfig.h>
 #include "Logger.h"
@@ -18,8 +17,8 @@
 const char *SERIAL_LOGGER_TAG = "SLT";
 
 // HX711 circuit wiring
-const int LOADCELL_DOUT_PIN = 23;
-const int LOADCELL_SCK_PIN = 22;
+const gpio_num_t LOADCELL_DOUT_PIN = GPIO_NUM_23;
+const gpio_num_t LOADCELL_SCK_PIN = GPIO_NUM_22;
 
 // 2. Adjustment settings
 const long LOADCELL_OFFSET = 50682624;
@@ -46,14 +45,13 @@ void app_main()
   SystemService.init();
   Logger.info("HX711Test;app_main()", "Initialize HX711!");
 
-  HX711 *hx711 = new HX711(TRIGGER_GPIO, GPIO_NUM_19, "Ultrasonic", "waterlevel", "cm", 0.1);
-  hx711->begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  HX711 *hx711 = new HX711(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, "HX711", "weight", "g", 0.1);
 
   while (true)
   {
-    float cm = ultrasonic->getAverageDistance();
-    sprintf(loggerMessage, "Distance:  %.1f", cm);
-    Logger.info("UltrasonicTest;app_main()", loggerMessage);
+    float weight = hx711->getLastMeasurement();
+    sprintf(loggerMessage, "Weight:  %.1f", weight);
+    Logger.info("HX711Test;app_main()", loggerMessage);
     vTaskDelay(5000 / portTICK_RATE_MS);
     SystemService.checkSystem();
   }
