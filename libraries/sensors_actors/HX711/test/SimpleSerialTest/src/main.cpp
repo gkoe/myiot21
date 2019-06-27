@@ -45,10 +45,11 @@ void app_main()
   SystemService.init();
   Logger.info("HX711Test;app_main()", "Initialize HX711!");
 
-  HX711 *hx711 = new HX711(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, "HX711", "weight", "g", 0.1);
+  HX711 *hx711 = new HX711(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, "HX711", "weight", "g", 100);
 
   while (true)
   {
+    hx711->measure();
     float weight = hx711->getLastMeasurement();
     sprintf(loggerMessage, "Weight:  %.1f", weight);
     Logger.info("HX711Test;app_main()", loggerMessage);
