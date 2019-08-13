@@ -97,6 +97,11 @@ char *IotSensor::getName()
 	return _name;
 }
 
+char *IotSensor::getUnit()
+{
+	return _unit;
+}
+
 void IotSensor::getMqttPayload(char *payload, float measurement)
 {
 	sprintf(payload, "{\"timestamp\":%ld,\"value\":%.2f}", EspTime.getTime(), measurement);

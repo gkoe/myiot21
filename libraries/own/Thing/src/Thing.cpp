@@ -5,7 +5,7 @@
 #include <Logger.h>
 
 // /**
-//  * Aktorwert kann per Get-Request gesetzt werden. 
+//  * Aktorwert kann per Get-Request gesetzt werden.
 //  * Implementiert von Ferdinand Hell (Htl Wels)
 //  */
 // void handleSetActorRequest()
@@ -68,12 +68,66 @@
 // 			HttpServer.send(200, "text/html", response); //Returns the HTTP response
 // 		}
 // 	}
-// 	else 
+// 	else
 // 	{
 // 		HttpServer.send(200, "text/html", "Parametername sensor fehlt"); //Returns the HTTP response
 // 	}
 // }
 
+/**
+ * eigene http-Route zum Abfragen eines Sensorwertes  /getsensor?temperature
+ */
+static esp_err_t getSensorRequestHandler(httpd_req_t *req)
+{
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	char sensorName[LENGTH_MIDDLE_TEXT];
+	esp_err_t err;
+	int queryLength = httpd_req_get_url_query_len(req) + 1;
+	if (queryLength > 0)
+	{
+		err = httpd_req_get_url_query_str(req, sensorName, queryLength);
+		if (err == ESP_OK)
+		{
+			if (sensorName != NULL)
+			{
+				IotSensor *sensor = Thing.getSensorByName(sensorName);
+				char response[LENGTH_MIDDLE_TEXT];
+				if (sensor == NULL)
+				{
+					sprintf(response, "Sensor %s not found!", sensorName);
+					httpd_resp_send(req, response, strlen(response));
+				}
+				else
+				{
+					float measurement = sensor->getLastMeasurement();
+					sprintf(response, "Sensor's %s value %.2f %s", sensorName, measurement, sensor->getUnit());
+					sprintf(loggerMessage, "Response: %s", response);
+					Logger.info("Thing,getSensorRequestHandler()", loggerMessage);
+					httpd_resp_send(req, response, strlen(response));
+				}
+			}
+		}
+		else
+		{
+			sprintf(loggerMessage, "httpd_req_get_url_query_str() ERROR: %d", err);
+			Logger.error("Thing, getSensorRequestHandler()", loggerMessage);
+			httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
+		}
+	}
+	else
+	{
+		sprintf(loggerMessage, "NO QUERYSTRING");
+		Logger.info("Thing, getSensorRequestHandler(), QueryString:", "NO QUERYSTRING");
+		httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
+	}
+	return ESP_OK;
+}
+
+static const httpd_uri_t getsensorrequest = {
+	.uri = "/getsensor",
+	.method = HTTP_GET,
+	.handler = getSensorRequestHandler,
+	.user_ctx = nullptr};
 
 /*
  * Thing wird initialisiert und Routen zum Lesen von Sensorwerten, bzw. Setzen
@@ -85,9 +139,9 @@ void ThingClass::init()
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sprintf(loggerMessage, "Thing init with name: %s", EspConfig.getThingName());
 	Logger.info("ThingClass Init", loggerMessage);
+	HttpServer.addRoute(&getsensorrequest);
 	// HttpServer.on("/setactor", handleSetActorRequest);
 	// HttpServer.on("/getsensor", handleGetSensorRequest);
-
 }
 
 void ThingClass::addSensor(IotSensor *sensorPtr)
@@ -151,7 +205,8 @@ IotSensor *ThingClass::getSensorByName(char *name)
 	return nullptr;
 }
 
-void ThingClass::getAllSensorName(char* names){
+void ThingClass::getAllSensorName(char *names)
+{
 	bool x = false;
 	for (std::list<IotSensor *>::iterator it = _sensors.begin(); it != _sensors.end(); ++it)
 	{
@@ -160,15 +215,18 @@ void ThingClass::getAllSensorName(char* names){
 		strcat(names, sensorPtr->getName());
 		strcat(names, ";");
 	}
-	if(x){
+	if (x)
+	{
 		Logger.info("Thing Get Sensor Name", names);
-	} else {
+	}
+	else
+	{
 		Logger.info("Thing Get Sensor Name", "No Sensors");
 	}
-
 }
 
-void ThingClass::getAllActorName(char* names){
+void ThingClass::getAllActorName(char *names)
+{
 	bool x = false;
 	for (std::list<IotActor *>::iterator it = _actors.begin(); it != _actors.end(); ++it)
 	{
@@ -177,9 +235,12 @@ void ThingClass::getAllActorName(char* names){
 		strcat(names, actorPtr->getName());
 		strcat(names, ";");
 	}
-	if(x) {
+	if (x)
+	{
 		Logger.info("Thing Get Actor Name", names);
-	} else {
+	}
+	else
+	{
 		Logger.info("Thing Get Actor Name", "No Actor");
 	}
 }

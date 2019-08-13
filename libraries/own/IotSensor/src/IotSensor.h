@@ -41,6 +41,8 @@ class IotSensor
 	*/
 	char *getName();
 
+	char *getUnit();
+
 	/*
 		Abstrakte Messmethode muss vom konkreten Sensor überschrieben (implementiert)
 		werden.

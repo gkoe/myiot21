@@ -8,12 +8,13 @@
 #include <Logger.h>
 #include <string.h>
 #include <EspUdp.h>
+#include <EspConfig.h>
 
 /**
  * Ermittelt aus der aktuellen IP-Adresse die Broadcastadresse, die im letzten Byte
  * FF enthält.
  */
-void getBroadcastIp(ip4_addr_t* broadcastIpPtr)
+void getBroadcastIp(ip4_addr_t *broadcastIpPtr)
 {
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	tcpip_adapter_ip_info_t ipInfo;
@@ -28,13 +29,17 @@ void getBroadcastIp(ip4_addr_t* broadcastIpPtr)
 	Logger.info("Udplogger Broadcast IP", loggerMessage);
 }
 
-UdpLoggerTarget::UdpLoggerTarget(const char *name, int logLevel )
+UdpLoggerTarget::UdpLoggerTarget(const char *name, int logLevel)
 	: LoggerTarget(name, logLevel)
 {
 	strcpy(_name, name);
-	ip4_addr_t broadcastIp;
-	getBroadcastIp(&broadcastIp);
-	strcpy(_ipAddress, ip4addr_ntoa(&broadcastIp));
+	EspConfig.getNvsStringValue("loggerip", _ipAddress);
+	if (strlen(_ipAddress) <= 0)
+	{
+		ip4_addr_t broadcastIp;
+		getBroadcastIp(&broadcastIp);
+		strcpy(_ipAddress, ip4addr_ntoa(&broadcastIp));
+	}
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sprintf(loggerMessage, "Udp-TargetAddress: %s, Port: %d created", _ipAddress, _port);
 	Logger.info("Udplogger Constructor", loggerMessage);
@@ -48,7 +53,7 @@ void UdpLoggerTarget::log(const char *logLevelText, const char *tag, const char 
 	long time = EspTime.getTime();
 	// Serial.printf("*ULT Thingname: %s\n", Logger.getThingName());
 	sprintf(logMessage, "%ld;%ld;%s;%s;%s;%s", time, _id, EspConfig.getThingName(), logLevelText, tag, message);
-	
+
 	if (!EspUdp.sendUdpMessage(_ipAddress, _port, logMessage))
 	{
 		printf("!!!! ULT, Error in endPacket()!");
