@@ -14,13 +14,16 @@
 */
 class IotSensor
 {
+
+	const int MAX_INTERVALL = 900;
+
   public:
 	/*
 		Sensor wird mit seinem Namen, einer innerhalb des Things eindeutigen id,
 		der Einheit des Messwertes und der Schwelle, ab der eine Änderung des 
 		Messwertes gemeldet wird.
 	*/
-	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall = 900, float minValue = 0.0, float maxValue = 9999.9);
+	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, float minValue = -9999.9, float maxValue = 9999.9);
 
 	/*
 		Liefert den letzten gemessenen Messwert. Dieser muss nicht mit dem 
@@ -42,6 +45,8 @@ class IotSensor
 	char *getName();
 
 	char *getUnit();
+
+	void setMaxIntervall(int intervall);
 
 	/*
 		Abstrakte Messmethode muss vom konkreten Sensor überschrieben (implementiert)

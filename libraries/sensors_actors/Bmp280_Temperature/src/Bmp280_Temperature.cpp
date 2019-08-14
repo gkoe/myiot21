@@ -1,8 +1,8 @@
 #include "Bmp280_Temperature.h"
 #include <Logger.h>
 
-Bmp280_Temperature::Bmp280_Temperature(Bmp280Sensor* bmp, const char* thingName, const char* name,const char* unit, float threshold) 
-		:IotSensor( thingName, name, unit, threshold)
+Bmp280_Temperature::Bmp280_Temperature(Bmp280Sensor* bmp, const char* thingName, const char* name,const char* unit, float threshold, float minValue, float maxValue) 
+		:IotSensor( thingName, name, unit, threshold, minValue, maxValue)
 {
 	_bmp = bmp;
 }

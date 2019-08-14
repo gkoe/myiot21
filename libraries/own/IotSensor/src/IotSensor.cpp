@@ -8,13 +8,13 @@
 #include <string.h>
 #include <Logger.h>
 
-IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, float threshold, int maxIntervall, float minValue, float maxValue)
+IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, float threshold, float minValue, float maxValue)
 {
 	strcpy(_thingName, thingName);
 	strcpy(_name, name);
 	strcpy(_unit, unit);
 	_threshold = threshold;
-	_maxIntervall = maxIntervall;
+	_maxIntervall = MAX_INTERVALL;
 	_minValue = minValue;
 	_maxValue = maxValue;
 	_publishedMeasurement = 0;
@@ -23,6 +23,10 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sprintf(loggerMessage, "Sensor initialized: %s", name);
 	Logger.info("Sensor;Constructor", loggerMessage);
+}
+
+void IotSensor::setMaxIntervall(int intervall){
+	_maxIntervall = intervall;
 }
 
 /**

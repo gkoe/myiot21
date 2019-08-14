@@ -61,13 +61,13 @@ void app_main()
   // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
   Bmp280Sensor *sensorPtr = new Bmp280Sensor(SDA_GPIO, SCL_GPIO);
   IotSensor *temperatureSensorPtr =
-      new Bmp280_Temperature(sensorPtr, thingName, "temperature", "Grad", 0.2);
+      new Bmp280_Temperature(sensorPtr, thingName, "temperature", "Grad", 0.2, 9.9, 49.9);
   Thing.addSensor(temperatureSensorPtr);
   IotSensor *humiditySensorPtr =
-      new Bmp280_Humidity(sensorPtr, thingName, "humidity", "%", 0.5);
+      new Bmp280_Humidity(sensorPtr, thingName, "humidity", "%", 0.5, 0.0, 100.0);
   Thing.addSensor(humiditySensorPtr);
   IotSensor *pressureSensorPtr =
-      new Bmp280_Pressure(sensorPtr, thingName, "pressure", "hPa", 0.5);
+      new Bmp280_Pressure(sensorPtr, thingName, "pressure", "hPa", 0.5, 800.0, 1100.0);
   Thing.addSensor(pressureSensorPtr);
   //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
 
