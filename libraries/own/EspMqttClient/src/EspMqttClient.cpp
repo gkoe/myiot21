@@ -5,6 +5,28 @@
 #include <HttpServer.h>
 // #include <SystemService.h>
 
+static const uint8_t server_cert[]  = 
+  "-----BEGIN CERTIFICATE-----\n\
+MIIDMTCCAhkCFCf35Jhk0YYrT8NKwL9XjywNR+KLMA0GCSqGSIb3DQEBCwUAMFUx\
+CzAJBgNVBAYTAkFUMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRl\
+cm5ldCBXaWRnaXRzIFB0eSBMdGQxDjAMBgNVBAMMBXNzZHBpMB4XDTE5MDgxMzA5\
+MTI1MloXDTIwMDgwNzA5MTI1MlowVTELMAkGA1UEBhMCQVQxEzARBgNVBAgMClNv\
+bWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEOMAwG\
+A1UEAwwFc3NkcGkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDikkSA\
+QHcjYD7N0aDS3EEeiFE0DT/eIDl/upSNbIZJo6K9hRrBUtzt2gy1qEYUJccJeIc9\
+dLCD8GhT2jMEQ5twg/+EaL08Y7y0RuaPi3q0T9mE65L/8TrngbKm9of6L9aq/nqI\
+V3LAOPZdHOsqpqT/MympKaImH0trjhyGujFWZUa8bUW9sFKHMa3fHRn9NTIjZpcu\
+W8fzDlBbILuh06Od5o8hGM8q0pmbEt3UpJZOOBYVA30Vsd7ZsHHjyILvQFwaSht7\
+2jOjkSYkLuqyedrZ1ipff+hgtCgyR4/ePmxjs0lnhDwwPvTSgQbcx+uFgJc1RPFF\
+g6wCMbg52qdLSJwFAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAE8/oDvyiwiJGkIy\
+xeKCO4K21Q67Wv7JA4kXzcOHa34md+u2/EvIlQEI4sGdodGI7HZtY8Rmw+5LpwOk\
+p2GW3oAVIFNH9C3HsaZp3JvhwFWZTuDlOLNsTPBR00Ga85rhbBcLf5OI2rngF/p0\
+TpQf3Ix65izD5y8Hj9+K6SQ1xMCmNSlJGhz9IHsdzMuc+etHSzkiuwPD303lzsB7\
+wlCj4ONVlohdAmNEPsFN0dfmTej3xlq+gqIMKW8s8j5BGNBUBKGObdMxaQyx7ozj\
+TAP3Z3Qtt4FRUdx6U8/65YW9AuavktdNLX1galRaMbFoLP+XjW9IjMPO+vgW44OI\
+JIUsf6Q=\
+\n-----END CERTIFICATE-----\n";
+
 bool mqttIsConnected = false;
 static esp_mqtt_client_handle_t client;
 
@@ -211,8 +233,8 @@ void EspMqttClientClass::init(const char *mainTopic)
   _mqttBroker = EspConfig.getMqttBroker();
   _mqttPort = EspConfig.getMqttBrokerPort();
   _thingName = EspConfig.getThingName();
-  EspConfig.getNvsStringValue("user", _mqttUserName);
-  EspConfig.getNvsStringValue("password", _mqttPassword);
+  EspConfig.getNvsStringValue("mqttuser", _mqttUserName);
+  EspConfig.getNvsStringValue("mqttpassword", _mqttPassword);
   EspConfig.getNvsStringValue("lastwill", _lastWillTopic);
   if (strcmp(_lastWillTopic, "true") == 0)
   {
@@ -224,11 +246,16 @@ void EspMqttClientClass::init(const char *mainTopic)
   }
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-Broker Address: %s:%i", _mqttBroker, _mqttPort);
   char uri[LENGTH_MIDDLE_TEXT];
-  sprintf(uri, "mqtt://%s:%d", _mqttBroker, _mqttPort);
+  sprintf(uri, "mqtts://%s", _mqttBroker);
   esp_mqtt_client_config_t mqtt_cfg = {};
+  mqtt_cfg.username = _mqttUserName;
+  mqtt_cfg.password = _mqttPassword;
+  mqtt_cfg.port = _mqttPort;
   mqtt_cfg.uri = uri;
   mqtt_cfg.event_handle = mqtt_event_handler;
-  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-URI: %s", uri);
+  mqtt_cfg.cert_pem = (const char *)server_cert;
+  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-URI: %s, Port: %d", mqtt_cfg.uri, mqtt_cfg.port);
+  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-User: %s, Password: %s", mqtt_cfg.username, mqtt_cfg.password);
   Logger.info("EspMqttClient;init()", loggerMessage);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MqttConfig-URI: %s", mqtt_cfg.uri);
   Logger.info("EspMqttClient;init()", loggerMessage);
