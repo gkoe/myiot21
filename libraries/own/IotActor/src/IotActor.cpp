@@ -63,6 +63,7 @@ IotActor::IotActor(const char *thingName, const char *name)
  */
 void IotActor::setStateByMqtt(const char *payload)
 {
+	// {"value":999.9}
 	setState(payload); // später auf JSON anpassen
 }
 
@@ -107,7 +108,7 @@ void IotActor::sync()
 			char fullTopic[LENGTH_TOPIC];
 			sprintf(fullTopic, "%s/state", _name);
 			char payload[LENGTH_PAYLOAD];
-			strcpy(payload, _currentState);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s}", EspTime.getTime(), _currentState);
 			char loggerMessage[LENGTH_LOGGER_MESSAGE];
 			sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
 			Logger.info("Actor Sync", loggerMessage);

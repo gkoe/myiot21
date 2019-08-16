@@ -70,14 +70,14 @@ void app_main()
   Dht22 *dhtSensorPtr = new Dht22();
   dhtSensorPtr->init(DHT22_PIN);
   IotSensor *temperatureSensorPtr =
-      new Dht22_Temperature(dhtSensorPtr, thingName, "temperature", "Grad", 0.2);
+      new Dht22_Temperature(dhtSensorPtr, thingName, "temperature", "Grad", 0.2, 0.0, 50.0);
   Thing.addSensor(temperatureSensorPtr);
   IotSensor *humiditySensorPtr =
-      new Dht22_Humidity(dhtSensorPtr, thingName, "humidity", "%", 0.5);
+      new Dht22_Humidity(dhtSensorPtr, thingName, "humidity", "%", 0.5, 0.0, 100.0);
   Thing.addSensor(humiditySensorPtr);
   IotSensor *pirPtr = new SimplePir(PIR_PIN, 60, thingName, "pir", "", 0);
   Thing.addSensor(pirPtr);
-  Mhz *mhzPtr = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0);
+  Mhz *mhzPtr = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0, 300.0, 5000.0);
   Thing.addSensor(mhzPtr);
   IotActor *rgbLedPtr =
       new RgbLed(R, G, B, thingName, "rgbled");

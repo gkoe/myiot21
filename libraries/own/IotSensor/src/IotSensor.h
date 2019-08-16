@@ -16,6 +16,7 @@ class IotSensor
 {
 
 	const int MAX_INTERVALL = 900;
+	const int MIN_ILLEGAL_VALUE_TIMESPAN = 5000;
 
   public:
 	/*
@@ -64,6 +65,7 @@ class IotSensor
   protected:
 
   private:
+  	long _lastIllegalValueTime;
 	char _thingName[LENGTH_THING_NAME];
 	char _name[LENGTH_MIDDLE_TEXT];
 	char _unit[LENGTH_SHORT_TEXT];

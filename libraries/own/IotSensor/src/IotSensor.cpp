@@ -25,7 +25,8 @@ IotSensor::IotSensor(const char *thingName, const char *name, const char *unit, 
 	Logger.info("Sensor;Constructor", loggerMessage);
 }
 
-void IotSensor::setMaxIntervall(int intervall){
+void IotSensor::setMaxIntervall(int intervall)
+{
 	_maxIntervall = intervall;
 }
 
@@ -37,17 +38,26 @@ void IotSensor::setMaxIntervall(int intervall){
 void IotSensor::setMeasurement(float value)
 {
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
-	if (value < _minValue)
+	long time = EspTime.getTime();
+	if ((value < _minValue) || (value > _maxValue))
 	{
-		sprintf(loggerMessage, "%s, Illegal value: %.1f lower than minValue %.1f", _name,  value, _minValue);
-		Logger.error("Sensor;set Measurement", loggerMessage);
-		return;
-	}
-	if (value > _maxValue)
-	{
-		sprintf(loggerMessage, "%s, Illegal value: %.1f greater than maxValue %.1f", _name,  value, _maxValue);
-		Logger.error("Sensor;set Measurement", loggerMessage);
-		return;
+		if (time - _lastIllegalValueTime < MIN_ILLEGAL_VALUE_TIMESPAN)
+		{
+			return;
+		}
+		_lastIllegalValueTime = time;
+		if (value < _minValue)
+		{
+			sprintf(loggerMessage, "%s, Illegal value: %.1f lower than minValue %.1f", _name, value, _minValue);
+			Logger.error("Sensor;set Measurement", loggerMessage);
+			return;
+		}
+		if (value > _maxValue)
+		{
+			sprintf(loggerMessage, "%s, Illegal value: %.1f greater than maxValue %.1f", _name, value, _maxValue);
+			Logger.error("Sensor;set Measurement", loggerMessage);
+			return;
+		}
 	}
 
 	// portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
@@ -61,7 +71,7 @@ void IotSensor::setMeasurement(float value)
 	{
 		delta = delta * (-1.0);
 	}
-	long time = EspTime.getTime();
+	time = EspTime.getTime();
 	if (time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
 		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld", _name, _publishedMeasurement, _unit, value, _unit, time, _time);

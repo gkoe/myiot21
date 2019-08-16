@@ -78,7 +78,7 @@ static esp_err_t echoHandler(httpd_req_t *req)
 /**
  * Liefert die Querystringparameter als Map von Key/Value-Pairs zurück
  */
-std::map<char *, char *> getQueryParams(char *queryString)
+std::map<char *, char *> HttpServerClass::getQueryParams(char *queryString)
 {
     char *equalPtr;
     std::map<char *, char *> keyValuePairs = std::map<char *, char *>();
@@ -123,7 +123,7 @@ static esp_err_t setconfigHandler(httpd_req_t *req)
         err = httpd_req_get_url_query_str(req, loggerMessage, queryLength);
         if (err == ESP_OK)
         {
-            std::map<char *, char *> configPairs = getQueryParams(loggerMessage);
+            std::map<char *, char *> configPairs = HttpServer.getQueryParams(loggerMessage);
             std::map<char *, char *>::iterator itr;
             for (itr = configPairs.begin(); itr != configPairs.end(); itr++)
             {

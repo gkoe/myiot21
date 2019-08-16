@@ -29,8 +29,8 @@ void mhzMeasurementInLoopTask(void *pvParameter)
   @param RX TX pins for the connection. 
          NodeName, name, unit and threshold needs the IotSensor constructor.
 */
-Mhz::Mhz(gpio_num_t rxPin, gpio_num_t txPin, const char *thingName, const char *name, const char *unit, float threshold)
-    : IotSensor(thingName, name, unit, threshold)
+Mhz::Mhz(gpio_num_t rxPin, gpio_num_t txPin, const char *thingName, const char *name, const char *unit, float threshold, float minValue, float maxValue)
+    : IotSensor(thingName, name, unit, threshold, minValue, maxValue)
 {
   uart_config_t uart_config = {
       .baud_rate = 9600,
