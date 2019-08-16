@@ -77,8 +77,8 @@ void measureDistanceInLoopTask(void *pvParameter)
     }
 }
 
-Distance::Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold)
-    : IotSensor(thingName, name, unit, threshold)
+Distance::Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold, float minValue, float maxValue)
+    : IotSensor(thingName, name, unit, threshold, minValue, maxValue)
 {
     gpio_set_direction(triggerPin, GPIO_MODE_OUTPUT);
     gpio_set_direction(echoPin, GPIO_MODE_INPUT);

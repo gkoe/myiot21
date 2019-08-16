@@ -21,7 +21,7 @@
 class Distance : public IotSensor
 {
 public:
-    Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold);
+    Distance(gpio_num_t triggerPin, gpio_num_t echoPin, const char *thingName, const char *name, const char *unit, float threshold, float minValue, float maxValue);
     float readDistance();
 
     /**
