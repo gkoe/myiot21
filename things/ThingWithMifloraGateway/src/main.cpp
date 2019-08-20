@@ -68,12 +68,12 @@ void setup()
 	Thing.init();
 
 	Logger.info("MiFloraGateway, app_main()", "Thing created");
-	char mifloraTopics[1000];
-	EspConfig.getNvsStringValue("MIFLORA_TOPICS", mifloraTopics);
+	char mac[LENGTH_SHORT_TEXT];
+	EspConfig.getNvsStringValue("mac", mac);
 	// Logger.info("MiFloraGateway, app_main(), NvsTopicText=", mifloraTopics);
-	if (strlen(mifloraTopics) > 0) // Messungen zu übertragen ==> MQTT-Mode
+	if (strlen(mac) > 0) // Messungen zu übertragen ==> MQTT-Mode
 	{
-		sprintf(loggerMessage, "Topics to send, Length of topictext in NVS: %d", strlen(mifloraTopics));
+		snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topics to send for Miflora %s", mac);
 		EspMqttClient.init(thingName);
 		Logger.info("MiFloraGateway, app_main()", loggerMessage);
 		while (!EspMqttClient.isMqttConnected())
@@ -86,7 +86,51 @@ void setup()
 					NULL,				 /* Parameter passed as input of the task */
 					1,					 /* Priority of the task. */
 					NULL);				 /* Task handle. */
-		EspConfig.setNvsStringValue("MIFLORA_TOPICS", "");
+		char topic[LENGTH_TOPIC];
+		char payload[LENGTH_TOPIC];
+		char value[LENGTH_SHORT_TEXT];
+
+		EspConfig.getNvsStringValue("moisture", value);
+		if (strlen(value) > 0)
+		{
+			sprintf(topic, "%s/%s/moisture/state", EspConfig.getThingName(), mac);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
+			EspMqttClient.publish(topic, payload);
+		}
+
+		EspConfig.getNvsStringValue("temperature", value);
+		if (strlen(value) > 0)
+		{
+			sprintf(topic, "%s/%s/temperature/state", EspConfig.getThingName(), mac);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
+			EspMqttClient.publish(topic, payload);
+		}
+
+		EspConfig.getNvsStringValue("brightness", value);
+		if (strlen(value) > 0)
+		{
+			sprintf(topic, "%s/%s/brightness/state", EspConfig.getThingName(), mac);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
+			EspMqttClient.publish(topic, payload);
+		}
+
+		EspConfig.getNvsStringValue("conductivity", value);
+		if (strlen(value) > 0)
+		{
+			sprintf(topic, "%s/%s/conductivity/state", EspConfig.getThingName(), mac);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
+			EspMqttClient.publish(topic, payload);
+		}
+
+		EspConfig.getNvsStringValue("batteryLevel", value);
+		if (strlen(value) > 0)
+		{
+			sprintf(topic, "%s/%s/batteryLevel/state", EspConfig.getThingName(), mac);
+			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
+			EspMqttClient.publish(topic, payload);
+		}
+
+		EspConfig.setNvsStringValue("mac", "");
 	}
 	else // keine Messungen anstehend ==> MiFlora-Mode ==> BLE
 	{
