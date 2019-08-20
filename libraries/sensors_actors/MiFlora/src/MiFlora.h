@@ -6,6 +6,8 @@
 #include <BLEAddress.h>
 #include <IotSensor.h>
 
+// const char* mifloraTopicsKey = "MIFLORA_TOPICS";
+
 
 struct StrCompare : public std::binary_function<const char*, const char*, bool> {
 public:

@@ -253,7 +253,8 @@ void EspMqttClientClass::init(const char *mainTopic)
   mqtt_cfg.port = _mqttPort;
   mqtt_cfg.uri = uri;
   mqtt_cfg.event_handle = mqtt_event_handler;
-  mqtt_cfg.cert_pem = (const char *)server_cert;
+  // mqtt_cfg.cert_pem = (const char *)server_cert;
+  mqtt_cfg.cert_pem = nullptr;
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-URI: %s, Port: %d", mqtt_cfg.uri, mqtt_cfg.port);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-User: %s, Password: %s", mqtt_cfg.username, mqtt_cfg.password);
   Logger.info("EspMqttClient;init()", loggerMessage);

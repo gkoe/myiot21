@@ -22,7 +22,7 @@ PowerSwitch::PowerSwitch(const gpio_num_t pinNumber, const bool isInverse, const
 	{
 		gpio_set_level(_pinNumber, 0);
 	}
-	setCurrentState("OFF");
+	setCurrentState("0");
 }
 
 void PowerSwitch::setActor(const char *newState)
@@ -32,12 +32,12 @@ void PowerSwitch::setActor(const char *newState)
 	{
 		if (isOn)
 		{
-			Logger.info("PowerSwitch;setActor()", "ON, Pin low!");
+			Logger.info("PowerSwitch;setActor()", "1, Pin low!");
 			gpio_set_level(_pinNumber, 0);
 		}
 		else
 		{
-			Logger.info("PowerSwitch;setActor()", "OFF, Pin high!");
+			Logger.info("PowerSwitch;setActor()", "0, Pin high!");
 			gpio_set_level(_pinNumber, 1);
 		}
 	}
@@ -45,12 +45,12 @@ void PowerSwitch::setActor(const char *newState)
 	{ // normale (nicht inverse Logik)
 		if (isOn)
 		{
-			Logger.info("PowerSwitch;setActor()", "ON, Pin high!");
+			Logger.info("PowerSwitch;setActor()", "1, Pin high!");
 			gpio_set_level(_pinNumber, 1);
 		}
 		else
 		{
-			Logger.info("PowerSwitch;setActor()", "OFF, Pin low!");
+			Logger.info("PowerSwitch;setActor()", "0, Pin low!");
 			gpio_set_level(_pinNumber, 0);
 		}
 	}

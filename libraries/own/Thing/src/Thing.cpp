@@ -32,7 +32,7 @@ static esp_err_t setActorRequestHandler(httpd_req_t *req)
 			if (queryString != NULL)
 			{
 				char *actorName;
-				char *value=nullptr;
+				char *value = nullptr;
 				char *rest = queryString;
 				actorName = strtok_r(rest, "=", &rest);
 				bool ok = true;
@@ -41,11 +41,12 @@ static esp_err_t setActorRequestHandler(httpd_req_t *req)
 					value = strtok_r(rest, "=", &rest);
 					if (!value)
 					{
-						ok=false;
+						ok = false;
 					}
 				}
-				else{
-					ok=false;
+				else
+				{
+					ok = false;
 				}
 				if (ok)
 				{
@@ -62,7 +63,7 @@ static esp_err_t setActorRequestHandler(httpd_req_t *req)
 					else
 					{
 						actor->setState(value);
-						sprintf(response, "Actors's %s set to %s is %s", actorName, actor->getSettedState(), actor->getCurrentState());
+						sprintf(response, "Actors's %s set from %s to %s", actorName, actor->getCurrentState(), actor->getSettedState());
 						sprintf(loggerMessage, "Response: %s", response);
 						Logger.info("Thing,setActorRequestHandler()", loggerMessage);
 						httpd_resp_send(req, response, strlen(response));
@@ -78,8 +79,10 @@ static esp_err_t setActorRequestHandler(httpd_req_t *req)
 			}
 			else
 			{
-				sprintf(loggerMessage, "QUERYSTRING IS NULL");
+				sprintf(response, "QUERYSTRING IS NULL");
+				sprintf(loggerMessage, "Response: %s", response);
 				Logger.error("Thing, setActorRequestHandler()", loggerMessage);
+				httpd_resp_send(req, response, strlen(response));
 			}
 		}
 		else
@@ -147,10 +150,65 @@ static esp_err_t getSensorRequestHandler(httpd_req_t *req)
 	return ESP_OK;
 }
 
+/**
+ * eigene http-Route zum Abfragen eines Aktorwertes  /getactor?switch
+ */
+static esp_err_t getActorStateRequestHandler(httpd_req_t *req)
+{
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	char actorName[LENGTH_MIDDLE_TEXT];
+	esp_err_t err;
+	int queryLength = httpd_req_get_url_query_len(req) + 1;
+	if (queryLength > 0)
+	{
+		err = httpd_req_get_url_query_str(req, actorName, queryLength);
+		if (err == ESP_OK)
+		{
+			if (actorName != NULL)
+			{
+				IotActor *sensor = Thing.getActorByName(actorName);
+				char response[LENGTH_MIDDLE_TEXT];
+				if (sensor == NULL)
+				{
+					sprintf(response, "Actor %s not found!", actorName);
+					httpd_resp_send(req, response, strlen(response));
+				}
+				else
+				{
+					char *state = sensor->getCurrentState();
+					sprintf(response, "Actors's %s state %s", actorName, state);
+					sprintf(loggerMessage, "Response: %s", response);
+					Logger.info("Thing,getActorStateRequestHandler()", loggerMessage);
+					httpd_resp_send(req, response, strlen(response));
+				}
+			}
+		}
+		else
+		{
+			sprintf(loggerMessage, "httpd_req_get_url_query_str() ERROR: %d", err);
+			Logger.error("Thing, getActorStateRequestHandler()", loggerMessage);
+			httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
+		}
+	}
+	else
+	{
+		sprintf(loggerMessage, "NO QUERYSTRING");
+		Logger.info("Thing, getActorStateRequestHandler(), QueryString:", "NO QUERYSTRING");
+		httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
+	}
+	return ESP_OK;
+}
+
 static const httpd_uri_t getsensorrequest = {
 	.uri = "/getsensor",
 	.method = HTTP_GET,
 	.handler = getSensorRequestHandler,
+	.user_ctx = nullptr};
+
+static const httpd_uri_t getactorrequest = {
+	.uri = "/getactor",
+	.method = HTTP_GET,
+	.handler = getActorStateRequestHandler,
 	.user_ctx = nullptr};
 
 static const httpd_uri_t setactorrequest = {
@@ -171,6 +229,7 @@ void ThingClass::init()
 	Logger.info("ThingClass Init", loggerMessage);
 	HttpServer.addRoute(&getsensorrequest);
 	HttpServer.addRoute(&setactorrequest);
+	HttpServer.addRoute(&getactorrequest);
 }
 
 void ThingClass::addSensor(IotSensor *sensorPtr)

@@ -42,8 +42,9 @@ IotActor::IotActor(const char *thingName, const char *name)
 	strcpy(_thingName, thingName);
 	strcpy(_name, name);
 	_time = EspTime.getTime();
-	strcpy(_settedState, "");
-	strcpy(_currentState, "");
+	strcpy(_settedState, "0");
+	strcpy(_currentState, "0");
+	strcpy(_lastReportedState, "0");
 	strcpy(_actorTopic, EspConfig.getThingName());
 	strcat(_actorTopic, "/");
 	strcat(_actorTopic, getName());
@@ -74,7 +75,7 @@ void IotActor::setState(const char *stateText)
 	//critical section
 	strncpy(_settedState, stateText, LENGTH_STATE);
 	portEXIT_CRITICAL(&myMutex);
-	sync();
+	// sync();
 }
 
 char *IotActor::getSettedState()
@@ -98,10 +99,10 @@ void IotActor::sync()
 {
 	if (strcmp(_currentState, _settedState) != 0)
 	{
-		char message[MESSAGE_LENGTH];
-		snprintf(message, MESSAGE_LENGTH - 1, "SyncState, currentState: %s, settedState: %s",
-				 _currentState, _settedState);
-		Logger.info("Actor Sync", message);
+		char loggerMessage[LENGTH_LOGGER_MESSAGE];
+		// snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "SyncState, currentState: %s, settedState: %s",
+		// 		 _currentState, _settedState);
+		// Logger.info("Actor Sync", loggerMessage);
 		setActor(_settedState);
 		if (strcmp(_currentState, _lastReportedState) != 0)
 		{
@@ -109,7 +110,6 @@ void IotActor::sync()
 			sprintf(fullTopic, "%s/state", _name);
 			char payload[LENGTH_PAYLOAD];
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s}", EspTime.getTime(), _currentState);
-			char loggerMessage[LENGTH_LOGGER_MESSAGE];
 			sprintf(loggerMessage, "Topic: %s, Payload: %s", fullTopic, payload);
 			Logger.info("Actor Sync", loggerMessage);
 			EspMqttClient.publish(fullTopic, payload);

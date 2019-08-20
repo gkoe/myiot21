@@ -23,21 +23,25 @@ const char *SERIAL_LOGGER_TAG = "SLT";
 #include <MiFlora.h>
 //<<<<<<<<<<<<<<<<<<<<<<<
 
-void goToDeepSleep()
+void taskDeepSleepShort(void *parameter)
 {
-	esp_sleep_enable_timer_wakeup(SLEEP_DURATION * 1000000ll);
-	Logger.info("MiFloraGateway;goToDeepSleep()", "Going to sleep now.");
+	delay(SLEEP_WAIT * 1000);
+	esp_sleep_enable_timer_wakeup(1000ll);
+	Logger.info("MiFloraGateway;goToDeepSleep()", "Going to sleep short now.");
 	esp_deep_sleep_start();
 }
 
-void taskDeepSleep(void *parameter)
+void taskDeepSleepLong(void *parameter)
 {
 	delay(SLEEP_WAIT * 1000);
-	goToDeepSleep();
+	esp_sleep_enable_timer_wakeup(SLEEP_DURATION * 1000000ll);
+	Logger.info("MiFloraGateway;goToDeepSleep()", "Going to sleep long now.");
+	esp_deep_sleep_start();
 }
 
 void setup()
 {
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	printf("==========================\n");
 	printf("Thing with Miflora-Gateway\n");
 	printf("==========================\n");
@@ -61,18 +65,41 @@ void setup()
 	EspUdp.init();
 	UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
 	Logger.addLoggerTarget(udpLoggerTargetPtr);
-	EspMqttClient.init(thingName);
 	Thing.init();
-	Logger.info("MiFloraGateway, app_main()", "Thing created");
-	xTaskCreate(taskDeepSleep,   /* Task function. */
-				"TaskDeepSleep", /* String with name of task. */
-				4000,			 /* Stack size in words. */
-				NULL,			 /* Parameter passed as input of the task */
-				1,				 /* Priority of the task. */
-				NULL);			 /* Task handle. */
 
-	MiFlora.init();
-	MiFlora.readNextMiFlora();
+	Logger.info("MiFloraGateway, app_main()", "Thing created");
+	char mifloraTopics[1000];
+	EspConfig.getNvsStringValue("MIFLORA_TOPICS", mifloraTopics);
+	// Logger.info("MiFloraGateway, app_main(), NvsTopicText=", mifloraTopics);
+	if (strlen(mifloraTopics) > 0) // Messungen zu übertragen ==> MQTT-Mode
+	{
+		sprintf(loggerMessage, "Topics to send, Length of topictext in NVS: %d", strlen(mifloraTopics));
+		EspMqttClient.init(thingName);
+		Logger.info("MiFloraGateway, app_main()", loggerMessage);
+		while (!EspMqttClient.isMqttConnected())
+		{
+			vTaskDelay(10);
+		}
+		xTaskCreate(taskDeepSleepLong,   /* Task function. */
+					"TaskDeepSleepLong", /* String with name of task. */
+					4000,				 /* Stack size in words. */
+					NULL,				 /* Parameter passed as input of the task */
+					1,					 /* Priority of the task. */
+					NULL);				 /* Task handle. */
+		EspConfig.setNvsStringValue("MIFLORA_TOPICS", "");
+	}
+	else // keine Messungen anstehend ==> MiFlora-Mode ==> BLE
+	{
+		Logger.info("MiFloraGateway, app_main()", "Measure Miflora per BLE");
+		xTaskCreate(taskDeepSleepShort,   /* Task function. */
+					"TaskDeepSleepShort", /* String with name of task. */
+					4000,				  /* Stack size in words. */
+					NULL,				  /* Parameter passed as input of the task */
+					1,					  /* Priority of the task. */
+					NULL);				  /* Task handle. */
+		MiFlora.init();
+		MiFlora.readNextMiFlora();
+	}
 }
 
 void loop()
