@@ -93,7 +93,7 @@ void setup()
 		EspConfig.getNvsStringValue("moisture", value);
 		if (strlen(value) > 0)
 		{
-			sprintf(topic, "%s/%s/moisture/state", EspConfig.getThingName(), mac);
+			sprintf(topic, "%s/moisture/state", mac);
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
 			EspMqttClient.publish(topic, payload);
 		}
@@ -101,7 +101,7 @@ void setup()
 		EspConfig.getNvsStringValue("temperature", value);
 		if (strlen(value) > 0)
 		{
-			sprintf(topic, "%s/%s/temperature/state", EspConfig.getThingName(), mac);
+			sprintf(topic, "%s/temperature/state", mac);
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
 			EspMqttClient.publish(topic, payload);
 		}
@@ -109,7 +109,7 @@ void setup()
 		EspConfig.getNvsStringValue("brightness", value);
 		if (strlen(value) > 0)
 		{
-			sprintf(topic, "%s/%s/brightness/state", EspConfig.getThingName(), mac);
+			sprintf(topic, "%s/brightness/state", mac);
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
 			EspMqttClient.publish(topic, payload);
 		}
@@ -117,7 +117,7 @@ void setup()
 		EspConfig.getNvsStringValue("conductivity", value);
 		if (strlen(value) > 0)
 		{
-			sprintf(topic, "%s/%s/conductivity/state", EspConfig.getThingName(), mac);
+			sprintf(topic, "%s/conductivity/state", mac);
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
 			EspMqttClient.publish(topic, payload);
 		}
@@ -125,7 +125,7 @@ void setup()
 		EspConfig.getNvsStringValue("batteryLevel", value);
 		if (strlen(value) > 0)
 		{
-			sprintf(topic, "%s/%s/batteryLevel/state", EspConfig.getThingName(), mac);
+			sprintf(topic, "%s/batteryLevel/state", mac);
 			sprintf(payload, "{\"timestamp\":%ld,\"value\":%s};", EspTime.getTime(), value);
 			EspMqttClient.publish(topic, payload);
 		}
