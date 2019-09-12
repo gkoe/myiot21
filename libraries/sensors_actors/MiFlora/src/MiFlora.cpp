@@ -118,7 +118,7 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     // // printf("!!! set moisture %f\n", moisture);
     // // miFlora->moistureSensor->setMeasurement(moisture);
     // appendTopicAndPayload(miFlora->moistureSensor, moisture);
-    Logger.info("MiFlora;setMiFloraSensorValues();mac:", miFlora->moistureSensor->getName());
+    Logger.info("MiFlora;setMiFloraSensorValues();mac:", miFlora->macAddress);
     EspConfig.setNvsStringValue("mac", miFlora->moistureSensor->getName());
 
     char valueText[LENGTH_SHORT_TEXT];
@@ -133,6 +133,7 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
     EspConfig.setNvsStringValue("brightness", valueText);
     sprintf(valueText, "%d", conductivity);
     EspConfig.setNvsStringValue("conductivity", valueText);
+    EspConfig.setNvsStringValue("batteryLevel", "");
 
     // // printf("!!! set temperature %f\n", temperature);
     // // miFlora->temperatureSensor->setMeasurement(temperature);
@@ -151,6 +152,8 @@ bool MiFloraClass::setMiFloraSensorValues(miflora_t *miFlora)
         Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find battery level characteristic UUID");
         //Serial.println(uuid_sensor_data.toString().c_str());
         //_bleClient->disconnect();
+        sprintf(valueText, "%s", "-1");
+        EspConfig.setNvsStringValue("batteryLevel", valueText);
         return false;
     }
     else
@@ -365,7 +368,7 @@ void MiFloraClass::readNextMiFlora()
         vTaskDelete(_scanTask);
     xTaskCreate(scanMiFlorasTask,   /* Task function. */
                 "TaskScanMiFloras", /* String with name of task. */
-                10000,              /* Stack size in words. */
+                4096,              /* Stack size in words. */
                 _miFloras,          /* Parameter passed as input of the task */
                 1,                  /* Priority of the task. */
                 _scanTask);         /* Task handle. */

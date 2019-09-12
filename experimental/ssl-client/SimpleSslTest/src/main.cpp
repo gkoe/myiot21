@@ -39,6 +39,7 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
+#include "esp_http_client.h"
 
 #include "esp_tls.h"
 
@@ -55,11 +56,46 @@
 #include <UdpLoggerTarget.h>
 
 /* Constants that aren't configurable in menuconfig */
-#define WEB_SERVER "leonding.synology.me"
 #define WEB_PORT "443"
-#define WEB_URL "https://leonding.synology.me/esplogs"
+#define WEB_SERVER "leonding.synology.me"
+#define WEB_URL "https://leonding.synology.me"
+
+// https://leonding.synology.me/esplogs
+// Basic Z2VyYWxkOnBpS2xhODdTaWU1Nw==
+
+// #define WEB_SERVER "www.howsmyssl.com"
+// #define WEB_URL "https://www.howsmyssl.com/a/check"
 
 static const char *TAG = "example";
+
+const char *test_root_ca =
+    "-----BEGIN CERTIFICATE-----\n"
+    "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\n"
+    "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\n"
+    "DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\n"
+    "SjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMT\n"
+    "GkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOC\n"
+    "AQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EF\n"
+    "q6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8\n"
+    "SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0\n"
+    "Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWA\n"
+    "a6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj\n"
+    "/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0T\n"
+    "AQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIG\n"
+    "CCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNv\n"
+    "bTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9k\n"
+    "c3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAw\n"
+    "VAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcC\n"
+    "ARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAz\n"
+    "MDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwu\n"
+    "Y3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF\n"
+    "AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJo\n"
+    "uM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/\n"
+    "wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu\n"
+    "X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG\n"
+    "PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\n"
+    "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n"
+    "-----END CERTIFICATE-----\n";
 
 // LetsEncryptRoot.cer
 const char *root_ca =
@@ -108,85 +144,104 @@ static void https_get_task(void *pvParameters)
 
     while (1)
     {
-        esp_tls_cfg_t cfg = {};
-        cfg.cacert_pem_buf = (const unsigned char *)root_ca;
-        cfg.cacert_pem_bytes = strlen(root_ca);
+        // esp_tls_cfg_t cfg = {};
+        // cfg.cacert_pem_buf = (const unsigned char *)test_root_ca;
+        // cfg.cacert_pem_bytes = strlen(test_root_ca);
 
-        struct esp_tls *tls = esp_tls_conn_http_new(WEB_URL, &cfg);
-        char request[500];
-        sprintf(request, "GET %s HTTP/1.0\r\nHost: %s \r\nUser-Agent: esp-idf/1.0 esp32\r\n\r\n", WEB_URL, WEB_SERVER);
+        esp_http_client_config_t config = {};
+        config.url = "https://gerald:piKla87Sie57@leonding.synology.me/esplogs/logentries";
+        config.auth_type = HTTP_AUTH_TYPE_BASIC;
+        config.cert_pem = nullptr;
 
-        if (tls != NULL)
+        esp_http_client_handle_t client = esp_http_client_init(&config);
+        esp_err_t err = esp_http_client_perform(client);
+
+        if (err == ESP_OK)
         {
-            ESP_LOGI(TAG, "Connection established...");
-            size_t written_bytes = 0;
-            do
-            {
-
-                ret = esp_tls_conn_write(tls,
-                                         request + written_bytes,
-                                         strlen(request) - written_bytes);
-                if (ret >= 0)
-                {
-                    ESP_LOGI(TAG, "%d bytes written", ret);
-                    written_bytes += ret;
-                }
-                else if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
-                {
-                    ESP_LOGE(TAG, "esp_tls_conn_write  returned 0x%x", ret);
-                    break;
-                }
-            } while (written_bytes < strlen(request));
-
-            ESP_LOGI(TAG, "Reading HTTP response...");
-
-            do
-            {
-                len = sizeof(buf) - 1;
-                bzero(buf, sizeof(buf));
-                ret = esp_tls_conn_read(tls, (char *)buf, len);
-
-                if (ret == MBEDTLS_ERR_SSL_WANT_WRITE || ret == MBEDTLS_ERR_SSL_WANT_READ)
-                    continue;
-
-                if (ret < 0)
-                {
-                    ESP_LOGE(TAG, "esp_tls_conn_read  returned -0x%x", -ret);
-                    break;
-                }
-
-                if (ret == 0)
-                {
-                    ESP_LOGI(TAG, "connection closed");
-                    break;
-                }
-
-                len = ret;
-                ESP_LOGD(TAG, "%d bytes read", len);
-                /* Print response directly to stdout as it is read */
-                for (int i = 0; i < len; i++)
-                {
-                    putchar(buf[i]);
-                }
-            } while (1);
+            ESP_LOGI(TAG, "Status = %d, content_length = %d",
+                     esp_http_client_get_status_code(client),
+                     esp_http_client_get_content_length(client));
         }
-        else
-        {
-            ESP_LOGE(TAG, "Connection failed...");
-        }
+        esp_http_client_cleanup(client);
 
-        esp_tls_conn_delete(tls);
-        putchar('\n'); // JSON output doesn't have a newline at end
 
-        static int request_count;
-        ESP_LOGI(TAG, "Completed %d requests", ++request_count);
+        // struct esp_tls *tls = esp_tls_conn_http_new(WEB_URL, nullptr);
 
-        for (int countdown = 10; countdown >= 0; countdown--)
-        {
-            ESP_LOGI(TAG, "%d...", countdown);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-        ESP_LOGI(TAG, "Starting again!");
+        // // struct esp_tls *tls = esp_tls_conn_http_new(WEB_URL, &cfg);
+        // char request[500];
+        // sprintf(request, "GET %s\r\n", WEB_URL);
+
+        // if (tls != NULL)
+        // {
+        //     ESP_LOGI(TAG, "Connection established...");
+        //     size_t written_bytes = 0;
+        //     do
+        //     {
+
+        //         ret = esp_tls_conn_write(tls,
+        //                                  request + written_bytes,
+        //                                  strlen(request) - written_bytes);
+        //         if (ret >= 0)
+        //         {
+        //             ESP_LOGI(TAG, "%d bytes written", ret);
+        //             written_bytes += ret;
+        //         }
+        //         else if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
+        //         {
+        //             ESP_LOGE(TAG, "esp_tls_conn_write  returned 0x%x", ret);
+        //             break;
+        //         }
+        //     } while (written_bytes < strlen(request));
+
+        //     ESP_LOGI(TAG, "Reading HTTP response...");
+
+        //     do
+        //     {
+        //         len = sizeof(buf) - 1;
+        //         bzero(buf, sizeof(buf));
+        //         ret = esp_tls_conn_read(tls, (char *)buf, len);
+
+        //         if (ret == MBEDTLS_ERR_SSL_WANT_WRITE || ret == MBEDTLS_ERR_SSL_WANT_READ)
+        //             continue;
+
+        //         if (ret < 0)
+        //         {
+        //             ESP_LOGE(TAG, "esp_tls_conn_read  returned -0x%x", -ret);
+        //             break;
+        //         }
+
+        //         if (ret == 0)
+        //         {
+        //             ESP_LOGI(TAG, "connection closed");
+        //             break;
+        //         }
+
+        //         len = ret;
+        //         ESP_LOGD(TAG, "%d bytes read", len);
+        //         /* Print response directly to stdout as it is read */
+        //         for (int i = 0; i < len; i++)
+        //         {
+        //             putchar(buf[i]);
+        //         }
+        //     } while (1);
+        // }
+        // else
+        // {
+        //     ESP_LOGE(TAG, "Connection failed...");
+        // }
+
+        // esp_tls_conn_delete(tls);
+        // putchar('\n'); // JSON output doesn't have a newline at end
+
+        // static int request_count;
+        // ESP_LOGI(TAG, "Completed %d requests", ++request_count);
+
+        // for (int countdown = 10; countdown >= 0; countdown--)
+        // {
+        //     ESP_LOGI(TAG, "%d...", countdown);
+        //     vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // }
+        // ESP_LOGI(TAG, "Starting again!");
     }
 }
 
