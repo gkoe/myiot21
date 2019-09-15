@@ -20,7 +20,7 @@ const char *SERIAL_LOGGER_TAG = "SLT";
 #define SLEEP_WAIT 90		 // time until esp32 is put into deep sleep mode. must be sufficient to connect to wlan, connect to xiaomi flora device & push measurement data to MQTT
 
 //>>>>>>>>>>>>>>>>>>>> Thingspezifisch
-#include <MiFlora.h>
+#include <MiFloraMqtt.h>
 //<<<<<<<<<<<<<<<<<<<<<<<
 
 void taskDeepSleepShort(void *parameter)
