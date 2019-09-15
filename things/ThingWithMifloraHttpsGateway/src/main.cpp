@@ -67,21 +67,13 @@ void setup()
 	EspUdp.init();
 	UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
 	Logger.addLoggerTarget(udpLoggerTargetPtr);
-	Thing.init();
 
 	Logger.info("MiFloraGateway, app_main()", "Thing created");
 	char mac[LENGTH_SHORT_TEXT];
 	EspConfig.getNvsStringValue("mac", mac);
 	// Logger.info("MiFloraGateway, app_main(), NvsTopicText=", mifloraTopics);
-	if (strlen(mac) > 0) // Messungen zu übertragen ==> MQTT-Mode
+	if (strlen(mac) > 0)
 	{
-		snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topics to send for Miflora %s", mac);
-		EspMqttClient.init(thingName);
-		Logger.info("MiFloraGateway, app_main()", loggerMessage);
-		while (!EspMqttClient.isMqttConnected())
-		{
-			vTaskDelay(10);
-		}
 		xTaskCreate(taskDeepSleepLong,   /* Task function. */
 					"TaskDeepSleepLong", /* String with name of task. */
 					2048,				 /* Stack size in words. */
