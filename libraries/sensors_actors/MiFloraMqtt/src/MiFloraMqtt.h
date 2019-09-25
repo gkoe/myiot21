@@ -22,7 +22,7 @@ struct miflora_t
   long lastMeasurementTime;
   IotSensor* moistureSensor;
   IotSensor* temperatureSensor;
-  IotSensor* rssiSensor;
+  float rssiValue;
   IotSensor* brightnessSensor;
   IotSensor* batteryLevelSensor;
   IotSensor* conductivitySensor;

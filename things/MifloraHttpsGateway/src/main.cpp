@@ -61,10 +61,7 @@ void setup()
 				NULL);			 /* Task handle. */
 
 	MiFloraHttps.init();
-	if (MiFloraHttps.getNextMiflora())
-	{
-		MiFloraHttps.getAndSendMifloraValues();
-	}
+	Logger.info("MiFloraGateway, app_main()", "After MiFlora.init()");
 	Logger.info("MiFloraGateway, app_main()", "Waiting for deepsleep!");
 
 }

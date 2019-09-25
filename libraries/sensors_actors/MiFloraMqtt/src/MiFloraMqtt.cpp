@@ -134,6 +134,8 @@ bool MiFloraMqttClass::setMiFloraSensorValues(miflora_t *miFlora)
     sprintf(valueText, "%d", conductivity);
     EspConfig.setNvsStringValue("conductivity", valueText);
     EspConfig.setNvsStringValue("batteryLevel", "");
+    sprintf(valueText, "%.2f", miFlora->rssiValue);
+    EspConfig.setNvsStringValue("rssi", valueText);
 
     // // printf("!!! set temperature %f\n", temperature);
     // // miFlora->temperatureSensor->setMeasurement(temperature);
@@ -218,8 +220,8 @@ void attachMiFloraSensors(miflora_t *miFlora)
     miFlora->batteryLevelSensor = batteryLevelSensor;
     sprintf(name, "%s/%s", miFlora->macAddress, "rssi");
     IotSensor *rssiSensor = new IotSensor(EspConfig.getThingName(), name, "", 1.0, -150.0, 0.0);
-    Thing.addSensor(rssiSensor);
-    miFlora->rssiSensor = rssiSensor;
+    // Thing.addSensor(rssiSensor);
+    // miFlora->rssiSensor = rssiSensor;
 }
 
 void readValuesFromMiFloraTask(miflora_t *miFlora)
@@ -232,7 +234,7 @@ void readValuesFromMiFloraTask(miflora_t *miFlora)
 
 bool compareByRssi(const miflora_t *first, const miflora_t *second)
 {
-    return (first->rssiSensor < second->rssiSensor);
+    return (first->rssiValue < second->rssiValue);
 }
 
 void scanMiFlorasTask(void *voidPtr)
@@ -281,6 +283,7 @@ void scanMiFlorasTask(void *voidPtr)
                 {
                     miflora_t *miFlora;
                     miFlora = new miflora_t();
+                    miFlora->rssiValue = rssi;
                     strcpy(miFlora->macAddress, macAddress);
                     miFloras->push_back(miFlora);
                     newMiFlorasCounter++;

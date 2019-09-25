@@ -30,7 +30,7 @@ static BLEUUID uuid_write_mode("00001a00-0000-1000-8000-00805f9b34fb");
 
 static BLERemoteCharacteristic *pRemoteCharacteristic;
 
-const char *urlMifloras = "leonding.synology.me/esplogs/mqtt";
+const char *urlMifloras = "leonding.synology.me/esplogs/mifloraentries";
 const char *basicAuthenticationName = "gerald";
 const char *basicAuthenticationPassword = "piKla87Sie57";
 
@@ -41,13 +41,15 @@ void sendByHttps(const char *mac, const char *sensorName, float value)
 {
     char topic[LENGTH_TOPIC];
     char payload[LENGTH_PAYLOAD];
-    char request[LENGTH_PAYLOAD];
+    char body[LENGTH_LOGGER_MESSAGE];
 
-    sprintf(topic, "miflora/%s/%s/state", mac, sensorName);
-    sprintf(payload, "{\"timestamp\": %ld,\"value\": %.2f}", EspTime.getTime(), value);
-    sprintf(request, "{\"topic\": %s,\"payload\": %s}", topic, payload);
-    Logger.debug("MiFloraGateway, send by https:%s", request);
-    HttpClient.post(urlMifloras, payload, true, basicAuthenticationName, basicAuthenticationPassword);
+    // sprintf(topic, "\"miflora/%s/%s/state\"", mac, sensorName);
+    // sprintf(payload, "{\"timestamp\": %ld,\"value\": %.2f}", EspTime.getTime(), value);
+    // sprintf(body, "{\"topic\": %s,\"payload\": %s}", topic, payload);
+    sprintf(body, "{\"mac\": \"%s\",\"moisture\": %s,\"temperature\": %s,\"brightness\": %s,\"batteryLevel\": %s}",
+		      mac, "99", "33", "9999", "99");
+    Logger.debug("MiFloraGateway, send by https: ", body);
+    HttpClient.post(urlMifloras, body, true, "gerald", "piKla87Sie57");
 }
 
 /**
@@ -197,9 +199,25 @@ bool MiFloraHttpsClass::getNextMiflora()
     return true;
 }
 
+void scanMiFlorasTask(void *voidPtr)
+{
+    if (MiFloraHttps.getNextMiflora())
+    {
+        MiFloraHttps.getAndSendMifloraValues();
+    }
+    vTaskDelete(NULL);
+}
+
 void MiFloraHttpsClass::init()
 {
+    BLEDevice::init("");
     _bleClient = BLEDevice::createClient();
+    xTaskCreate(scanMiFlorasTask,   /* Task function. */
+                "TaskScanMiFloras", /* String with name of task. */
+                4096,               /* Stack size in words. */
+                nullptr,            /* Parameter passed as input of the task */
+                1,                  /* Priority of the task. */
+                _scanTask);         /* Task handle. */
 }
 
 MiFloraHttpsClass MiFloraHttps;

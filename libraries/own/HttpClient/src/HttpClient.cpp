@@ -119,6 +119,8 @@ void HttpClientClass::post(const char *url, const char *payload, bool https, con
         Logger.error("HttpClient, post()", loggerMessage);
         // ESP_LOGE("HttpClient", "HTTP POST request failed: %s", esp_err_to_name(err));
     }
+    esp_http_client_close(client);
+    esp_http_client_cleanup(client);
 }
 
 void HttpClientClass::get(const char *url, char *response, int responseLength, bool https, const char *user, const char *password)

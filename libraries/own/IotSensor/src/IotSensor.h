@@ -24,7 +24,7 @@ public:
 		der Einheit des Messwertes und der Schwelle, ab der eine Änderung des 
 		Messwertes gemeldet wird.
 	*/
-	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, float minValue = -9999.9, float maxValue = 9999.9, bool getAverageValue = false);
+	IotSensor(const char *thingName, const char *name, const char *unit, float threshold, float minValue = -9999.9, float maxValue = 9999.9, bool getAverageValue = true);
 
 	/*
 		Liefert den letzten gemessenen Messwert. Dieser muss nicht mit dem 

@@ -22,7 +22,8 @@ public:
 
 private:
   miflora_t _miflora;
-  BLEClient*  _bleClient;
+  BLEClient *_bleClient;
+  TaskHandle_t *_scanTask = nullptr;
 };
 
 extern MiFloraHttpsClass MiFloraHttps;

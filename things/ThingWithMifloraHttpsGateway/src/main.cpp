@@ -19,10 +19,13 @@ const char *SERIAL_LOGGER_TAG = "SLT";
 #define SLEEP_DURATION 720ll // duration of sleep between flora connection attempts in seconds (must be constant with "ll" suffix)
 #define SLEEP_WAIT 90		 // time until esp32 is put into deep sleep mode. must be sufficient to connect to wlan, connect to xiaomi flora device & push measurement data to MQTT
 
-const char *urlMifloras = "leonding.synology.me/esplogs/mifloraentries";
+const char *urlMifloras = "leonding.synology.me/esplogs/mqtt"; //mifloraentries
+const char *basicAuthenticationName = "gerald";
+const char *basicAuthenticationPassword = "piKla87Sie57";
+
 
 //>>>>>>>>>>>>>>>>>>>> Thingspezifisch
-#include <MiFlora.h>
+#include <MiFloraMqtt.h>
 //<<<<<<<<<<<<<<<<<<<<<<<
 
 void taskDeepSleepShort(void *parameter)
@@ -41,14 +44,32 @@ void taskDeepSleepLong(void *parameter)
 	esp_deep_sleep_start();
 }
 
+/**
+ * Messwert per https an den Server übertragen
+ */
+void sendByHttps(const char *mac, const char *sensorName, const char *value)
+{
+	char topic[LENGTH_TOPIC];
+	char payload[LENGTH_PAYLOAD];
+	char body[LENGTH_LOGGER_MESSAGE];
+
+	sprintf(topic, "\"miflora/%s/%s/state\"", mac, sensorName);
+	sprintf(payload, "{\"timestamp\": %ld,\"value\": %s}", EspTime.getTime(), value);
+	sprintf(body, "{\"topic\": %s,\"payload\": %s}", topic, payload);
+	// sprintf(body, "{\"mac\": \"%s\",\"moisture\": %s,\"temperature\": %s,\"brightness\": %s,\"batteryLevel\": %s}",
+	// 		mac, "99", "33", "9999", "99");
+	Logger.debug("MiFloraGateway, send by https: ", body);
+	HttpClient.post(urlMifloras, body, true, "gerald", "piKla87Sie57");
+}
+
 void setup()
 {
-	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	// char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	printf("==========================\n");
 	printf("Thing with Miflora-Gateway\n");
 	printf("==========================\n");
 	EspConfig.init();
-	const char *thingName = EspConfig.getThingName();
+	// const char *thingName = EspConfig.getThingName();
 	Logger.init("MiFloraGateway");
 	SerialLoggerTarget *serialLoggerTarget = new SerialLoggerTarget(SERIAL_LOGGER_TAG, LOG_LEVEL_VERBOSE);
 	Logger.addLoggerTarget(serialLoggerTarget);
@@ -80,7 +101,7 @@ void setup()
 					NULL,				 /* Parameter passed as input of the task */
 					1,					 /* Priority of the task. */
 					NULL);				 /* Task handle. */
-		char payload[LENGTH_LOGGER_MESSAGE];
+		// char payload[LENGTH_LOGGER_MESSAGE];
 		char moisture[LENGTH_SHORT_TEXT];
 		EspConfig.getNvsStringValue("moisture", moisture);
 		char temperature[LENGTH_SHORT_TEXT];
@@ -89,15 +110,28 @@ void setup()
 		EspConfig.getNvsStringValue("brightness", brightness);
 		char batteryLevel[LENGTH_SHORT_TEXT];
 		EspConfig.getNvsStringValue("batteryLevel", batteryLevel);
+		char rssi[LENGTH_SHORT_TEXT];
+		EspConfig.getNvsStringValue("rssi", rssi);
+		char conductivity[LENGTH_SHORT_TEXT];
+		EspConfig.getNvsStringValue("conductivity", conductivity);
 		printf("Batterylevel: '%s'\n", batteryLevel);
-		if(strlen(batteryLevel)==0){
-			strcpy(batteryLevel, "-1.0");
+		if (strlen(batteryLevel) == 0)
+		{
+			sendByHttps(mac, "batteryLevel", batteryLevel);
+			// strcpy(batteryLevel, "-1.0");
 		}
 
-		sprintf(payload, "{\"mac\": \"%s\",\"moisture\": %s,\"temperature\": %s,\"brightness\": %s,\"batteryLevel\": %s}",
-		      mac, moisture, temperature, brightness, batteryLevel);
-		Logger.debug("MiFloraGateway, send by https:", payload);
-		HttpClient.post(urlMifloras, payload, true, "gerald", "piKla87Sie57");
+		// sprintf(payload, "{\"mac\": \"%s\",\"moisture\": %s,\"temperature\": %s,\"brightness\": %s,\"batteryLevel\": %s}",
+		// 		mac, moisture, temperature, brightness, batteryLevel);
+		// Logger.debug("MiFloraGateway, send by https:", payload);
+		// HttpClient.post(urlMifloras, payload, true, "gerald", "piKla87Sie57");
+
+		// sendByHttps(_miflora.macAddress, "rssi", _miflora.rssi);
+		sendByHttps(mac, "moisture", moisture);
+		sendByHttps(mac, "temperature", temperature);
+		sendByHttps(mac, "brightness", brightness);
+		sendByHttps(mac, "rssi", rssi);
+		sendByHttps(mac, "conductivity", conductivity);
 
 		EspConfig.setNvsStringValue("mac", "");
 	}
