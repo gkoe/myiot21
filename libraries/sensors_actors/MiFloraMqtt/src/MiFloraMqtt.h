@@ -4,7 +4,7 @@
 #include <cstring>
 #include <BLEClient.h>
 #include <BLEAddress.h>
-#include <IotSensor.h>
+// #include <IotSensor.h>
 
 // const char* mifloraTopicsKey = "MIFLORA_TOPICS";
 
@@ -19,13 +19,13 @@ struct miflora_t
 {
   // BLEAddress* bleAddress;
   char macAddress[20];
-  long lastMeasurementTime;
-  IotSensor* moistureSensor;
-  IotSensor* temperatureSensor;
+  // long lastMeasurementTime;
+  // IotSensor* moistureSensor;
+  // IotSensor* temperatureSensor;
   float rssiValue;
-  IotSensor* brightnessSensor;
-  IotSensor* batteryLevelSensor;
-  IotSensor* conductivitySensor;
+  // IotSensor* brightnessSensor;
+  // IotSensor* batteryLevelSensor;
+  // IotSensor* conductivitySensor;
 };
 
 typedef std::list<miflora_t *> MiFloraList;

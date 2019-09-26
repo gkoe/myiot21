@@ -11,8 +11,8 @@
 #include <EspTime.h>
 #include <Logger.h>
 #include <Constants.h>
-#include <IotSensor.h>
-#include <Thing.h>
+// #include <IotSensor.h>
+// #include <Thing.h>
 #include <SystemService.h>
 
 // #include <sstream>
@@ -44,22 +44,22 @@ static BLERemoteCharacteristic *pRemoteCharacteristic;
 
 // static char mqttTopicText[400];
 
-void appendTopicAndPayload(IotSensor *sensor, float value)
-{
-    // char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    // char topicPayload[LENGTH_TOPIC];
-    // sprintf(topicPayload, "%s/state={\"timestamp\":%ld,\"value\":%.2f};", sensor->getName(), EspTime.getTime(), value);
-    // strcat(mqttTopicText, topicPayload);
-    // snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "mqttTopicText:  %s", mqttTopicText);
-    // Logger.info("MiFlora;appendTopicAndPayload()", loggerMessage);
-}
+// void appendTopicAndPayload(IotSensor *sensor, float value)
+// {
+//     // char loggerMessage[LENGTH_LOGGER_MESSAGE];
+//     // char topicPayload[LENGTH_TOPIC];
+//     // sprintf(topicPayload, "%s/state={\"timestamp\":%ld,\"value\":%.2f};", sensor->getName(), EspTime.getTime(), value);
+//     // strcat(mqttTopicText, topicPayload);
+//     // snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "mqttTopicText:  %s", mqttTopicText);
+//     // Logger.info("MiFlora;appendTopicAndPayload()", loggerMessage);
+// }
 
+/**
+ * Einen Miflira auslesen und die Messwerte in NVS speichern
+ */
 bool MiFloraMqttClass::setMiFloraSensorValues(miflora_t *miFlora)
 {
-    // mqttTopicText[0] = 0;
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    // sprintf(loggerMessage, "Forming a connection to Flora device at %s", miFlora->macAddress);
-    // Logger.info("MiFlora;setMiFloraSensorValues()", loggerMessage);
     // Connect to the remove BLE Server.
     BLEAddress bleAddress = BLEAddress(std::string(miFlora->macAddress));
     if (!_bleClient->connect(bleAddress))
@@ -117,9 +117,8 @@ bool MiFloraMqttClass::setMiFloraSensorValues(miflora_t *miFlora)
     int conductivity = (float)(val[8] + val[9] * 256);
     // // printf("!!! set moisture %f\n", moisture);
     // // miFlora->moistureSensor->setMeasurement(moisture);
-    // appendTopicAndPayload(miFlora->moistureSensor, moisture);
     Logger.info("MiFlora;setMiFloraSensorValues();mac:", miFlora->macAddress);
-    EspConfig.setNvsStringValue("mac", miFlora->moistureSensor->getName());
+    EspConfig.setNvsStringValue("mac", miFlora->macAddress);
 
     char valueText[LENGTH_SHORT_TEXT];
 
@@ -133,29 +132,15 @@ bool MiFloraMqttClass::setMiFloraSensorValues(miflora_t *miFlora)
     EspConfig.setNvsStringValue("brightness", valueText);
     sprintf(valueText, "%d", conductivity);
     EspConfig.setNvsStringValue("conductivity", valueText);
-    EspConfig.setNvsStringValue("batteryLevel", "");
     sprintf(valueText, "%.2f", miFlora->rssiValue);
     EspConfig.setNvsStringValue("rssi", valueText);
 
-    // // printf("!!! set temperature %f\n", temperature);
-    // // miFlora->temperatureSensor->setMeasurement(temperature);
-    // appendTopicAndPayload(miFlora->temperatureSensor, temperature);
-    // // printf("!!! set brightness %d\n", brightness);
-    // // miFlora->brightnessSensor->setMeasurement(brightness);
-    // appendTopicAndPayload(miFlora->brightnessSensor, brightness);
-    // // printf("!!! set conductivity %d\n", conductivity);
-    // // miFlora->conductivitySensor->setMeasurement(conductivity);
-    // appendTopicAndPayload(miFlora->conductivitySensor, conductivity);
-
     Logger.info("MiFlora;setMiFloraSensorValues()", "Trying to retrieve battery level");
+    EspConfig.setNvsStringValue("batteryLevel", ""); // Bei Absturz während auslesen stehen keine falschen Werte im NVS
     pRemoteCharacteristic = pRemoteService->getCharacteristic(uuid_version_battery);
     if (pRemoteCharacteristic == nullptr)
     {
         Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find battery level characteristic UUID");
-        //Serial.println(uuid_sensor_data.toString().c_str());
-        //_bleClient->disconnect();
-        sprintf(valueText, "%s", "-1");
-        EspConfig.setNvsStringValue("batteryLevel", valueText);
         return false;
     }
     else
@@ -179,8 +164,7 @@ bool MiFloraMqttClass::setMiFloraSensorValues(miflora_t *miFlora)
         sprintf(valueText, "%d", batteryLevel);
         EspConfig.setNvsStringValue("batteryLevel", valueText);
     }
-    Logger.info("MiFlora;setNvsString()", "Write to NVS");
-    // EspConfig.setNvsStringValue("MIFLORA_TOPICS", mqttTopicText);
+    Logger.info("MiFlora;setMiFloraSensorValues()", "END of function");
     return true;
 }
 
@@ -192,51 +176,58 @@ void MiFloraMqttClass::closeBleConnection()
     // BLEDevice::deinit(true);
 }
 
-void attachMiFloraSensors(miflora_t *miFlora)
-{
-    char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora: %s", miFlora->macAddress);
-    Logger.info("MiFlora;attachMiFloraSensors()", "start");
-    char name[LENGTH_TOPIC];
-    sprintf(name, "%s", miFlora->macAddress);
-    IotSensor *moistureSensor = new IotSensor(EspConfig.getThingName(), name, "%", 1.0, 0.0, 100.0);
-    Thing.addSensor(moistureSensor);
-    miFlora->moistureSensor = moistureSensor;
-    sprintf(name, "%s/%s", miFlora->macAddress, "temperature");
-    IotSensor *temperatureSensor = new IotSensor(EspConfig.getThingName(), name, "°C", 1.0, -20.0, 80.0);
-    Thing.addSensor(temperatureSensor);
-    miFlora->temperatureSensor = temperatureSensor;
-    sprintf(name, "%s/%s", miFlora->macAddress, "brightness");
-    IotSensor *brightnessSensor = new IotSensor(EspConfig.getThingName(), name, "Lux", 1.0, 0.0, 3000.0);
-    Thing.addSensor(brightnessSensor);
-    miFlora->brightnessSensor = brightnessSensor;
-    sprintf(name, "%s/%s", miFlora->macAddress, "conductivity");
-    IotSensor *conductivitySensor = new IotSensor(EspConfig.getThingName(), name, "", 1.0, 0.0, 1000.0);
-    Thing.addSensor(conductivitySensor);
-    miFlora->conductivitySensor = conductivitySensor;
-    sprintf(name, "%s/%s", miFlora->macAddress, "batterylevel");
-    IotSensor *batteryLevelSensor = new IotSensor(EspConfig.getThingName(), name, "%", 1.0, 0.0, 100.0);
-    Thing.addSensor(batteryLevelSensor);
-    miFlora->batteryLevelSensor = batteryLevelSensor;
-    sprintf(name, "%s/%s", miFlora->macAddress, "rssi");
-    IotSensor *rssiSensor = new IotSensor(EspConfig.getThingName(), name, "", 1.0, -150.0, 0.0);
-    // Thing.addSensor(rssiSensor);
-    // miFlora->rssiSensor = rssiSensor;
-}
+// void attachMiFloraSensors(miflora_t *miFlora)
+// {
+//     char loggerMessage[LENGTH_LOGGER_MESSAGE];
+//     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora: %s", miFlora->macAddress);
+//     Logger.info("MiFlora;attachMiFloraSensors()", "start");
+//     char name[LENGTH_TOPIC];
+//     sprintf(name, "%s", miFlora->macAddress);
+//     IotSensor *moistureSensor = new IotSensor(EspConfig.getThingName(), name, "%", 1.0, 0.0, 100.0);
+//     Thing.addSensor(moistureSensor);
+//     miFlora->moistureSensor = moistureSensor;
+//     sprintf(name, "%s/%s", miFlora->macAddress, "temperature");
+//     IotSensor *temperatureSensor = new IotSensor(EspConfig.getThingName(), name, "°C", 1.0, -20.0, 80.0);
+//     Thing.addSensor(temperatureSensor);
+//     miFlora->temperatureSensor = temperatureSensor;
+//     sprintf(name, "%s/%s", miFlora->macAddress, "brightness");
+//     IotSensor *brightnessSensor = new IotSensor(EspConfig.getThingName(), name, "Lux", 1.0, 0.0, 3000.0);
+//     Thing.addSensor(brightnessSensor);
+//     miFlora->brightnessSensor = brightnessSensor;
+//     sprintf(name, "%s/%s", miFlora->macAddress, "conductivity");
+//     IotSensor *conductivitySensor = new IotSensor(EspConfig.getThingName(), name, "", 1.0, 0.0, 1000.0);
+//     Thing.addSensor(conductivitySensor);
+//     miFlora->conductivitySensor = conductivitySensor;
+//     sprintf(name, "%s/%s", miFlora->macAddress, "batterylevel");
+//     IotSensor *batteryLevelSensor = new IotSensor(EspConfig.getThingName(), name, "%", 1.0, 0.0, 100.0);
+//     Thing.addSensor(batteryLevelSensor);
+//     miFlora->batteryLevelSensor = batteryLevelSensor;
+//     sprintf(name, "%s/%s", miFlora->macAddress, "rssi");
+//     IotSensor *rssiSensor = new IotSensor(EspConfig.getThingName(), name, "", 1.0, -150.0, 0.0);
+//     // Thing.addSensor(rssiSensor);
+//     // miFlora->rssiSensor = rssiSensor;
+// }
 
-void readValuesFromMiFloraTask(miflora_t *miFlora)
-{
-    //printf("!!! readValuesFromMiFloraTask from %s", miFlora->macAddress);
-    attachMiFloraSensors(miFlora);
-    MiFlora.setMiFloraSensorValues(miFlora);
-    MiFlora.closeBleConnection();
-}
+// void readValuesFromMiFloraTask(miflora_t *miFlora)
+// {
+//     //printf("!!! readValuesFromMiFloraTask from %s", miFlora->macAddress);
+//     attachMiFloraSensors(miFlora);
+//     MiFlora.setMiFloraSensorValues(miFlora);
+//     MiFlora.closeBleConnection();
+// }
 
 bool compareByRssi(const miflora_t *first, const miflora_t *second)
 {
-    return (first->rssiValue < second->rssiValue);
+    return (first->rssiValue > second->rssiValue);
 }
 
+/**
+ * Der ESP scannt die Umgebung nach erreichbaren (rssi über -90) Mifloras ab.
+ * Je Neustart wird über einen zyklischen Index der nächste Miflora abgefragr und
+ * dessen Werte im NVS gespeichert.
+ * Da sich BLE und https offensichtlich nicht vertragen, wird der ESP neu ohne BLE gestartet
+ * und die Messwerte werden aus dem NVS ausgelesen und per https an den Server übertragen.
+ */
 void scanMiFlorasTask(void *voidPtr)
 {
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
@@ -254,15 +245,16 @@ void scanMiFlorasTask(void *voidPtr)
     int count = foundDevices.getCount();
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Found BLE-devices: %d", count);
     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
-    int newMiFlorasCounter = 0;
+    // int newMiFlorasCounter = 0;
+
     for (int idx = 0; idx < count; idx++)
     {
         BLEAdvertisedDevice device = foundDevices.getDevice(idx);
-        if (device.haveName())
-        {
-            snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "getDevice() deviceName: %s", device.getName().c_str());
-            Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
-        }
+        // if (device.haveName())
+        // {
+        //     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "getDevice() deviceName: %s", device.getName().c_str());
+        //     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
+        // }
         if (device.haveServiceUUID())
         {
             BLEUUID serviceUUID = device.getServiceUUID();
@@ -286,7 +278,7 @@ void scanMiFlorasTask(void *voidPtr)
                     miFlora->rssiValue = rssi;
                     strcpy(miFlora->macAddress, macAddress);
                     miFloras->push_back(miFlora);
-                    newMiFlorasCounter++;
+                    // newMiFlorasCounter++;
                 }
 
                 // miflora_t *miFlora;
@@ -311,7 +303,7 @@ void scanMiFlorasTask(void *voidPtr)
     // Serial.println("!!! Scan done!");
     miFloras->sort(compareByRssi);
     int miFlorasCounter = miFloras->size();
-    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Scanned mifloras: %d, new: %d", miFlorasCounter, newMiFlorasCounter);
+    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Scanned mifloras: %d", miFlorasCounter);
     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
     //MiFlora.closeBleConnection();
     if (miFloras->size() == 0)
@@ -319,6 +311,13 @@ void scanMiFlorasTask(void *voidPtr)
         MiFlora.closeBleConnection();
         vTaskDelete(NULL);
         return;
+    }
+
+    for (std::list<miflora_t *>::iterator it = miFloras->begin(); it != miFloras->end(); ++it)
+    {
+        miflora_t *mifloraPtr = *it;
+        sprintf(loggerMessage, "Sorted by rssi, rssi: %.2f, mac: %s", mifloraPtr->rssiValue, mifloraPtr->macAddress);
+        Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
     }
     int miFloraIndex = EspConfig.getNvsIntValue("mifloraindex");
     if (miFloraIndex >= miFlorasCounter)
@@ -342,11 +341,12 @@ void scanMiFlorasTask(void *voidPtr)
         return;
     }
     miflora_t *miFlora = *it;
-    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora %i to read: %s", miFloraIndex, miFlora->macAddress);
-    Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
-    readValuesFromMiFloraTask(miFlora);
     miFloraIndex++;
     EspConfig.setNvsIntValue("mifloraindex", miFloraIndex);
+    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora %i to read: %s", miFloraIndex, miFlora->macAddress);
+    Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
+    MiFlora.setMiFloraSensorValues(miFlora);
+    // readValuesFromMiFloraTask(miFlora);
     MiFlora.closeBleConnection();
     SystemService.restart();
     vTaskDelete(NULL);
@@ -371,7 +371,7 @@ void MiFloraMqttClass::readNextMiFlora()
         vTaskDelete(_scanTask);
     xTaskCreate(scanMiFlorasTask,   /* Task function. */
                 "TaskScanMiFloras", /* String with name of task. */
-                4096,              /* Stack size in words. */
+                4096,               /* Stack size in words. */
                 _miFloras,          /* Parameter passed as input of the task */
                 1,                  /* Priority of the task. */
                 _scanTask);         /* Task handle. */
