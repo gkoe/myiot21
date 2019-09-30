@@ -11,7 +11,6 @@
 #include <SystemService.h>
 #include <EspUdp.h>
 #include <UdpLoggerTarget.h>
-#include <Thing.h>
 
 #define LED_BUILTIN_PIN 16 // WEMOS MINI32 2, TTGO 16, Lolin 5, sonst 21
 
@@ -24,9 +23,7 @@ const char *basicAuthenticationName = "gerald";
 const char *basicAuthenticationPassword = "piKla87Sie57";
 
 
-//>>>>>>>>>>>>>>>>>>>> Thingspezifisch
-#include <MiFloraMqtt.h>
-//<<<<<<<<<<<<<<<<<<<<<<<
+#include <MiFlora.h>
 
 void taskDeepSleepShort(void *parameter)
 {
@@ -65,9 +62,9 @@ void sendByHttps(const char *mac, const char *sensorName, const char *value)
 void setup()
 {
 	// char loggerMessage[LENGTH_LOGGER_MESSAGE];
-	printf("==========================\n");
-	printf("Thing with Miflora-Gateway\n");
-	printf("==========================\n");
+	printf("===============\n");
+	printf("Miflora-Gateway\n");
+	printf("===============\n");
 	EspConfig.init();
 	// const char *thingName = EspConfig.getThingName();
 	Logger.init("MiFloraGateway");
@@ -93,7 +90,7 @@ void setup()
 	char mac[LENGTH_SHORT_TEXT];
 	EspConfig.getNvsStringValue("mac", mac);
 	// Logger.info("MiFloraGateway, app_main(), NvsTopicText=", mifloraTopics);
-	if (strlen(mac) > 0)
+	if (strlen(mac) > 0)  // Es sind MiFlora-Daten im NVS gespeichert und per Mqtt oder http zu übertragen
 	{
 		xTaskCreate(taskDeepSleepLong,   /* Task function. */
 					"TaskDeepSleepLong", /* String with name of task. */
@@ -120,13 +117,6 @@ void setup()
 			sendByHttps(mac, "batteryLevel", batteryLevel);
 			// strcpy(batteryLevel, "-1.0");
 		}
-
-		// sprintf(payload, "{\"mac\": \"%s\",\"moisture\": %s,\"temperature\": %s,\"brightness\": %s,\"batteryLevel\": %s}",
-		// 		mac, moisture, temperature, brightness, batteryLevel);
-		// Logger.debug("MiFloraGateway, send by https:", payload);
-		// HttpClient.post(urlMifloras, payload, true, "gerald", "piKla87Sie57");
-
-		// sendByHttps(_miflora.macAddress, "rssi", _miflora.rssi);
 		sendByHttps(mac, "moisture", moisture);
 		sendByHttps(mac, "temperature", temperature);
 		sendByHttps(mac, "brightness", brightness);
@@ -135,7 +125,7 @@ void setup()
 
 		EspConfig.setNvsStringValue("mac", "");
 	}
-	else // keine Messungen anstehend ==> MiFlora-Mode ==> BLE
+	else // keine Messungen anstehend ==> MiFlora-Scanmode ==> BLE
 	{
 		Logger.info("MiFloraGateway, app_main()", "Measure Miflora per BLE");
 		xTaskCreate(taskDeepSleepShort,   /* Task function. */
@@ -152,6 +142,5 @@ void setup()
 void loop()
 {
 	SystemService.checkSystem();
-	Thing.refreshSensorsAndActors();
 	vTaskDelay(1);
 }
