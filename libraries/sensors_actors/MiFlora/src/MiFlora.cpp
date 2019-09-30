@@ -33,6 +33,21 @@ static BLEUUID uuid_write_mode("00001a00-0000-1000-8000-00805f9b34fb");
 
 static BLERemoteCharacteristic *pRemoteCharacteristic;
 
+static void setNvsStringIfValid(float value, const char *name, float min, float max)
+{
+    char valueText[LENGTH_SHORT_TEXT];
+
+    if (value >= min && value <= max)
+    {
+        sprintf(valueText, "%.2f", value);
+        EspConfig.setNvsStringValue(name, valueText);
+    }
+    else
+    {
+        EspConfig.setNvsStringValue(name, "");
+    }
+}
+
 /**
  * Einen Miflira auslesen und die Messwerte in NVS speichern
  */
@@ -99,20 +114,11 @@ bool MiFloraClass::storeMiFloraSensorValuesToNvs(miflora_t *miFlora)
     Logger.info("MiFlora;setMiFloraSensorValues();mac:", miFlora->macAddress);
     EspConfig.setNvsStringValue("mac", miFlora->macAddress);
 
-    char valueText[LENGTH_SHORT_TEXT];
-
-    sprintf(valueText, "%.2f", moisture);
-    EspConfig.setNvsStringValue("moisture", valueText);
-    Logger.info("MiFlora;setMiFloraSensorValues();moisture:", valueText);
-
-    sprintf(valueText, "%.2f", temperature);
-    EspConfig.setNvsStringValue("temperature", valueText);
-    sprintf(valueText, "%d", brightness);
-    EspConfig.setNvsStringValue("brightness", valueText);
-    sprintf(valueText, "%d", conductivity);
-    EspConfig.setNvsStringValue("conductivity", valueText);
-    sprintf(valueText, "%.2f", miFlora->rssiValue);
-    EspConfig.setNvsStringValue("rssi", valueText);
+    setNvsStringIfValid(moisture, "moisture", 0.0, 100.0);
+    setNvsStringIfValid(temperature, "temperature", 0.0, 40.0);
+    setNvsStringIfValid(brightness, "brightness", 0.0, 10000.0);
+    setNvsStringIfValid(conductivity, "conductivity", 0.0, 1000.0);
+    setNvsStringIfValid(miFlora->rssiValue, "rssi", -200.0, 100.0);
 
     Logger.info("MiFlora;setMiFloraSensorValues()", "Trying to retrieve battery level");
     EspConfig.setNvsStringValue("batteryLevel", ""); // Bei Absturz während auslesen stehen keine falschen Werte im NVS
@@ -122,7 +128,7 @@ bool MiFloraClass::storeMiFloraSensorValuesToNvs(miflora_t *miFlora)
         Logger.error("MiFlora;setMiFloraSensorValues()", "Failed to find battery level characteristic UUID");
         return false;
     }
-    else  // read battery level
+    else // read battery level
     {
         // Read the value of the characteristic...
         value = pRemoteCharacteristic->readValue();
@@ -140,8 +146,8 @@ bool MiFloraClass::storeMiFloraSensorValuesToNvs(miflora_t *miFlora)
         // float batteryLevel = (float)val2[0];
         // miFlora->batteryLevelSensor->setMeasurement(batteryLevel);
         // appendTopicAndPayload(miFlora->batteryLevelSensor, batteryLevel);
-        sprintf(valueText, "%d", batteryLevel);
-        EspConfig.setNvsStringValue("batteryLevel", valueText);
+
+        setNvsStringIfValid(batteryLevel, "batteryLevel", 0.0, 100.0);
     }
     Logger.info("MiFlora;setMiFloraSensorValues()", "END of function");
     return true;
@@ -175,7 +181,7 @@ void scanMiFlorasTask(void *voidPtr)
     MiFloraList *miFloras = (MiFloraList *)voidPtr;
     // Serial.printf("!!! miFloras in search, Count: %d\n", miFloras->size());
     BLEScan *pBLEScan = BLEDevice::getScan(); //create new scan
-    pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
+    pBLEScan->setActiveScan(true);            //active scan uses more power, but get results faster
     pBLEScan->setInterval(0x50);
     pBLEScan->setWindow(0x30);
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Start BLE scan for %d seconds...", SCAN_TIME);
@@ -203,7 +209,7 @@ void scanMiFlorasTask(void *voidPtr)
                 int rssi = device.getRSSI();
                 snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora %d, address: %s, rssi: %d", idx, macAddress, rssi);
                 Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);
-                if (rssi >= -90)  // unter -90db ist der Sensor praktisch nicht erreichbar
+                if (rssi >= -90) // unter -90db ist der Sensor praktisch nicht erreichbar
                 {
                     miflora_t *miFlora;
                     miFlora = new miflora_t();
@@ -211,7 +217,6 @@ void scanMiFlorasTask(void *voidPtr)
                     strcpy(miFlora->macAddress, macAddress);
                     miFloras->push_back(miFlora);
                 }
-
             }
         }
     }
@@ -255,7 +260,7 @@ void scanMiFlorasTask(void *voidPtr)
         return;
     }
     miflora_t *miFlora = *it;
-    miFloraIndex++;  // Index des nächsten MiFloras in NVS speichern
+    miFloraIndex++; // Index des nächsten MiFloras in NVS speichern
     EspConfig.setNvsIntValue("mifloraindex", miFloraIndex);
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MiFlora %i to read: %s", miFloraIndex, miFlora->macAddress);
     Logger.info("MiFlora;scanMiFlorasTask()", loggerMessage);

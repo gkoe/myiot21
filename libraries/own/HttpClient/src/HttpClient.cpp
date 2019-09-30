@@ -81,7 +81,7 @@ void HttpClientClass::getFullUrl(char *fullUrl, const char *url, bool https, con
             sprintf(fullUrl, "http://%s:%s@%s", user, password, url);
         }
     }
-    else
+    else  // without authentication
     {
         if (https)
         {
