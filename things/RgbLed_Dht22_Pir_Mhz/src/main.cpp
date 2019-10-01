@@ -24,8 +24,8 @@
 #include <SimplePir.h>
 #include <Mhz.h>
 
-#define UART_TXD (GPIO_NUM_25)
-#define UART_RXD (GPIO_NUM_33)
+#define UART_TXD (GPIO_NUM_25)  // verbunden mit Rx am Mhz
+#define UART_RXD (GPIO_NUM_33)  // verbunden mit Tx am Mhz
 
 extern "C"
 {
