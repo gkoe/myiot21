@@ -68,7 +68,7 @@ void IotSensor::setMeasurement(float value)
 
 	_lastMeasurement = value;
 	// Mittelwertsbildung
-	if (_lastValues[_actLastValuesIndex] != value)  // hinter einander gemessene gleiche Werte aus Mittelwertsbildung unterdrücken
+	if (_lastValues[_actLastValuesIndex] != value) // hinter einander gemessene gleiche Werte aus Mittelwertsbildung unterdrücken
 	{
 		_actLastValuesIndex++;
 		if (_actLastValuesIndex >= 10)
@@ -89,7 +89,7 @@ void IotSensor::setMeasurement(float value)
 	}
 	time = EspTime.getTime();
 	if (value > _minValue && value < _maxValue &&
-		  time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
+		time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
 		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld", _name, _publishedMeasurement, _unit, value, _unit, time, _time);
 		Logger.info("Sensor;set Measurement", loggerMessage);
@@ -140,10 +140,16 @@ bool IotSensor::getPinState(gpio_num_t pin)
 	return gpio_input_get() & (1 << pin);
 }
 
+/**
+ * Von den letzten 10 Messwerten werden die größten zwei und die kleinsten zwei Werte gestrichen.
+ * Aus den restlichen (maximal 6) Werten wird der Mittelwert gebildet.
+ */
 float IotSensor::getAverageValue()
 {
-	int actMinValue = _maxValue;
-	int actMaxValue = _minValue;
+	int actLowestValue = _maxValue;
+	int actSecondLowestValue = _maxValue;
+	int actGreatestValue = _minValue;
+	int actSecondGreatestValue = _minValue;
 	int validValues = 0;
 	int sumOfValues = 0;
 	for (int i = 0; i < 10; i++)
@@ -151,20 +157,36 @@ float IotSensor::getAverageValue()
 		if (_lastValues[i] != _minValue)
 		{
 			uint32_t value = _lastValues[i];
-			if (value > actMaxValue)
+			if (value > actSecondGreatestValue)
 			{
-				actMaxValue = value;
+				if (value > actGreatestValue)
+				{
+					actSecondGreatestValue = actGreatestValue;
+					actGreatestValue = value;
+				}
+				else
+				{
+					actSecondGreatestValue = value;
+				}
 			}
-			else if (value < actMinValue)
+			else if (value < actSecondLowestValue)
 			{
-				actMinValue = value;
+				if (value < actLowestValue)
+				{
+					actSecondLowestValue = actLowestValue;
+					actLowestValue = value;
+				}
+				else
+				{
+					actSecondLowestValue = value;
+				}
 			}
 			sumOfValues += value;
 			validValues++;
 		}
 	}
-	if (validValues < 3)
+	if (validValues < 5)
 		return -1;
 	//printf("sumOfValues: %d, minValue: %d, maxValue: %d, validValues: %d\n", sumOfValues, actMinValue, actMaxValue, validValues);
-	return (sumOfValues - actMinValue - actMaxValue) / ((float)validValues - 2);
+	return (sumOfValues - actLowestValue - actSecondLowestValue - actGreatestValue - actSecondGreatestValue) / ((float)validValues - 4);
 }
