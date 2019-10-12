@@ -67,6 +67,7 @@ void IotSensor::setMeasurement(float value)
 	}
 
 	_lastMeasurement = value;
+	_lastMeasurementTime = EspTime.getTime();
 	// Mittelwertsbildung
 	if (_lastValues[_actLastValuesIndex] != value) // hinter einander gemessene gleiche Werte aus Mittelwertsbildung unterdrücken
 	{
@@ -112,6 +113,11 @@ void IotSensor::setMeasurement(float value)
 float IotSensor::getLastMeasurement()
 {
 	return _lastMeasurement;
+}
+
+long IotSensor::getLastMeasurementTime()
+{
+	return _lastMeasurementTime;
 }
 
 void IotSensor::measure()

@@ -205,7 +205,6 @@ static esp_err_t getConfigHandler(httpd_req_t *req)
         EspConfig.getConfig(loggerMessage, LENGTH_LOGGER_MESSAGE - 1);
         httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
         Logger.info("HttpServer, getConfigHandler(), Config:", loggerMessage);
-        httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
     }
     return ESP_OK;
 }
