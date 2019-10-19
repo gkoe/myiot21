@@ -10,6 +10,8 @@
 #include <EspAp.h>
 #include <EspConfig.h>
 #include <HttpServer.h>
+#include <SystemService.h>
+
 
 extern "C"
 {
@@ -40,7 +42,17 @@ void app_main()
   Logger.info("ConfigEspViaAp", loggerMessage);
   Logger.info("ConfigEspViaAp", "Connect with AP from ESP_xxx");
   HttpServer.init();
-  Logger.info("!!! Config WiFi", "http://192.168.10.1/setconfig?ssid=SSID&password=PASSWORD");
-  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/setconfig?mqttbroker=192.168.0.1&mqttport=1883&thingname=demo");
-  Logger.info("!!! Check config:", "http://192.168.10.1/getconfig");
+  Logger.info("!!! Config WiFi", "http://192.168.10.1/config?ssid=SSID");
+  Logger.info("!!! Config WiFi", "http://192.168.10.1/config?password=PASSWORD");
+  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?mqttbroker=192.168.0.1");
+  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?mqttport=1883");
+  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?thingname=demo");
+  Logger.info("!!! Check config:", "http://192.168.10.1/config");
+
+    while (true)
+  {
+    SystemService.checkSystem();
+    vTaskDelay(1);
+  }
+
 }
