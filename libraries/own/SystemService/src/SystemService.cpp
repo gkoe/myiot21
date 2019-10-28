@@ -7,6 +7,7 @@
 #include <EspMqttClient.h>
 #include <Constants.h>
 #include <EspTime.h>
+#include "esp_wifi.h"
 
 // #include <UdpLoggerTarget.h>
 
@@ -118,6 +119,28 @@ void SystemServiceClass::checkSystem()
     feedWatchdog();
 
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
+    if (EspTime.getTime() > _lastMqttPublishIsLivingTime + 60) // alle Minuten Mqtt-Message
+    {
+        // sprintf(loggerMessage,"START: oldTime: %ld, newTime: %ld", _lastMqttPublishIsLivingTime, EspTime.getTime());
+        // Logger.info("System Service;checkSystem(), send alive", loggerMessage);
+        _lastMqttPublishIsLivingTime = EspTime.getTime();
+        char topic[LENGTH_TOPIC];
+        char payload[LENGTH_PAYLOAD];
+        const char *thingName = EspConfig.getThingName();
+        sprintf(topic, "%s/alive", thingName);
+        tcpip_adapter_ip_info_t ip_info;
+        ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
+        wifi_ap_record_t wifidata;
+        int rssi=0;
+        if (esp_wifi_sta_get_ap_info(&wifidata) == 0)
+        {
+            rssi=wifidata.rssi;
+        }
+        sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":%s}", EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip) );
+        EspMqttClient.publish(topic, payload);
+        sprintf(loggerMessage, "topic: %s, payload: %s", topic, payload);
+        Logger.info("System Service;checkSystem(), send alive", loggerMessage);
+    }
     int heapSize = esp_get_free_heap_size();
     int nextNotificationHeapSize = _startHeapSize * _nextHeapSizeQuoteForNotification;
     sprintf(loggerMessage, "Loosing heapsize: %i", heapSize);
@@ -138,13 +161,13 @@ void SystemServiceClass::checkSystem()
         pushError(loggerMessage);
         _nextHeapSizeQuoteForNotification -= 0.1;
     }
-    if (_restarts > 0 && EspTime.getTime() > _lastRestartTime + 10 * 60 * 1000) // Selbstheilung nach 10 Minuten
+    if (_restarts > 0 && EspTime.getTime() > _lastRestartTime + 10 * 60) // Selbstheilung nach 10 Minuten
     {
         _restarts = 0;
         EspConfig.setNvsIntValue("restarts", 0);
         Logger.info("System Service;checkSystem()", "restarts ==> 0");
     }
-    if (_errors > 0 && EspTime.getTime() > _lastErrorTime + 10 * 60 * 1000) // Selbstheilung nach 10 Minuten
+    if (_errors > 0 && EspTime.getTime() > _lastErrorTime + 10 * 60) // Selbstheilung nach 10 Minuten
     {
         _errors = 0;
         Logger.info("System Service;checkSystem()", "errors ==> 0");
