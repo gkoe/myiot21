@@ -119,27 +119,57 @@ void SystemServiceClass::checkSystem()
     feedWatchdog();
 
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    if (EspTime.getTime() > _lastMqttPublishIsLivingTime + 60) // alle Minuten Mqtt-Message
+    if (EspTime.getTime() > _lastMqttPublishIsLivingTime + 60) // alle Minuten Mqtt-Message  //!
     {
-        // sprintf(loggerMessage,"START: oldTime: %ld, newTime: %ld", _lastMqttPublishIsLivingTime, EspTime.getTime());
+        // sprintf(loggerMessage, "START: oldTime: %ld, newTime: %ld", _lastMqttPublishIsLivingTime, EspTime.getTime());
         // Logger.info("System Service;checkSystem(), send alive", loggerMessage);
         _lastMqttPublishIsLivingTime = EspTime.getTime();
         char topic[LENGTH_TOPIC];
         char payload[LENGTH_PAYLOAD];
-        const char *thingName = EspConfig.getThingName();
-        sprintf(topic, "%s/alive", thingName);
+        sprintf(topic, "rssi/state");
         tcpip_adapter_ip_info_t ip_info;
         ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
         wifi_ap_record_t wifidata;
-        int rssi=0;
+        int rssi = 0;
+        int8_t powerFactor = 0;
+        int8_t powerFactorNew = 0;
         if (esp_wifi_sta_get_ap_info(&wifidata) == 0)
         {
-            rssi=wifidata.rssi;
+            rssi = wifidata.rssi;
+            if (esp_wifi_get_max_tx_power(&powerFactor) == ESP_OK)
+            {
+                float attenuation = -75.0 - rssi;
+                powerFactorNew = powerFactor + attenuation * 4; // 0.25 dbm zusätzliche Dämpfung
+                if (powerFactorNew < 45)
+                {
+                    powerFactorNew = 45; // kleinste Leistung
+                }
+                else if (powerFactorNew > 75)
+                {
+                    powerFactorNew = 75; // höchste Leistung
+                }
+                sprintf(loggerMessage, "PowerFactor old: %d, PowerFactor new: %d, zusätzliche Dämpfung: %.2f db", powerFactor, powerFactorNew, attenuation * -1.0);
+                Logger.info("System Service;checkSystem(), wifi transmit power changed", loggerMessage);
+                sprintf(loggerMessage, "Power old: %.2f dbm, Power new: %.2f dbm", powerFactor / 4.0, powerFactorNew / 4.0);
+                Logger.info("System Service;checkSystem(), wifi transmit power changed", loggerMessage);
+                int errorCode = esp_wifi_set_max_tx_power(85);
+                if (errorCode != ESP_OK)
+                {
+                    sprintf(loggerMessage, "ErrorCode: %d", errorCode);
+                    Logger.error("System Service;checkSystem(), set transmit power", loggerMessage);
+                }
+                // if (esp_wifi_get_max_tx_power(&powerFactor) == ESP_OK)
+                // {
+                //     sprintf(loggerMessage, "ReRead Powerfactor: %d", powerFactor);
+                //     Logger.info("System Service;checkSystem()", loggerMessage);
+                // }
+            }
+            sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":%s,\"wifipower\":%.2f}",
+                    EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip), powerFactorNew / 4.0);
+            EspMqttClient.publish(topic, payload);
+            sprintf(loggerMessage, "topic: %s, payload: %s", topic, payload);
+            Logger.info("System Service;checkSystem(), send alive", loggerMessage);
         }
-        sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":%s}", EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip) );
-        EspMqttClient.publish(topic, payload);
-        sprintf(loggerMessage, "topic: %s, payload: %s", topic, payload);
-        Logger.info("System Service;checkSystem(), send alive", loggerMessage);
     }
     int heapSize = esp_get_free_heap_size();
     int nextNotificationHeapSize = _startHeapSize * _nextHeapSizeQuoteForNotification;
