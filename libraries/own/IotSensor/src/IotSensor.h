@@ -78,7 +78,7 @@ private:
 	float _lastMeasurement = 0.0;	  // letzter gemessener Wert
 	long _lastMeasurementTime=0;
 	long _time;
-	uint32_t _lastValues[10];
+	float _lastValues[10];
 	int _actLastValuesIndex = 0;
 	bool _getAverageValue;
 };

@@ -148,10 +148,11 @@ int Dht22::getSignalLevel(int usTimeOut, bool state)
 		1: 70 us
 ;----------------------------------------------------------------------------*/
 
-const int DhtBytes=5; // to complete 40 = 5*8 Bits
+const int DhtBytes = 5; // to complete 40 = 5*8 Bits
 
 int Dht22::readDht()
 {
+    char loggerMessage[LENGTH_LOGGER_MESSAGE];
     int uSec = 0;
     uint8_t dhtData[DhtBytes];
     uint8_t byteIndex = 0;
@@ -173,22 +174,42 @@ int Dht22::readDht()
     // == DHT will keep the line low for 80 us and then high for 80us ====
     uSec = getSignalLevel(85, 0);
     ESP_LOGD(TAG, "Response = %d", uSec);
-    if (uSec < 0) return DHT_TIMEOUT_ERROR;
+    if (uSec < 0)
+    {
+        sprintf(loggerMessage, "80 us low");
+        Logger.error("Dht22;readDht()", loggerMessage);
+        return DHT_TIMEOUT_ERROR;
+    }
     // -- 80us up ------------------------
     uSec = getSignalLevel(85, 1);
     ESP_LOGD(TAG, "Response = %d", uSec);
-    if (uSec < 0) return DHT_TIMEOUT_ERROR;
+    if (uSec < 0)
+    {
+        sprintf(loggerMessage, "80 us high");
+        Logger.error("Dht22;readDht()", loggerMessage);
+        return DHT_TIMEOUT_ERROR;
+    }
 
     // == No errors, read the 40 data bits ================
     for (int k = 0; k < 40; k++)
     {
         // -- starts new data transmission with >50us low signal
         uSec = getSignalLevel(56, 0);
-        if (uSec < 0)  return DHT_TIMEOUT_ERROR;
+        if (uSec < 0)
+        {
+            sprintf(loggerMessage, "start with 50 us low");
+            Logger.error("Dht22;readDht()", loggerMessage);
+            return DHT_TIMEOUT_ERROR;
+        }
         // -- check to see if after >70us rx data is a 0 or a 1
-        uSec = getSignalLevel(80, 1); //! 75
-        if (uSec < 0) return DHT_TIMEOUT_ERROR;
-        if (uSec > 40)  // 0 steht schon im Array ==> nur 1 muss gesetzt werden
+        uSec = getSignalLevel(85, 1); //! 75
+        if (uSec < 0)
+        {
+            sprintf(loggerMessage, "data signal max 75 us");
+            Logger.error("Dht22;readDht()", loggerMessage);
+            return DHT_TIMEOUT_ERROR;
+        }
+        if (uSec > 40) // 0 steht schon im Array ==> nur 1 muss gesetzt werden
         {
             dhtData[byteIndex] |= (1 << bitIndex);
         }

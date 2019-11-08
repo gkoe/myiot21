@@ -44,6 +44,7 @@ void IotSensor::setMaxIntervall(int intervall)
 void IotSensor::setMeasurement(float value)
 {
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	char averageText[LENGTH_SHORT_TEXT];
 	long time = EspTime.getTime();
 	if ((value < _minValue) || (value > _maxValue))
 	{
@@ -69,7 +70,8 @@ void IotSensor::setMeasurement(float value)
 	_lastMeasurement = value;
 	_lastMeasurementTime = EspTime.getTime();
 	// Mittelwertsbildung
-	if (_lastValues[_actLastValuesIndex] != value) // hinter einander gemessene gleiche Werte aus Mittelwertsbildung unterdrücken
+	if (_lastValues[_actLastValuesIndex] != value) // hintereinander gemessene gleiche Werte aus Mittelwertsbildung unterdrücken
+				// weil setMeasurement() in sehr kurzen Zeitabständen den aktuellen Messwert überträgt
 	{
 		_actLastValuesIndex++;
 		if (_actLastValuesIndex >= 10)
@@ -92,7 +94,17 @@ void IotSensor::setMeasurement(float value)
 	if (value > _minValue && value < _maxValue &&
 		time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
-		sprintf(loggerMessage, "Neuer Messwert fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld", _name, _publishedMeasurement, _unit, value, _unit, time, _time);
+		if (_getAverageValue)
+		{
+			strcpy(averageText, "Durchschnitt");
+		}
+		else
+		{
+			strcpy(averageText, "Einzelwert");
+		}
+
+		sprintf(loggerMessage, "Neuer Messwert (%s) fuer %s: %.1f%s auf %.1f%s, Time: %ld, Last: %ld",
+				averageText, _name, _publishedMeasurement, _unit, value, _unit, time, _time);
 		Logger.info("Sensor;set Measurement", loggerMessage);
 		_publishedMeasurement = value;
 		_time = time;
@@ -152,12 +164,12 @@ bool IotSensor::getPinState(gpio_num_t pin)
  */
 float IotSensor::getAverageValue()
 {
-	int actLowestValue = _maxValue;
-	int actSecondLowestValue = _maxValue;
-	int actGreatestValue = _minValue;
-	int actSecondGreatestValue = _minValue;
-	int validValues = 0;
-	int sumOfValues = 0;
+	float actLowestValue = _maxValue;
+	float actSecondLowestValue = _maxValue;
+	float actGreatestValue = _minValue;
+	float actSecondGreatestValue = _minValue;
+	float validValues = 0;
+	float sumOfValues = 0;
 	for (int i = 0; i < 10; i++)
 	{
 		if (_lastValues[i] != _minValue)
