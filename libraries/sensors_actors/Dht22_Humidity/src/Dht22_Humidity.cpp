@@ -10,5 +10,10 @@ Dht22_Humidity::Dht22_Humidity(Dht22* dht, const char* thingName, const char* na
 void Dht22_Humidity::measure()
 {
 	float humidity = _dht->getHumidity();
-	setMeasurement(humidity);
+	if (humidity != -1000)
+	{
+		setMeasurement(humidity);
+	}
+	
+	
 }

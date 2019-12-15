@@ -8,6 +8,7 @@
 #include <LoggerTarget.h>
 #include <SerialLoggerTarget.h>
 #include <EspAp.h>
+#include <EspStation.h>
 #include <EspConfig.h>
 #include <HttpServer.h>
 #include <SystemService.h>
@@ -30,24 +31,30 @@ void app_main()
   SerialLoggerTarget *serialLoggerTarget = new SerialLoggerTarget(SERIAL_LOGGER_TAG, LOG_LEVEL_INFO);
   Logger.addLoggerTarget(serialLoggerTarget);
   SystemService.init();
-  EspAp.init();
-  while (!EspAp.isApStarted())
-  {
-    vTaskDelay(1 / portTICK_PERIOD_MS);
-  }
+  // EspStation.init();
+  // Logger.info("ConfigEspViaAp, app_main()", "Waiting for connection as station!");
+  // int waitingMilliseconds = 5000;
+  // while (waitingMilliseconds > 0 && !EspStation.isStationOnline())
+  // {
+  //   vTaskDelay(1 / portTICK_PERIOD_MS);
+  //   waitingMilliseconds--;
+  // }
+  // if (!EspStation.isStationOnline())
+  // {
+    EspAp.init();
+    while (!EspAp.isApStarted())
+    {
+      vTaskDelay(1 / portTICK_PERIOD_MS);
+    }
+  // }
+
   char ntpServer[LENGTH_SHORT_TEXT];
   EspConfig.getNvsStringValue("ntpserver", ntpServer);
-  sprintf(loggerMessage, "SSID:%s, ThingName:%s, NtpServer:%s, MqttBroker:%s:%i", EspConfig.getSsid(), EspConfig.getThingName(),
+  sprintf(loggerMessage, "SSID:%s, Password:%s ThingName:%s, NtpServer:%s, MqttBroker:%s:%i", EspConfig.getSsid(), EspConfig.getPassword(), EspConfig.getThingName(),
           ntpServer, EspConfig.getMqttBroker(), EspConfig.getMqttBrokerPort());
   Logger.info("ConfigEspViaAp", loggerMessage);
   Logger.info("ConfigEspViaAp", "Connect with AP from ESP_xxx");
   HttpServer.init();
-  Logger.info("!!! Config WiFi", "http://192.168.10.1/config?ssid=SSID");
-  Logger.info("!!! Config WiFi", "http://192.168.10.1/config?password=PASSWORD");
-  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?thingname=demo");
-  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?mqttbroker=192.168.0.1");
-  Logger.info("!!! Config thing and MQTT", "http://192.168.10.1/config?mqttport=1883");
-  Logger.info("!!! Check config:", "http://192.168.10.1/config");
 
   while (true)
   {

@@ -69,8 +69,18 @@ void Dht22::init(gpio_num_t gpio)
 
 // == get temp & hum =============================================
 
-float Dht22::getHumidity() { return _humidity; }
-float Dht22::getTemperature() { return _temperature; }
+float Dht22::getHumidity()
+{
+    float result = _humidity;
+    _humidity = -1000;
+    return result;
+}
+float Dht22::getTemperature()
+{
+    float result = _temperature;
+    _temperature = -1000;
+    return result;
+}
 
 // == error handler ===============================================
 
@@ -202,7 +212,7 @@ int Dht22::readDht()
             return DHT_TIMEOUT_ERROR;
         }
         // -- check to see if after >70us rx data is a 0 or a 1
-        uSec = getSignalLevel(85, 1); //! 75
+        uSec = getSignalLevel(90, 1); //! 75
         if (uSec < 0)
         {
             sprintf(loggerMessage, "data signal max 75 us");
@@ -237,7 +247,15 @@ int Dht22::readDht()
     // == verify if checksum is ok ===========================================
     // Checksum is the sum of Data 8 bits masked out 0xFF
     if (dhtData[4] == ((dhtData[0] + dhtData[1] + dhtData[2] + dhtData[3]) & 0xFF))
+    {
+        // sprintf(loggerMessage, "measurement set, temperature: %.2f, Humidity: %.2f", _temperature, _humidity);
+        // Logger.info("Dht22;readDht()", loggerMessage);
         return DHT_OK;
+    }
     else
+    {
+        sprintf(loggerMessage, "CHEKSUMERROR");
+        Logger.error("Dht22;readDht()", loggerMessage);
         return DHT_CHECKSUM_ERROR;
+    }
 }
