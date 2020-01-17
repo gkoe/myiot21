@@ -246,7 +246,7 @@ void EspMqttClientClass::init(const char *mainTopic)
   }
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-Broker Address: %s:%i", _mqttBroker, _mqttPort);
   char uri[LENGTH_MIDDLE_TEXT];
-  sprintf(uri, "mqtts://%s", _mqttBroker);  //!! mqtt
+  sprintf(uri, "mqtt://%s", _mqttBroker);  //!! mqtts
   esp_mqtt_client_config_t mqtt_cfg = {};
   mqtt_cfg.username = _mqttUserName;
   mqtt_cfg.password = _mqttPassword;
@@ -286,12 +286,12 @@ bool EspMqttClientClass::publish(const char *topic, const char *payload)
     return false;
   }
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
-  Logger.debug("EspMqttClient;publish", "Start");
+  Logger.verbose("EspMqttClient;publish", "Start");
   // publish with retained-flag
   char totalTopic[LENGTH_TOPIC];
   sprintf(totalTopic, "%s/%s", _mainTopic, topic);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s to publish", totalTopic, payload);
-  Logger.debug("EspMqttClient;vor publish()", loggerMessage);
+  Logger.verbose("EspMqttClient;vor publish()", loggerMessage);
   int result = -1;
   result = esp_mqtt_client_publish(client, totalTopic, payload, 0, 0, 1);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s published, result: %d", totalTopic, payload, result);

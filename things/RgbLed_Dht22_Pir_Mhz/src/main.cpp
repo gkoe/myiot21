@@ -61,7 +61,7 @@ void app_main()
   Logger.info("ThingTest, app_main()", "HttpServer started");
   EspTime.init();
   EspUdp.init();
-  UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
+  UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_INFO);
   Logger.addLoggerTarget(udpLoggerTargetPtr);
   EspMqttClient.init(thingName);
   Thing.init();
