@@ -4,7 +4,7 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 
-gpio_num_t PIR_PIN = GPIO_NUM_26;
+gpio_num_t PIR_PIN = GPIO_NUM_25;
 
 
 extern "C"

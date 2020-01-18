@@ -48,11 +48,11 @@ void tsl2561_task(void *pvParameter)
     tsl2561_infrared_t infrared = 0;
     tsl2561_read(tsl2561_info, &visible, &infrared);
 
-    printf("\nFull spectrum: %d\n", visible + infrared);
-    printf("Infrared:      %d\n", infrared);
-    printf("Visible:       %d\n", visible);
+    // printf("\nFull spectrum: %d\n", visible + infrared);
+    // printf("Infrared:      %d\n", infrared);
+    // printf("Visible:       %d\n", visible);
     lux = tsl2561_compute_lux(tsl2561_info, visible, infrared);
-    printf("Lux:           %d\n", lux);
+    // printf("Lux:           %d\n", lux);
 
     luminosityPtr->_actLux = lux;
 

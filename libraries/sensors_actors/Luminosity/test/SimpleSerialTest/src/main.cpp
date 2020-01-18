@@ -36,12 +36,12 @@ void app_main()
   SystemService.init();
   Logger.info("LuminositySensorTest;app_main()", "Initialize Luminositysensor!");
 
-  Luminosity *LuminosityPtr = new Luminosity(I2C_SDA, I2C_SCL, "Luminositysensor", "Luminosity", "Lux", 2, 0, 50000, false);
+  Luminosity *luminosityPtr = new Luminosity(I2C_SDA, I2C_SCL, "Luminositysensor", "Luminosity", "Lux", 2, 0, 50000, false);
 
   while (true)
   {
-    LuminosityPtr->measure();
-    float Luminosity = LuminosityPtr->getLastMeasurement();
+    luminosityPtr->measure();
+    float Luminosity = luminosityPtr->getLastMeasurement();
     sprintf(loggerMessage, "Luminosity:  %.1f", Luminosity);
     Logger.info("LuminositySensorTest;app_main()", loggerMessage);
     vTaskDelay(3000 / portTICK_RATE_MS);

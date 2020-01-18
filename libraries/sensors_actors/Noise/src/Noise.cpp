@@ -12,7 +12,6 @@ long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel)
     int minValue = 10000;
     int maxValue = -1;
     int value;
-    int samples = 0;
     for (int i = 0; i < 10000; i++)
     {
         value = adc1_get_raw(adcChannel);
@@ -25,7 +24,7 @@ long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel)
         {
             minValue = value;
         }
-        samples++;
+        // vTaskDelay(1 / portTICK_RATE_MS);
     }
     // printf("NoiseLog;min: %d; max: %d;%d\n", minValue, maxValue, maxValue-minValue);
     vTaskDelay(50 / portTICK_RATE_MS);
@@ -55,10 +54,10 @@ Noise::Noise(adc1_channel_t adcChannel, const char *thingName, const char *name,
 
     xTaskCreate(measureNoiseInLoopTask,   /* Task function. */
                 "measurePowerInLoopTask", /* String with name of task. */
-                4096,                /* Stack size in words. */
-                this,                /* Parameter passed as input of the task */
-                1,                   /* Priority of the task. */
-                NULL                 /* Task handle. */
+                4096,                     /* Stack size in words. */
+                this,                     /* Parameter passed as input of the task */
+                1,                        /* Priority of the task. */
+                NULL                      /* Task handle. */
     );
 }
 
