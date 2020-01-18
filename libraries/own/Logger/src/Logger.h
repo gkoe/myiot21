@@ -40,7 +40,7 @@ public:
 
 private:
 	void log(int logLevel, const char* tag, const char* message);
-	char _name[LENGTH_SHORT_TEXT];
+	char _name[LENGTH_MIDDLE_TEXT];
 	std::list<LoggerTarget*> _logger;
 	const char* _logLevelTexts[5] = {"V", "D", "I",  "W", "E"};
 };
