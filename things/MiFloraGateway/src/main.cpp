@@ -124,8 +124,6 @@ void setup()
 	EspUdp.init();
 	UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
 	Logger.addLoggerTarget(udpLoggerTargetPtr);
-	sprintf(loggerMessage, "HttpsMqttGateway: %s with User: %s and password: %s", httpMqttGateway, httpUser, httpPassword);
-	Logger.info("MiFloraGateway, setup()", loggerMessage);
 
 	char mac[LENGTH_SHORT_TEXT];
 	EspConfig.getNvsStringValue("mac", mac);
@@ -158,6 +156,8 @@ void setup()
 		EspConfig.getNvsStringValue("mqttBroker", mqttBroker);
 		if (strlen(httpMqttGateway) > 0) // Daten per https wegschicken
 		{
+			sprintf(loggerMessage, "Httpsserver: %s with User: %s and password: %s", httpMqttGateway, httpUser, httpPassword);
+			Logger.info("MiFloraGateway, send by https", "send by mqtt");
 			sendByHttps(mac, "batteryLevel", batteryLevel);
 			sendByHttps(mac, "moisture", moisture);
 			sendByHttps(mac, "temperature", temperature);

@@ -62,7 +62,7 @@ void Dht22::init(gpio_num_t gpio)
                 "measurementInLoopTask", /* String with name of task. */
                 10000,                   /* Stack size in words. */
                 this,                    /* Parameter passed as input of the task */
-                1,                       /* Priority of the task ==> lowest priority */
+                configMAX_PRIORITIES-1 ,   /* war 1                     Priority of the task ==> lowest priority */
                 NULL                     /* Task handle. */
     );
 }
@@ -187,7 +187,7 @@ int Dht22::readDht()
     if (uSec < 0)
     {
         sprintf(loggerMessage, "80 us low");
-        Logger.error("Dht22;readDht()", loggerMessage);
+        Logger.verbose("Dht22;readDht()", loggerMessage);
         return DHT_TIMEOUT_ERROR;
     }
     // -- 80us up ------------------------
@@ -196,7 +196,7 @@ int Dht22::readDht()
     if (uSec < 0)
     {
         sprintf(loggerMessage, "80 us high");
-        Logger.error("Dht22;readDht()", loggerMessage);
+        Logger.verbose("Dht22;readDht()", loggerMessage);
         return DHT_TIMEOUT_ERROR;
     }
 
@@ -208,7 +208,7 @@ int Dht22::readDht()
         if (uSec < 0)
         {
             sprintf(loggerMessage, "start with 50 us low");
-            Logger.error("Dht22;readDht()", loggerMessage);
+            Logger.verbose("Dht22;readDht()", loggerMessage);
             return DHT_TIMEOUT_ERROR;
         }
         // -- check to see if after >70us rx data is a 0 or a 1
@@ -216,7 +216,7 @@ int Dht22::readDht()
         if (uSec < 0)
         {
             sprintf(loggerMessage, "data signal max 75 us");
-            Logger.error("Dht22;readDht()", loggerMessage);
+            Logger.verbose("Dht22;readDht()", loggerMessage);
             return DHT_TIMEOUT_ERROR;
         }
         if (uSec > 40) // 0 steht schon im Array ==> nur 1 muss gesetzt werden
@@ -248,13 +248,13 @@ int Dht22::readDht()
     // Checksum is the sum of Data 8 bits masked out 0xFF
     if (dhtData[4] == ((dhtData[0] + dhtData[1] + dhtData[2] + dhtData[3]) & 0xFF))
     {
-        // sprintf(loggerMessage, "measurement set, temperature: %.2f, Humidity: %.2f", _temperature, _humidity);
+        sprintf(loggerMessage, "measurement set, temperature: %.2f, Humidity: %.2f", _temperature, _humidity);
         // Logger.info("Dht22;readDht()", loggerMessage);
         return DHT_OK;
     }
     else
     {
-        sprintf(loggerMessage, "CHEKSUMERROR");
+        sprintf(loggerMessage, "CHECKSUMERROR");
         Logger.error("Dht22;readDht()", loggerMessage);
         return DHT_CHECKSUM_ERROR;
     }
