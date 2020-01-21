@@ -113,7 +113,7 @@ void IotSensor::setMeasurement(float value)
 		{
 			strcpy(averageText, "Einzelwert");
 		}
-		printf("New Noise;%.2f;\n", value);
+		printf("New Value;%.2f;\n", value);
 		sprintf(loggerMessage, "Neuer Messwert (%s) fuer %s: %.2f, avg von: %.2f%s auf %.2f%s, Time: %ld, Last: %ld",
 				averageText, _name, _lastMeasurement, _publishedMeasurement, _unit, value, _unit, time, _time);
 		Logger.info("Sensor;set Measurement", loggerMessage);
@@ -175,7 +175,7 @@ bool IotSensor::getPinState(gpio_num_t pin)
  */
 float IotSensor::getAverageValue()
 {
-	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	// char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	float actLowestValue = _maxValue;
 	float actSecondLowestValue = _maxValue;
 	float actGreatestValue = _minValue;

@@ -60,7 +60,8 @@ void tsl2561_task(void *pvParameter)
   }
 }
 
-Luminosity::Luminosity(gpio_num_t sda, gpio_num_t scl, const char *thingName, const char *name, const char *unit, float threshold, float minValue, float maxValue, bool getAverageValue)
+Luminosity::Luminosity(gpio_num_t sda, gpio_num_t scl, const char *thingName, const char *name, const char *unit, float threshold, 
+            float minValue, float maxValue, bool getAverageValue)
     : IotSensor(thingName, name, unit, threshold, minValue, maxValue, getAverageValue)
 {
   _sda = sda;
