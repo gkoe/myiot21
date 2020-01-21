@@ -164,7 +164,7 @@ void SystemServiceClass::checkSystem()
                 //     Logger.info("System Service;checkSystem()", loggerMessage);
                 // }
             }
-            sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":%s,\"wifipower\":%.2f}",
+            sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":\"%s\",\"wifipower\":%.2f}",
                     EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip), powerFactorNew / 4.0);
             EspMqttClient.publish(topic, payload);
             sprintf(loggerMessage, "topic: %s, payload: %s", topic, payload);
