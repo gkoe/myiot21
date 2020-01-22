@@ -28,7 +28,7 @@ private:
 	char _password[LENGTH_SHORT_TEXT];
 	char _mqttbroker[LENGTH_MIDDLE_TEXT];
 	char _mqttport[LENGTH_SHORT_TEXT];
-	char _thingname[LENGTH_SHORT_TEXT];
+	char _thingname[LENGTH_LONG_TEXT];
 	
 };
 
