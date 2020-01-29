@@ -73,7 +73,7 @@ void app_main()
   Logger.info("Tadeot, app_main()", "HttpServer started");
   EspTime.init();
   EspUdp.init();
-  UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_INFO);
+  UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
   Logger.addLoggerTarget(udpLoggerTargetPtr);
   EspMqttClient.init(thingName);
   Thing.init();
