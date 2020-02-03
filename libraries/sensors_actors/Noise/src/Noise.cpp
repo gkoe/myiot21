@@ -5,8 +5,10 @@
 
 #include <Logger.h>
 
-const float CALIBRATION_DIVIDER = 2630.0;
-
+/***
+ * Es wird innerhalb des vorgegebenen Messfensters der minimale und der maximale 
+ * Spannungswert des am AD-Wandler angeschlossenen Mikrofon gemessen.
+ */
 long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel, int measurementWindowMs)
 {
     int sumMinValue = 0;
@@ -17,6 +19,11 @@ long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel, int measurementWindowM
     int delaysCounter = 0;
     long startTimeMs = esp_timer_get_time() / 1000;
     int round = 0;
+    // Um extreme Ausschläge zu vermeiden werden innerhalb des Zeitfensters 
+    // immer 1000 Proben genommen und aus diesen 1000 Proben der Min- und Maxwert ermittelt.
+    // Nach 1000 Proben wird der Task für 10ms schlafen geschickt
+    // Nach Ablauf des vorgegebenen Zeitfensters wird der Mittelwert der Minima und Maxima
+    // ermittelt und zurückgemeldet
     while (esp_timer_get_time() / 1000 - startTimeMs < measurementWindowMs)
     {
         value = adc1_get_raw(adcChannel);
@@ -36,7 +43,7 @@ long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel, int measurementWindowM
             sumMinValue+=minValue;
             maxValue=-1;
             minValue=10000;
-            vTaskDelay(10 / portTICK_RATE_MS);
+            vTaskDelay(10 / portTICK_RATE_MS);  // Pegel alle 10ms messen 
             round = 0;
             delaysCounter++;
         }
@@ -48,6 +55,10 @@ long getMaxDeltaOfMeasurements(adc1_channel_t adcChannel, int measurementWindowM
     return maxValue - minValue;
 }
 
+/**
+ * Die Messwerte werden im eigenen Task entsprechend dem vorgegebenen Zeitfenster ermittelt
+ * und im privaten Feld _actNoise deponiert.
+ */
 void measureNoiseInLoopTask(void *pvParameter)
 {
     Noise *noisePtr = (Noise *)pvParameter;
@@ -66,9 +77,10 @@ Noise::Noise(adc1_channel_t adcChannel, int measurementWindowMs, const char *thi
     : IotSensor(thingName, name, unit, threshold, minValue, maxValue, getAverageValue)
 {
     _adcChannel = adcChannel;
-    _measurementWindowMs = measurementWindowMs;
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(adcChannel, ADC_ATTEN_DB_11);
+    _measurementWindowMs = measurementWindowMs;  // Zeitfenster für Messung: zu klein ==> extrem viele Messwerte
+                                                 // zu groß ==> lange Reaktionszeit
+    adc1_config_width(ADC_WIDTH_BIT_12);  // maximal 4096 verschiedene Werte
+    adc1_config_channel_atten(adcChannel, ADC_ATTEN_DB_11);  // Dämpfungsfaktor, damit Mikro nicht übersteuert
 
     xTaskCreate(measureNoiseInLoopTask,   /* Task function. */
                 "measurePowerInLoopTask", /* String with name of task. */
@@ -80,7 +92,7 @@ Noise::Noise(adc1_channel_t adcChannel, int measurementWindowMs, const char *thi
 }
 
 /**
-  measure() gets the measurement and set it.
+  measure() wird zyklisch aufgerufen und setzt den zu übertragenen Messwert des IotSensors
 */
 void Noise::measure()
 {

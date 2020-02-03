@@ -36,7 +36,7 @@ void app_main()
   SystemService.init();
   Logger.info("NoiseSensorTest;app_main()", "Initialize Noisesensor!");
 
-  Noise *noisePtr = new Noise(adcChannel, "noisesensor", "noise", "db", 20, 0, 5000, false);
+  Noise *noisePtr = new Noise(adcChannel, 500, "noisesensor", "noise", "", 20, 0, 5000, false);
 
   while (true)
   {
