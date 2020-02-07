@@ -3,17 +3,15 @@
 #include <IotSensor.h>
 #include <driver/adc.h>
 
-class Noise : public IotSensor
+class Template : public IotSensor
 {
 public:
-    Noise(adc1_channel_t adcChannel, int measurementWindowMs, const char *thingName, const char *name, 
+    Template(adc1_channel_t adcChannel, const char *thingName, const char *name, 
         const char *unit, float threshold, float minValue = -9999.9, float maxValue = 9999.9, bool getAverageValue = true);
-        
     virtual void measure();
 
     adc1_channel_t _adcChannel;
-    int _measurementWindowMs;
-    volatile float _actNoise = -1;
+    volatile float _actTemplate = -1;
 
 private:
 };
