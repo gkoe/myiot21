@@ -62,7 +62,7 @@ void app_main()
       new Sgp30_Co2(sgp30SensorPtr, thingName, "co2", "ppm", 10, 300, 6000);
   Thing.addSensor(co2SensorPtr);
   IotSensor *tvocSensorPtr =
-      new Sgp30_Tvoc(sgp30SensorPtr, thingName, "tvoc", "ppb", 2, 0, 5000);
+      new Sgp30_Tvoc(sgp30SensorPtr, thingName, "tvoc", "ppb", 5, 0, 5000);
   Thing.addSensor(tvocSensorPtr);
   //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
 

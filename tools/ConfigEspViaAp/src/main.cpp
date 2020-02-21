@@ -1,6 +1,3 @@
-// ssid: HUAWEI-B525-4E26
-// password: 9M8N4HDFH2F
-
 #include <stdio.h>
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
