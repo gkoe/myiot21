@@ -59,10 +59,10 @@ void app_main()
   // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
   Air_Sgp30 *sgp30SensorPtr = new Air_Sgp30(I2C_SDA, I2C_SCL, "Sgp30sensor", "Sgp30", "", 20);
   IotSensor *co2SensorPtr =
-      new Sgp30_Co2(sgp30SensorPtr, thingName, "co2", "ppm", 10, 300, 6000);
+      new Sgp30_Co2(sgp30SensorPtr, thingName, "co2", "ppm", 20, 300, 6000);
   Thing.addSensor(co2SensorPtr);
   IotSensor *tvocSensorPtr =
-      new Sgp30_Tvoc(sgp30SensorPtr, thingName, "tvoc", "ppb", 5, 0, 5000);
+      new Sgp30_Tvoc(sgp30SensorPtr, thingName, "tvoc", "ppb", 20, 0, 5000);
   Thing.addSensor(tvocSensorPtr);
   //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
 

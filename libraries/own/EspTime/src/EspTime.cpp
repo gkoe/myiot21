@@ -41,6 +41,7 @@ void EspTimeClass::getDateString(char *buffer)
 long EspTimeClass::getTime()
 {
 	time_t actTime;
+	// localtime(&actTime);
 	time(&actTime);
 	return actTime;
 }

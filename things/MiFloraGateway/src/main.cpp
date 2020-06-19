@@ -157,7 +157,7 @@ void setup()
 		if (strlen(httpMqttGateway) > 0) // Daten per https wegschicken
 		{
 			sprintf(loggerMessage, "Httpsserver: %s with User: %s and password: %s", httpMqttGateway, httpUser, httpPassword);
-			Logger.info("MiFloraGateway, send by https", "send by mqtt");
+			Logger.info("MiFloraGateway, send by https", "send by https");
 			sendByHttps(mac, "batteryLevel", batteryLevel);
 			sendByHttps(mac, "moisture", moisture);
 			sendByHttps(mac, "temperature", temperature);

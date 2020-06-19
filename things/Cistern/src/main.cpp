@@ -27,13 +27,13 @@
 
 
 // HX711 circuit wiring
-const gpio_num_t HX711_DOUT_PIN = GPIO_NUM_23;
-const gpio_num_t HX711_SCK_PIN = GPIO_NUM_22;
+const gpio_num_t HX711_DOUT_PIN = GPIO_NUM_21;   // BRAUN
+const gpio_num_t HX711_SCK_PIN = GPIO_NUM_22;    // WEISS
 // 
-const gpio_num_t SSR_POWER_PUMP = GPIO_NUM_15;
-const gpio_num_t SSR_POWER_VALVE = GPIO_NUM_13;
+const gpio_num_t SSR_POWER_PUMP = GPIO_NUM_14;   // 
+const gpio_num_t SSR_POWER_VALVE = GPIO_NUM_13;  //
 
-const adc1_channel_t POWER_ADC_CHANNEL = ADC1_CHANNEL_6;  // GPIO34
+const adc1_channel_t POWER_ADC_CHANNEL = ADC1_CHANNEL_7;  // GPIO35  //
 
 
 extern "C"

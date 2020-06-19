@@ -44,7 +44,7 @@ long read(gpio_num_t dataPin, gpio_num_t clockPin)
     }
 
     vTaskDelay(5);
-    // printf("!!! read(); HX711 is ready!");
+    printf("!!! read(); HX711 is ready!");
     unsigned long value = 0;
     uint8_t data[3] = {0};
     uint8_t filler = 0x00;
@@ -108,12 +108,12 @@ float HX711::getAverageWeight()
     }
     if (validValues < 3)
         return 0.0;
-    //printf("sumOfValues: %d, minValue: %d, maxValue: %d, validValues: %d\n", sumOfValues, minValue, maxValue, validValues);
+    printf("sumOfValues: %.1f, minValue: %.1f, maxValue: %.1f, validValues: %d\n", sumOfValues, minValue, maxValue, validValues);
     return (sumOfValues - minValue - maxValue) / (validValues - 2);
 }
 
 /**
- * Ermittelt alle Sekunden die aktuelle Leistung.
+ * Ermittelt alle Sekunden das aktuelle Gewicht.
  */
 void measureHx711InLoopTask(void *pvParameter)
 {

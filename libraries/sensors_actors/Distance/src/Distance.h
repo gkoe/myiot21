@@ -34,6 +34,9 @@ public:
 
     // float getAverageDistance();
     void setActDistance(uint32_t distance);
+    float getMedianValue();
+    float _lastValues[5];
+    int _actLastValuesIndex = 0;
 
 private:
     uint8_t *_data;

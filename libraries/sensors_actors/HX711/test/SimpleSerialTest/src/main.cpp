@@ -45,7 +45,7 @@ void app_main()
   SystemService.init();
   Logger.info("HX711Test;app_main()", "Initialize HX711!");
 
-  HX711 *hx711 = new HX711(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, "HX711", "weight", "g", 100);
+  HX711 *hx711 = new HX711(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, "HX711", "weight", "g", 1.0, true);
 
   while (true)
   {

@@ -39,6 +39,60 @@ static inline uint32_t get_time_us()
     } while (0)
 */
 
+/**
+ * Von den letzten 10 Messwerten werden die größten zwei und die kleinsten zwei Werte gestrichen.
+ * Aus den restlichen (maximal 6) Werten wird der Mittelwert gebildet.
+ */
+float Distance::getMedianValue()
+{
+    // char loggerMessage[LENGTH_LOGGER_MESSAGE];
+    float actLowestValue = 100.0;
+    float actSecondLowestValue = 100.0;
+    float actGreatestValue = 0.0;
+    float actSecondGreatestValue = 0.0;
+    int validValues = 0;
+    float sumOfValues = 0;
+    for (int i = 0; i < 5; i++)
+    {
+        if (_lastValues[i] != 0.0)
+        {
+            float value = _lastValues[i];
+            if (value > actSecondGreatestValue)
+            {
+                if (value > actGreatestValue)
+                {
+                    actSecondGreatestValue = actGreatestValue;
+                    actGreatestValue = value;
+                }
+                else
+                {
+                    actSecondGreatestValue = value;
+                }
+            }
+            if (value < actSecondLowestValue)
+            {
+                if (value < actLowestValue)
+                {
+                    actSecondLowestValue = actLowestValue;
+                    actLowestValue = value;
+                }
+                else
+                {
+                    actSecondLowestValue = value;
+                }
+            }
+            sumOfValues += value;
+            validValues++;
+        }
+    }
+    if (validValues < 5)
+        return 0.0;
+    // sprintf(loggerMessage, "sumOfValues: %.2f, maxValue: %.2f, minValue: %.2f, actLowestValue: %.2f, actSecondLowestValue: %.2f actGreatestValue: %.2f, actSecondGreatestValue: %.2f validValues: %d",
+    // 	   sumOfValues, _maxValue, _minValue, actLowestValue, actSecondLowestValue, actGreatestValue, actSecondGreatestValue, validValues);
+    // Logger.verbose("Sensor;getAverageValue()", loggerMessage);
+    return (sumOfValues - actLowestValue - actSecondLowestValue - actGreatestValue - actSecondGreatestValue) / (validValues - 4);
+}
+
 void measureDistanceInLoopTask(void *pvParameter)
 {
     Distance *distancePtr = (Distance *)pvParameter;
@@ -50,7 +104,14 @@ void measureDistanceInLoopTask(void *pvParameter)
         errorCode = distancePtr->measureDistance(&distance);
         if (errorCode == ESP_OK)
         {
-            distancePtr->setActDistance(distance);
+            distancePtr->_actLastValuesIndex++;
+            if (distancePtr->_actLastValuesIndex >= 5)
+            {
+                distancePtr->_actLastValuesIndex = 0;
+            }
+            distancePtr->_lastValues[distancePtr->_actLastValuesIndex] = distance;
+
+            distancePtr->setActDistance(distancePtr->getMedianValue());
             // printf("Distance measured: %d\n", distance);
         }
         else
@@ -73,7 +134,7 @@ void measureDistanceInLoopTask(void *pvParameter)
                 printf("%d\n", errorCode);
             }
         }
-        vTaskDelay(500 / portTICK_RATE_MS);
+        vTaskDelay(10000 / portTICK_RATE_MS);
     }
 }
 
@@ -134,7 +195,7 @@ esp_err_t Distance::measureDistance(uint32_t *distance)
         time = get_time_us();
         if (timeout_expired(echo_start, meas_timeout))
             return ESP_ERR_ULTRASONIC_ECHO_TIMEOUT;
-            // RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_ECHO_TIMEOUT);
+        // RETURN_CRTCAL(mux, ESP_ERR_ULTRASONIC_ECHO_TIMEOUT);
     }
     // portEXIT_CRITICAL(&mux);
 
