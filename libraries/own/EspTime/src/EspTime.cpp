@@ -38,6 +38,17 @@ void EspTimeClass::getDateString(char *buffer)
 	strftime(buffer, LENGTH_SHORT_TEXT, "%d.%m.%Y", &timeinfo);
 }
 
+// long EspTimeClass::getLocalTime()
+// {
+// 	struct tm timeInfoLocal;
+// 	time_t localTime;
+// 	time_t now;
+// 	time(&now);
+// 	localtime_r(&now, &timeInfoLocal);
+// 	localTime = mktime(&timeInfoLocal);
+// 	return localTime;
+// }
+
 long EspTimeClass::getTime()
 {
 	time_t actTime;
@@ -51,13 +62,16 @@ void EspTimeClass::init()
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	char ntpServerAddress[LENGTH_MIDDLE_TEXT];
+	char dateString[LENGTH_SHORT_TEXT];
+	char timeString[LENGTH_SHORT_TEXT];
+
 	EspConfig.getNvsStringValue("ntpserver", ntpServerAddress);
 	if (strlen(ntpServerAddress) == 0)
 	{
 		strcpy(ntpServerAddress, NTP_SERVER_ADDRESS);
 	}
 	sprintf(loggerMessage, "ntpserver: %s", ntpServerAddress);
-	;
+	
 	Logger.info("EspTime;init()", loggerMessage);
 	sntp_setservername(0, ntpServerAddress); //  "0.at.pool.ntp.org"	sntp_init();
 	sntp_init();
@@ -79,6 +93,12 @@ void EspTimeClass::init()
 	// change the timezone to MEZ
 	setenv("TZ", "CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00", 1);
 	tzset();
+    EspTime.getDateString(dateString);
+    EspTime.getTimeString(timeString);
+    sprintf(loggerMessage, "Date: %s, Time: %s", dateString , timeString);
+    Logger.info("EspTime, init()", loggerMessage);
+	sprintf(loggerMessage, "Seconds since 1970: %ld", EspTime.getTime());
+    Logger.info("EspTime, init()", loggerMessage);
 }
 
 EspTimeClass EspTime;

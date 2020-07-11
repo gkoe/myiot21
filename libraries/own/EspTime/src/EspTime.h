@@ -6,6 +6,7 @@ class EspTimeClass
 public:
 	void init();
 	long getTime();
+	// long getLocalTime();
 	void getTimeString(char *buffer);
 	void getDateString(char *buffer);
 	void getDateTimeString(long time, char *buffer);

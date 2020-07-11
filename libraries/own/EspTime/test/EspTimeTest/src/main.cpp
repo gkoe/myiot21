@@ -28,6 +28,8 @@ void loop()
   {
     sprintf(loggerMessage, "Seconds since 1970: %ld", EspTime.getTime());
     Logger.info("EspTimeTest, loop()", loggerMessage);
+    // sprintf(loggerMessage, "Local, Seconds since 1970: %ld", EspTime.getLocalTime());
+    // Logger.info("EspTimeTest, loop()", loggerMessage);
     EspTime.getDateString(dateString);
     EspTime.getTimeString(timeString);
     sprintf(loggerMessage, "Date: %s, Time: %s", dateString , timeString);
