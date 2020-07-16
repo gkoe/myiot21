@@ -32,13 +32,13 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     case SYSTEM_EVENT_STA_GOT_IP:
         xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
         Logger.info("EspStation, eventHandler()", "SYSTEM_EVENT_STA_GOT_IP");
-        _isStationOnline = true;
+        // _isStationOnline = true;
         break;
 
     case SYSTEM_EVENT_STA_DISCONNECTED:
         xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
         Logger.error("EspStation, eventHandler()", "SYSTEM_EVENT_STA_DISCONNECTED !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        esp_wifi_connect();  //! reconnect
+        esp_wifi_connect(); //! reconnect
         _isStationOnline = false;
         break;
 
@@ -52,7 +52,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 void EspStationClass::init()
 {
     // create the event group to handle wifi events
-	wifi_event_group = xEventGroupCreate();
+    wifi_event_group = xEventGroupCreate();
 
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
     char *ssid = EspConfig.getSsid();
@@ -81,7 +81,7 @@ void EspStationClass::init()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 
     // configure the wifi connection and start the interface
-    wifi_sta_config_t staConfig ={};  // die beiden Klammern sind notwendig!
+    wifi_sta_config_t staConfig = {}; // die beiden Klammern sind notwendig!
     memcpy(staConfig.ssid, ssid, strlen(ssid));
     memcpy(staConfig.password, password, strlen(password));
     staConfig.ssid[strlen(ssid)] = 0;
@@ -92,14 +92,21 @@ void EspStationClass::init()
     ESP_ERROR_CHECK(esp_wifi_start());
     sprintf(loggerMessage, "Connecting to %s\n", wifi_config.sta.ssid);
     Logger.info("EspStation, init()", loggerMessage);
-
-    // wait for connection
-    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
-    Logger.info("EspStation, init()", "Connected");
+    // wait for connection or timeout
+    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, 0x5ffUL); // portMAX_DELAY
     tcpip_adapter_ip_info_t ip_info;
     ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
-    sprintf(loggerMessage, "************** IP Address:  %s ******************", ip4addr_ntoa(&ip_info.ip));
-    Logger.info("EspStation, event_handler(), GotIp:", loggerMessage);
+    if (ip_info.ip.addr > 0)  // mit Netzwerk verbunden
+    {
+        sprintf(loggerMessage, "************** IP Address:  %s ******************", ip4addr_ntoa(&ip_info.ip));
+        _isStationOnline = true;
+        Logger.info("EspStation, event_handler(), GotIp:", loggerMessage);
+    }
+    else{  // timeout
+        sprintf(loggerMessage, "NO IP !!!!!!!!!!");
+        _isStationOnline = false;
+        Logger.info("EspStation, event_handler(),", loggerMessage);
+    }
 }
 
 bool EspStationClass::isStationOnline()

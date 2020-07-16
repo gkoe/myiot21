@@ -98,11 +98,11 @@ void IotSensor::setMeasurement(float value)
 	// sprintf(loggerMessage, "Array: %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
 	// 		_lastValues[0], _lastValues[1], _lastValues[2], _lastValues[3], _lastValues[4], _lastValues[5], _lastValues[6], _lastValues[7], _lastValues[8], _lastValues[9]);
 	// Logger.verbose("Sensor;set Measurement", loggerMessage);
-	// sprintf(loggerMessage, "Vor Pruefung %s value: %.2f, delta: %.2f, threshold: %.2f, Time: %ld, Last: %ld",
-	// 		_name, value, delta, _threshold, time, _time);
+	// sprintf(loggerMessage, "Vor Pruefung %s value: %.2f, min: %.2f, max: %.2f, delta: %.2f, threshold: %.2f, Time: %ld, Last: %ld",
+	// 		_name, value, _minValue, _maxValue, delta, _threshold, time, _time);
 	// Logger.verbose("Sensor;set Measurement", loggerMessage);
 	time = EspTime.getTime();
-	if (value > _minValue && value < _maxValue &&
+	if (value >= _minValue && value <= _maxValue &&
 		time > _time && (delta >= _threshold || time > _time + _maxIntervall)) // nicht in gleicher Sekunde mehrere Werte publishen
 	{
 		if (_getAverageValue)
@@ -116,7 +116,7 @@ void IotSensor::setMeasurement(float value)
 		printf("New Value;%.2f;\n", value);
 		sprintf(loggerMessage, "Neuer Messwert (%s) fuer %s: %.2f, avg von: %.2f%s auf %.2f%s, Time: %ld, Last: %ld",
 				averageText, _name, _lastMeasurement, _publishedMeasurement, _unit, value, _unit, time, _time);
-		Logger.info("Sensor;set Measurement", loggerMessage);
+		// Logger.info("Sensor;set Measurement", loggerMessage);
 		_publishedMeasurement = value;
 		_time = time;
 		char fullTopic[LENGTH_TOPIC];

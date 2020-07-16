@@ -245,23 +245,23 @@ void EspMqttClientClass::init(const char *mainTopic)
     strcpy(_lastWillTopic, "");
   }
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-Broker Address: %s:%i", _mqttBroker, _mqttPort);
-  char uri[LENGTH_MIDDLE_TEXT];
-  sprintf(uri, "mqtt://%s", _mqttBroker);  //!! mqtts
+  // char uri[LENGTH_MIDDLE_TEXT];
+  // sprintf(uri, "mqtt://%s", _mqttBroker);  //!! mqtts
+  // sprintf(uri, "%s", _mqttBroker);  //!! mqtts
   esp_mqtt_client_config_t mqtt_cfg = {};
   mqtt_cfg.username = _mqttUserName;
   mqtt_cfg.password = _mqttPassword;
   mqtt_cfg.port = _mqttPort;
-  mqtt_cfg.uri = uri;
+  mqtt_cfg.uri = _mqttBroker;
   mqtt_cfg.event_handle = mqtt_event_handler;
   // mqtt_cfg.cert_pem = (const char *)server_cert;
   mqtt_cfg.cert_pem = nullptr;
-  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-URI: %s, Port: %d", mqtt_cfg.uri, mqtt_cfg.port);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-User: %s, Password: %s", mqtt_cfg.username, mqtt_cfg.password);
   Logger.info("EspMqttClient;init()", loggerMessage);
-  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MqttConfig-URI: %s", mqtt_cfg.uri);
+  snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT-URI: %s, Port: %d", mqtt_cfg.uri, mqtt_cfg.port);
   Logger.info("EspMqttClient;init()", loggerMessage);
 
-  if (strlen(uri) < 10)
+  if (strlen(mqtt_cfg.uri) < 10)
   {
     snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "MQTT not configured");
     Logger.error("EspMqttClient;init()", loggerMessage);
@@ -286,12 +286,12 @@ bool EspMqttClientClass::publish(const char *topic, const char *payload)
     return false;
   }
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
-  Logger.verbose("EspMqttClient;publish", "Start");
+  // Logger.verbose("EspMqttClient;publish", "Start");
   // publish with retained-flag
   char totalTopic[LENGTH_TOPIC];
   sprintf(totalTopic, "%s/%s", _mainTopic, topic);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s to publish", totalTopic, payload);
-  Logger.verbose("EspMqttClient;vor publish()", loggerMessage);
+  // Logger.verbose("EspMqttClient;vor publish()", loggerMessage);
   int result = -1;
   result = esp_mqtt_client_publish(client, totalTopic, payload, 0, 0, 1);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s published, result: %d", totalTopic, payload, result);

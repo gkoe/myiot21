@@ -5,7 +5,7 @@ class SimplePir : public IotSensor
 {
   public:
     SimplePir( gpio_num_t pin, int interval, const char *thingName, const char *name, 
-                const char *unit, float threshold);
+                const char *unit);
   	virtual void measure();
 
   private:

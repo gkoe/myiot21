@@ -1,3 +1,6 @@
+// TSL2561 
+// https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf
+
 #pragma once
 #include "driver/gpio.h"
 #include <IotSensor.h>

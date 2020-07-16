@@ -31,6 +31,7 @@ void app_main()
   printf("========\n");
   gpio_pad_select_gpio(PIR_PIN);
   gpio_set_direction(PIR_PIN, GPIO_MODE_INPUT);
+  gpio_set_pull_mode(PIR_PIN, GPIO_PULLUP_PULLDOWN);  // PULLUP funktioniert nicht
   lastChangeMs = getMillis();
   lastState = getPinState(PIR_PIN);
 

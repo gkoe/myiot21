@@ -28,7 +28,8 @@ void measureBmp280InLoopTask(void *pvParameter)
             vTaskDelay(250 / portTICK_PERIOD_MS);
         }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        if ((res = bmp280_read_float(&bmp280SensorPtr->_device, &bmp280SensorPtr->_temperature, &bmp280SensorPtr->_pressure, &bmp280SensorPtr->_humidity)) != ESP_OK)
+        res = bmp280_read_float(&bmp280SensorPtr->_device, &bmp280SensorPtr->_temperature, &bmp280SensorPtr->_pressure, &bmp280SensorPtr->_humidity);
+        if (res != ESP_OK)
         {
             snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "temperature/humidity/pressure reading failed:%d ", res);
             Logger.error("Bmp280Sensor;measureBmp280InLoopTask()", loggerMessage);
@@ -68,7 +69,7 @@ Bmp280Sensor::Bmp280Sensor(gpio_num_t sdaPin, gpio_num_t sclPin)
         printf("Could not init I2Cdev library\n");
         vTaskDelay(250 / portTICK_PERIOD_MS);
     }
-    while (bmp280_init_desc(&_device, BMP280_I2C_ADDRESS_0, I2C_NUM_0, _sdaPin, _sclPin) != ESP_OK)
+    while (bmp280_init_desc(&_device, BMP280_I2C_ADDRESS_0, I2C_NUM_1, _sdaPin, _sclPin) != ESP_OK)  //! 2. I2C-Port verwenden
     {
         printf("Could not init device descriptor\n");
         vTaskDelay(250 / portTICK_PERIOD_MS);
@@ -103,20 +104,20 @@ Bmp280Sensor::Bmp280Sensor(gpio_num_t sdaPin, gpio_num_t sclPin)
 float Bmp280Sensor::getPressure()
 {
     float result = _pressure / 100.0;
-    _pressure = -1000;
+    // _pressure = -1000;
     return result;
 }
 
 float Bmp280Sensor::getTemperature()
 {
     float result = _temperature;
-    _temperature = -1000;
+    // _temperature = -1000;
     return result;
 }
 
 float Bmp280Sensor::getHumidity()
 {
     float result = _humidity;
-    _humidity = -1000;
+    // _humidity = -1000;
     return result;
 }
