@@ -7,12 +7,12 @@
 #if defined(CONFIG_IDF_TARGET_ESP8266)
 static const gpio_num_t SENSOR_GPIO = 4;
 #else
-static const gpio_num_t SENSOR_GPIO = GPIO_NUM_18;
+static const gpio_num_t SENSOR_GPIO = GPIO_NUM_27;
 // static const gpio_num_t SENSOR_GPIO = GPIO_NUM_17;
 // static const int SENSOR_GPIO = 17;
 #endif
 static const uint32_t LOOP_DELAY_MS = 1000;
-static const int MAX_SENSORS = 8;
+static const int MAX_SENSORS = 10;
 static const int RESCAN_INTERVAL = 8;
 
 extern "C"

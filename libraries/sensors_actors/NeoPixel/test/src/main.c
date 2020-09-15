@@ -5,7 +5,7 @@
 #include	"neopixel.h"
 #include	<esp_log.h>
 
-#define	NEOPIXEL_PORT	18
+#define	NEOPIXEL_PORT	26
 #define	NR_LED		8
 //#define	NR_LED		3
 #define	NEOPIXEL_WS2812

@@ -10,7 +10,7 @@
 #include <Thing.h>
 #include <TrafficLight.h>
 
-static const gpio_num_t NEOPIXEL_GPIO = GPIO_NUM_18;
+static const gpio_num_t NEOPIXEL_GPIO = GPIO_NUM_27;
 const char *SERIAL_LOGGER_TAG = "SLT";
 
 extern "C"

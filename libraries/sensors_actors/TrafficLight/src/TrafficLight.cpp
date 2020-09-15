@@ -14,7 +14,8 @@ uint8_t intensities[] = {0, 5, 20, 255, 20, 5, 0, 0};
 
 pixel_settings_t __px;
 pixel_timing_t __px_timings;
-int __intensity = 20;
+//int __intensity = 20;
+int __intensity = 249;
 
 uint32_t __pixels[NR_LED];
 
@@ -28,29 +29,43 @@ void setTrafficLightTask(void *pvParameter)
 {
 	printf("Start setTrafficLightTask()\n");
 	TrafficLight *trafficLightPtr = (TrafficLight *)pvParameter;
-	int increment = 1;
+	// int increment = 1;
+	char oldState[LENGTH_STATE];
+	strcpy(oldState, trafficLightPtr->getCurrentState());
 	while (1)
 	{
-		int intensityTime = (500 / __intensity) + 5;
+		// int intensityTime = (500 / __intensity) + 5;
 		// usleep(1000 * intensityTime);
-		vTaskDelay(3 * intensityTime);
-		int redIntensity = (__intensity * trafficLightPtr->_red) / 250;
-		int greenIntensity = (__intensity * trafficLightPtr->_green) / 250;
-		int blueIntensity = (__intensity * trafficLightPtr->_blue) / 250;
-		// printf("Intensity (R:G:B): %d:%d:%d, Delay: %d\n", redIntensity, greenIntensity, blueIntensity, intensityTime);
-		for (int j = 0; j < NR_LED; j++)
+		// vTaskDelay(3 * intensityTime);
+		if (strcmp(oldState, trafficLightPtr->getCurrentState()) != 0)
 		{
-			np_set_pixel_rgbw(&__px, j, redIntensity, greenIntensity, blueIntensity, 0);
-			// setPixelValue(j, intensity, 0, 0);
-			// printf("Pixelcount: %d, pixelNum: %d, red: %d \n", __px.pixel_count, j, intensity);
+			for (int j = 0; j < NR_LED; j++)
+			{
+				np_set_pixel_rgbw(&__px, j, trafficLightPtr->_red, trafficLightPtr->_green, trafficLightPtr->_blue, 0);
+				// setPixelValue(j, intensity, 0, 0);
+				// printf("Pixelcount: %d, pixelNum: %d, red: %d \n", __px.pixel_count, j, intensity);
+			}
+			np_show(&(__px), NEOPIXEL_RMT_CHANNEL);
+			strcpy(oldState, trafficLightPtr->getCurrentState());
 		}
-		// printf("np_show()\n");
-		np_show(&(__px), NEOPIXEL_RMT_CHANNEL);
-		__intensity += increment;
-		if (__intensity <= 20 || __intensity >= 250)
-		{
-			increment *= -1;
-		}
+		vTaskDelay(100);
+		// int redIntensity = (__intensity * trafficLightPtr->_red) / 250;
+		// int greenIntensity = (__intensity * trafficLightPtr->_green) / 250;
+		// int blueIntensity = (__intensity * trafficLightPtr->_blue) / 250;
+		// // printf("Intensity (R:G:B): %d:%d:%d, Delay: %d\n", redIntensity, greenIntensity, blueIntensity, intensityTime);
+		// for (int j = 0; j < NR_LED; j++)
+		// {
+		// 	np_set_pixel_rgbw(&__px, j, redIntensity, greenIntensity, blueIntensity, 0);
+		// 	// setPixelValue(j, intensity, 0, 0);
+		// 	// printf("Pixelcount: %d, pixelNum: %d, red: %d \n", __px.pixel_count, j, intensity);
+		// }
+		// // printf("np_show()\n");
+		// np_show(&(__px), NEOPIXEL_RMT_CHANNEL);
+		// __intensity += increment;
+		// if (__intensity <= 20 || __intensity >= 250)
+		// {
+		// 	increment *= -1;
+		// }
 	}
 }
 
@@ -91,7 +106,7 @@ TrafficLight::TrafficLight(const gpio_num_t pin, const char *thingName, const ch
 
 	np_show(&__px, NEOPIXEL_RMT_CHANNEL);
 
-	setCurrentState("OFF");
+	setState("0");  // Initialisierung
 	xTaskCreate(setTrafficLightTask,   /* Task function. */
 				"setTrafficLightTask", /* String with name of task. */
 				4096,				   /* Stack size in words. */
@@ -108,37 +123,50 @@ void TrafficLight::setActor(const char *newState)
 	bool isOrange = (strcmp(newState, "ORANGE") == 0) || (strcmp(newState, "orange") == 0) || (strcmp(newState, "3") == 0);
 	bool isRed = (strcmp(newState, "RED") == 0) || (strcmp(newState, "red") == 0) || (strcmp(newState, "4") == 0);
 	_isOff = (strcmp(newState, "OFF") == 0) || (strcmp(newState, "off") == 0) || (strcmp(newState, "0") == 0);
+	char newStateNormed[LENGTH_STATE];
 	if (isGreen)
 	{
 		_red = 0;
-		_green = 255;
+		_green = 10;
 		_blue = 0;
+		strcpy(newStateNormed, "1");
 	}
 	else if (isYellow)
 	{
-		_red = 255;
-		_green = 255;
+		_red = 120;
+		_green = 120;
 		_blue = 0;
+		strcpy(newStateNormed, "2");
 	}
 	else if (isOrange)
 	{
 		_red = 255;
 		_green = 165;
 		_blue = 0;
+		strcpy(newStateNormed, "3");
 	}
 	else if (isRed)
 	{
 		_red = 255;
 		_green = 0;
 		_blue = 0;
+		strcpy(newStateNormed, "4");
 	}
 	else if (_isOff)
 	{
 		_red = 0;
 		_green = 0;
 		_blue = 0;
+		strcpy(newStateNormed, "0");
 	}
-	__intensity=20;
-	Logger.info("TrafficLight;setActor(), new state", newState);
-	setCurrentState(newState);
+	if (strcmp(newStateNormed, getCurrentState()) == 0) // State nicht verändert
+		return;
+
+	char loggerMessage[LENGTH_LOGGER_MESSAGE];
+	sprintf(loggerMessage, "Newstate: %s , Actstate: %s",
+			newStateNormed, getCurrentState());
+
+	Logger.info("TrafficLight;setActor()", loggerMessage);
+	setCurrentState(newStateNormed);
+	Logger.info("TrafficLight;setCurrentState(), currentState: ", getCurrentState());
 }
