@@ -175,9 +175,9 @@ void EspMqttClientClass::addSubscriptionsToBroker()
  */
 void EspMqttClientClass::addSubscription(MqttSubscription *subscriptionPtr)
 {
-  char subscriptionTopic[LENGTH_TOPIC];
-  snprintf(subscriptionTopic, LENGTH_TOPIC - 1, "%s/command", subscriptionPtr->topic);
-  strcpy(subscriptionPtr->topic, subscriptionTopic);
+  // char subscriptionTopic[LENGTH_TOPIC];
+  // snprintf(subscriptionTopic, LENGTH_TOPIC - 1, "%s/command", subscriptionPtr->topic);
+  // strcpy(subscriptionPtr->topic, subscriptionTopic);
   _mqttSubscriptions.push_back(subscriptionPtr);
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
   sprintf(loggerMessage, "Subscription: %s", subscriptionPtr->topic);

@@ -306,11 +306,9 @@ httpd_handle_t HttpServerClass::startWebserver()
     {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
-        // httpd_register_uri_handler(server, &echo);
         httpd_register_uri_handler(server, &configUri);
         httpd_register_uri_handler(server, &clearconfig);
         httpd_register_uri_handler(server, &restart);
-        // httpd_register_uri_handler(server, &testmqttrequest);
         return server;
     }
 

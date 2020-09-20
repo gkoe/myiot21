@@ -28,13 +28,20 @@ static void actorMqttCallback(const char *topic, const char *payload)
 
 	sprintf(loggerMessage, "Topiclength: %il , ThingNameLength: %i , ActorNameLength: %i",
 			topicLength, thingNameLength, actorNameLength);
-	Logger.info("Actor Mqtt Callback", loggerMessage);
+	Logger.info("Actor;Mqtt Callback", loggerMessage);
 	strncpy(actorName, topic + thingNameLength + 1, actorNameLength);
 	actorName[actorNameLength] = 0;
 	sprintf(loggerMessage, "Actorname: '%s'", actorName);
-	Logger.info("Actor Mqtt Callback", loggerMessage);
+	Logger.info("Actor;Mqtt Callback", loggerMessage);
 	IotActor *actorPtr = Thing.getActorByName(actorName);
-	actorPtr->setStateByMqtt(payload);
+	if (actorPtr == nullptr)
+	{
+		Logger.warning("Actor;Actor not found by name", actorName);
+	}
+	else
+	{
+		actorPtr->setStateByMqtt(payload);
+	}
 }
 
 IotActor::IotActor(const char *thingName, const char *name)
@@ -48,6 +55,7 @@ IotActor::IotActor(const char *thingName, const char *name)
 	strcpy(_actorTopic, EspConfig.getThingName());
 	strcat(_actorTopic, "/");
 	strcat(_actorTopic, getName());
+	strcat(_actorTopic, "/command");
 	_actorSubscription.topic = _actorTopic;
 	_actorSubscription.subscriberCallback = actorMqttCallback;
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];

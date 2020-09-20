@@ -67,6 +67,7 @@ bool startAsStation = true;
 
 void app_main()
 {
+  char loggerMessage[LENGTH_LOGGER_MESSAGE];
   Mhz *mhzPtr = nullptr;
   TrafficLight *trafficLight = nullptr;
   printf("=========\n");
@@ -91,6 +92,7 @@ void app_main()
     }
     Logger.info("ConfigEspViaAp", "Connect with AP from ESP_xxx");
     HttpServer.init();
+    Logger.info("ConfigEspViaAp", "After HttpServer init");
   }
   else
   {
@@ -113,33 +115,6 @@ void app_main()
       UdpLoggerTarget *udpLoggerTargetPtr = new UdpLoggerTarget("ULT", LOG_LEVEL_VERBOSE);
       Logger.addLoggerTarget(udpLoggerTargetPtr);
       EspMqttClient.init(EspConfig.getThingName());
-      Thing.init();
-      Logger.info("Classroom, app_main()", "Thing created");
-      // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
-      mhzPtr = new Mhz(CO2_RXD, CO2_TXD, EspConfig.getThingName(), "co2", "ppm", 5.0, 300, 5000);
-      Thing.addSensor(mhzPtr);
-      // PIR-Sensor mit 10 Sekunden Karenzzeit
-      IotSensor *pirPtr = new SimplePir(PIR_PIN, 5, EspConfig.getThingName(), "motion", "");
-      Thing.addSensor(pirPtr);
-      Bmp280Sensor *sensorPtr = new Bmp280Sensor(BMP280_SDA_GPIO, BMP280_SCL_GPIO);
-      IotSensor *temperatureSensorPtr =
-          new Bmp280_Temperature(sensorPtr, EspConfig.getThingName(), "temperature", "Grad", 0.2, 9.9, 49.9);
-      Thing.addSensor(temperatureSensorPtr);
-      IotSensor *humiditySensorPtr =
-          new Bmp280_Humidity(sensorPtr, EspConfig.getThingName(), "humidity", "%", 0.5, 0.0, 100.0);
-      Thing.addSensor(humiditySensorPtr);
-      IotSensor *pressureSensorPtr =
-          new Bmp280_Pressure(sensorPtr, EspConfig.getThingName(), "pressure", "hPa", 1.0, 800.0, 1100.0);
-      Thing.addSensor(pressureSensorPtr);
-      IotSensor *noisePtr = new Noise(adcChannelMicrophone, 1000, EspConfig.getThingName(), "noise", "", 80, 0, 5000, false);
-      Thing.addSensor(noisePtr);
-      Luminosity *luminosityPtr = new Luminosity(LUMINOSITY_I2C_SDA, LUMINOSITY_I2C_SCL, EspConfig.getThingName(), "luminosity", "Lux", 10, 0, 50000, true);
-      Thing.addSensor(luminosityPtr);
-
-      trafficLight = new TrafficLight(NEOPIXEL_GPIO, EspConfig.getThingName(), "trafficlight");
-      Thing.addActor(trafficLight);
-
-      //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
     }
     else
     {
@@ -148,33 +123,83 @@ void app_main()
       SystemService.restart();
     }
   }
+  // Thing und Sensoren anlegen, auch wenn keine Netzwerkverbindung besteht.
+  // Damit bleibt die CO2-Alarmierung aktiv.
+  Thing.init();
+  Logger.info("Classroom, app_main()", "Thing created");
+  // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
+  mhzPtr = new Mhz(CO2_RXD, CO2_TXD, EspConfig.getThingName(), "co2", "ppm", 5.0, 300, 5000);
+  Thing.addSensor(mhzPtr);
+  // PIR-Sensor mit 10 Sekunden Karenzzeit
+  IotSensor *pirPtr = new SimplePir(PIR_PIN, 5, EspConfig.getThingName(), "motion", "");
+  Thing.addSensor(pirPtr);
+  Bmp280Sensor *sensorPtr = new Bmp280Sensor(BMP280_SDA_GPIO, BMP280_SCL_GPIO);
+  IotSensor *temperatureSensorPtr =
+      new Bmp280_Temperature(sensorPtr, EspConfig.getThingName(), "temperature", "Grad", 0.2, 9.9, 49.9);
+  Thing.addSensor(temperatureSensorPtr);
+  IotSensor *humiditySensorPtr =
+      new Bmp280_Humidity(sensorPtr, EspConfig.getThingName(), "humidity", "%", 0.5, 0.0, 100.0);
+  Thing.addSensor(humiditySensorPtr);
+  IotSensor *pressureSensorPtr =
+      new Bmp280_Pressure(sensorPtr, EspConfig.getThingName(), "pressure", "hPa", 1.0, 800.0, 1100.0);
+  Thing.addSensor(pressureSensorPtr);
+  IotSensor *noisePtr = new Noise(adcChannelMicrophone, 1000, EspConfig.getThingName(), "noise", "", 80, 0, 5000, false);
+  Thing.addSensor(noisePtr);
+  Luminosity *luminosityPtr = new Luminosity(LUMINOSITY_I2C_SDA, LUMINOSITY_I2C_SCL, EspConfig.getThingName(), "luminosity", "Lux", 10, 0, 50000, true);
+  Thing.addSensor(luminosityPtr);
 
-  int co2Yellow = EspConfig.getNvsIntValue("co2yellow");
-  int co2Red = EspConfig.getNvsIntValue("co2red");
-  if(co2Yellow == 0){
-    co2Yellow=500;
-    co2Red=1000;
-  }
+  trafficLight = new TrafficLight(NEOPIXEL_GPIO, EspConfig.getThingName(), "trafficlight");
+  Thing.addActor(trafficLight);
+  //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
+
+  char co2LimitText[LENGTH_SHORT_TEXT];
+  int round = 0;
   while (true)
   {
-    SystemService.checkSystem();
     vTaskDelay(1);
-    if (startAsStation)
+    SystemService.checkSystem();
+    int co2Yellow = 500;
+    int co2Red = 1500;
+    EspConfig.getNvsStringValue("co2yellow", co2LimitText);
+    if (strlen(co2LimitText) > 0)
     {
-      Thing.refreshSensorsAndActors();
-      char trafficLightNew[LENGTH_STATE];
-      if(mhzPtr->getCo2() > co2Red){
-        strcpy(trafficLightNew, "4");
-      }
-      else if (mhzPtr->getCo2() > co2Yellow){
-        strcpy(trafficLightNew, "2");
-      }
-      else{
-        strcpy(trafficLightNew, "1");
-      }
-      if(strcmp(trafficLightNew, trafficLight->getCurrentState()) != 0){
-        trafficLight->setState(trafficLightNew);
-      }
+      co2Yellow = atoi(co2LimitText);
+    }
+    EspConfig.getNvsStringValue("co2red", co2LimitText);
+    if (strlen(co2LimitText) > 0)
+    {
+      co2Red = atoi(co2LimitText);
+    }
+    // sprintf(loggerMessage, "Limit for co2Yellow: %d", co2Yellow);
+    // Logger.info("Classroom, loop()", loggerMessage);
+    float co2 = mhzPtr->getLastMeasurement();
+    // Sensoren auch abfragen, wenn keine Netzwerkverbindung besteht
+    Thing.refreshSensorsAndActors();
+    char trafficLightNew[LENGTH_STATE];
+    if (co2 > co2Red)
+    {
+      strcpy(trafficLightNew, "4");
+    }
+    else if (co2 > co2Yellow)
+    {
+      strcpy(trafficLightNew, "2");
+    }
+    else
+    {
+      strcpy(trafficLightNew, "1");
+    }
+    if (strcmp(trafficLightNew, trafficLight->getCurrentState()) != 0)
+    {
+      trafficLight->setState(trafficLightNew);
+      Logger.info("Classroom, loop(), trafficLight new: ", trafficLightNew);
+    }
+    round++;
+    if (round > 200)
+    {
+      sprintf(loggerMessage, "co2: %.2f, Trafficlight current state: %s, new state: %s, limit for yellow: %d, limit for red: %d",
+              co2, trafficLight->getCurrentState(), trafficLightNew, co2Yellow, co2Red);
+      Logger.info("Classroom, loop(), Round ", loggerMessage);
+      round = 0;
     }
   }
 }
