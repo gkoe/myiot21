@@ -5,8 +5,8 @@
 #include "MiFloraConfig.h"
 
 
-const char* wifi_ssid     = "A1-B5035B";
-const char* wifi_password = "52809766B6";
+const char* wifi_ssid     = "?????";
+const char* wifi_password = "?????";
 
 #define DEEP_SLEEP_DURATION_SECONDS 1800ll // duration of sleep between flora connection attempts in seconds (must be constant with "ll" suffix)
 #define MAX_WAKEUP_SECONDS 60         // time until esp32 is put into deep sleep mode. must be sufficient to connect to wlan, connect to xiaomi flora device & push measurement data to MQTT

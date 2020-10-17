@@ -15,6 +15,6 @@
 #define BATTERY_INTERVAL 10   // Retrieve battery level every n wakeups
 
 const char* wifi_ssid     = "A1-B5035B";
-const char* wifi_password = "52809766B6";
+const char* wifi_password = "?????";
 
 const char* mqtt_server = "10.0.0.125";

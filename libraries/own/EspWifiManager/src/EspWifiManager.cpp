@@ -14,8 +14,8 @@
 #include <Logger.h>
 #include "EspWifiManager.h"
 
-#define EXAMPLE_ESP_WIFI_SSID "A1-B5035B"
-#define EXAMPLE_ESP_WIFI_PASS "52809766B6"
+#define EXAMPLE_ESP_WIFI_SSID "?????"
+#define EXAMPLE_ESP_WIFI_PASS "?????"
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5
 
 /* FreeRTOS event group to signal when we are connected*/

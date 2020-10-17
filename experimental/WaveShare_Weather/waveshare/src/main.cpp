@@ -488,7 +488,7 @@ void setup() {
   display.println(F("David Bird (C) 2017\n\rStarting...\n\rReading and Decoding Wx Data..."));
   display.update();
   delay(500);
-  StartWiFi("A1-B5035B","52809766B6");
+  StartWiFi("?????","?????");
   SetupTime();
   lastConnectionTime = millis();
   obtain_forecast("forecast");

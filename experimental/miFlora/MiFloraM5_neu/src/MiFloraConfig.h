@@ -9,6 +9,6 @@
 // const char *names[MI_FLORAS] = {"agave", "oleander","bougainvillea", "strelizie", "sagopalme"};
 
 // const char* wifi_ssid     = "A1-B5035B";
-// const char* wifi_password = "52809766B6";
+// const char* wifi_password = "?????";
 //  const char* mqtt_server = "10.0.0.125";
 

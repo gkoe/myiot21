@@ -21,7 +21,7 @@
 #include "mqtt_client.h"
 
 
-#define	CONFIG_WIFI_SSID	"linksysAtHome"
+#define	CONFIG_WIFI_SSID	"?????"
 #define CONFIG_WIFI_PASSWORD	"YJXPF4WAC7"
 
 static const char *TAG = "MQTT_SAMPLE";
