@@ -166,10 +166,10 @@ static esp_err_t configHandler(httpd_req_t *req)
 {
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
     //char readKey[LENGTH_MIDDLE_TEXT];
-    char queryString[LENGTH_MIDDLE_TEXT];
+    char queryString[LENGTH_LONG_TEXT];
     char response[LENGTH_LOGGER_MESSAGE];
     char keyToDelete[LENGTH_MIDDLE_TEXT];
-    char readValue[LENGTH_MIDDLE_TEXT];
+    char readValue[LENGTH_LONG_TEXT];
     esp_err_t err;
     int queryLength = httpd_req_get_url_query_len(req) + 1;
     if (queryLength > 1) // gibt es überhaupt Parameter ==> spezielle Config lesen oder setzen
