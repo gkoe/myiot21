@@ -29,7 +29,7 @@
 #include <TrafficLight.h>
 
 // NeoPixels
-static const gpio_num_t NEOPIXEL_GPIO = GPIO_NUM_27;
+// static const gpio_num_t NEOPIXEL_GPIO = GPIO_NUM_27;
 
 // Luminosity mit TSL2561
 #define LUMINOSITY_I2C_SDA GPIO_NUM_18
@@ -43,13 +43,13 @@ const gpio_num_t BMP280_SDA_GPIO = GPIO_NUM_21;
 const gpio_num_t BMP280_SCL_GPIO = GPIO_NUM_22;
 
 // PIR
-const gpio_num_t PIR_PIN = GPIO_NUM_25;
+// const gpio_num_t PIR_PIN = GPIO_NUM_25;
 
 /// MHZ
-const gpio_num_t CO2_TXD = GPIO_NUM_12;
-const gpio_num_t CO2_RXD = GPIO_NUM_13;
-// #define CO2_TXD (GPIO_NUM_12) // verbunden mit Rx am Mhz
-// #define CO2_RXD (GPIO_NUM_13) // verbunden mit Tx am Mhz
+// const gpio_num_t CO2_TXD = GPIO_NUM_12;
+// const gpio_num_t CO2_RXD = GPIO_NUM_13;
+// // #define CO2_TXD (GPIO_NUM_12) // verbunden mit Rx am Mhz
+// // #define CO2_RXD (GPIO_NUM_13) // verbunden mit Tx am Mhz
 
 // http://192.168.10.1/setconfig?ssid=SSID&password=PASSWORD
 // http://192.168.10.1/setconfig?ntpserver=192.168.0.2
@@ -68,8 +68,8 @@ bool startAsStation = true;
 void app_main()
 {
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
-  Mhz *mhzPtr = nullptr;
-  TrafficLight *trafficLight = nullptr;
+  // Mhz *mhzPtr = nullptr;
+  // TrafficLight *trafficLight = nullptr;
   printf("=========\n");
   printf("Classroom\n");
   printf("=========\n");
@@ -128,17 +128,17 @@ void app_main()
   Thing.init();
   Logger.info("Classroom, app_main()", "Thing created");
   // >>>>>>>>>>>>>>>>>>>>>>  Thingspezifischer Teil
-  mhzPtr = new Mhz(CO2_RXD, CO2_TXD, EspConfig.getThingName(), "co2", "ppm", 5.0, 300, 5000);
-  Thing.addSensor(mhzPtr);
+  // mhzPtr = new Mhz(CO2_RXD, CO2_TXD, EspConfig.getThingName(), "co2", "ppm", 5.0, 300, 5000);
+  // Thing.addSensor(mhzPtr);
   // PIR-Sensor mit 10 Sekunden Karenzzeit
-  IotSensor *pirPtr = new SimplePir(PIR_PIN, 5, EspConfig.getThingName(), "motion", "");
-  Thing.addSensor(pirPtr);
+  // IotSensor *pirPtr = new SimplePir(PIR_PIN, 5, EspConfig.getThingName(), "motion", "");
+  // Thing.addSensor(pirPtr);
   Bmp280Sensor *sensorPtr = new Bmp280Sensor(BMP280_SDA_GPIO, BMP280_SCL_GPIO);
   IotSensor *temperatureSensorPtr =
       new Bmp280_Temperature(sensorPtr, EspConfig.getThingName(), "temperature", "Grad", 0.2, 9.9, 49.9);
   Thing.addSensor(temperatureSensorPtr);
   IotSensor *humiditySensorPtr =
-      new Bmp280_Humidity(sensorPtr, EspConfig.getThingName(), "humidity", "%", 0.5, 0.0, 100.0);
+      new Bmp280_Humidity(sensorPtr, EspConfig.getThingName(), "humidity", "%", 0.2, 0.0, 100.0);
   Thing.addSensor(humiditySensorPtr);
   IotSensor *pressureSensorPtr =
       new Bmp280_Pressure(sensorPtr, EspConfig.getThingName(), "pressure", "hPa", 1.0, 800.0, 1100.0);
@@ -148,8 +148,8 @@ void app_main()
   Luminosity *luminosityPtr = new Luminosity(LUMINOSITY_I2C_SDA, LUMINOSITY_I2C_SCL, EspConfig.getThingName(), "luminosity", "Lux", 10, 0, 50000, true);
   Thing.addSensor(luminosityPtr);
 
-  trafficLight = new TrafficLight(NEOPIXEL_GPIO, EspConfig.getThingName(), "trafficlight");
-  Thing.addActor(trafficLight);
+  // trafficLight = new TrafficLight(NEOPIXEL_GPIO, EspConfig.getThingName(), "trafficlight");
+  // Thing.addActor(trafficLight);
   //<<<<<<<<<<<<<<<<<<<<<<< Ende Thingspezifischer Teil
 
   char co2LimitText[LENGTH_SHORT_TEXT];
@@ -158,48 +158,48 @@ void app_main()
   {
     vTaskDelay(1);
     SystemService.checkSystem();
-    int co2Yellow = 500;
-    int co2Red = 1500;
-    EspConfig.getNvsStringValue("co2yellow", co2LimitText);
-    if (strlen(co2LimitText) > 0)
-    {
-      co2Yellow = atoi(co2LimitText);
-    }
-    EspConfig.getNvsStringValue("co2red", co2LimitText);
-    if (strlen(co2LimitText) > 0)
-    {
-      co2Red = atoi(co2LimitText);
-    }
-    // sprintf(loggerMessage, "Limit for co2Yellow: %d", co2Yellow);
-    // Logger.info("Classroom, loop()", loggerMessage);
-    float co2 = mhzPtr->getLastMeasurement();
     // Sensoren auch abfragen, wenn keine Netzwerkverbindung besteht
     Thing.refreshSensorsAndActors();
-    char trafficLightNew[LENGTH_STATE];
-    if (co2 > co2Red)
-    {
-      strcpy(trafficLightNew, "4");
-    }
-    else if (co2 > co2Yellow)
-    {
-      strcpy(trafficLightNew, "2");
-    }
-    else
-    {
-      strcpy(trafficLightNew, "1");
-    }
-    if (strcmp(trafficLightNew, trafficLight->getCurrentState()) != 0)
-    {
-      trafficLight->setState(trafficLightNew);
-      Logger.info("Classroom, loop(), trafficLight new: ", trafficLightNew);
-    }
-    round++;
-    if (round > 200)
-    {
-      sprintf(loggerMessage, "co2: %.2f, Trafficlight current state: %s, new state: %s, limit for yellow: %d, limit for red: %d",
-              co2, trafficLight->getCurrentState(), trafficLightNew, co2Yellow, co2Red);
-      Logger.info("Classroom, loop(), Round ", loggerMessage);
-      round = 0;
-    }
+    // int co2Yellow = 500;
+    // int co2Red = 1500;
+    // EspConfig.getNvsStringValue("co2yellow", co2LimitText);
+    // if (strlen(co2LimitText) > 0)
+    // {
+    //   co2Yellow = atoi(co2LimitText);
+    // }
+    // EspConfig.getNvsStringValue("co2red", co2LimitText);
+    // if (strlen(co2LimitText) > 0)
+    // {
+    //   co2Red = atoi(co2LimitText);
+    // }
+    // // sprintf(loggerMessage, "Limit for co2Yellow: %d", co2Yellow);
+    // // Logger.info("Classroom, loop()", loggerMessage);
+    // float co2 = mhzPtr->getLastMeasurement();
+    // char trafficLightNew[LENGTH_STATE];
+    // if (co2 > co2Red)
+    // {
+    //   strcpy(trafficLightNew, "4");
+    // }
+    // else if (co2 > co2Yellow)
+    // {
+    //   strcpy(trafficLightNew, "2");
+    // }
+    // else
+    // {
+    //   strcpy(trafficLightNew, "1");
+    // }
+    // if (strcmp(trafficLightNew, trafficLight->getCurrentState()) != 0)
+    // {
+    //   trafficLight->setState(trafficLightNew);
+    //   Logger.info("Classroom, loop(), trafficLight new: ", trafficLightNew);
+    // }
+    // round++;
+    // if (round > 200)
+    // {
+    //   sprintf(loggerMessage, "co2: %.2f, Trafficlight current state: %s, new state: %s, limit for yellow: %d, limit for red: %d",
+    //           co2, trafficLight->getCurrentState(), trafficLightNew, co2Yellow, co2Red);
+    //   Logger.info("Classroom, loop(), Round ", loggerMessage);
+    //   round = 0;
+    // }
   }
 }

@@ -49,7 +49,8 @@ void app_main()
   SystemService.init();
   Logger.info("MhzTest;app_main()", "Initialize Mhz!");
 
-  Mhz *mhz = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0);
+  Mhz *mhz = new Mhz(UART_RXD, UART_TXD, "Esp", "co2", "ppm", 5.0, 300, 5000, true);
+  // Mhz(CO2_RXD, CO2_TXD, EspConfig.getThingName(), "co2", "ppm", 5.0, 300, 5000);
 
   while (true)
   {
