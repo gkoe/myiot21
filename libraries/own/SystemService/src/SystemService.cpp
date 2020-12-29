@@ -1,8 +1,9 @@
 #include <esp_task_wdt.h>
-#include <rom/rtc.h>
+#include <esp32/rom/rtc.h>
 
 #include "SystemService.h"
 #include <EspConfig.h>
+#include <EspStation.h>
 #include <Logger.h>
 #include <EspMqttClient.h>
 #include <Constants.h>
@@ -119,7 +120,7 @@ void SystemServiceClass::checkSystem()
     feedWatchdog();
 
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
-    if (EspTime.getTime() > _lastMqttPublishIsLivingTime + 60) // alle Minuten Mqtt-Message  //!
+    if (EspTime.getTime() > _lastMqttPublishIsLivingTime + 60) // alle Minuten Mqtt-Message
     {
         // sprintf(loggerMessage, "START: oldTime: %ld, newTime: %ld", _lastMqttPublishIsLivingTime, EspTime.getTime());
         // Logger.info("System Service;checkSystem(), send alive", loggerMessage);
@@ -127,8 +128,8 @@ void SystemServiceClass::checkSystem()
         char topic[LENGTH_TOPIC];
         char payload[LENGTH_PAYLOAD];
         sprintf(topic, "rssi/state");
-        tcpip_adapter_ip_info_t ip_info;
-        ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
+        // tcpip_adapter_ip_info_t ip_info;
+        // ESP_ERROR_CHECK(tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip_info));
         wifi_ap_record_t wifidata;
         int rssi = 0;
         int8_t powerFactor = 0;
@@ -164,8 +165,10 @@ void SystemServiceClass::checkSystem()
                 //     Logger.info("System Service;checkSystem()", loggerMessage);
                 // }
             }
+            // sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":\"%s\",\"wifipower\":%.2f}",
+            //         EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip), powerFactorNew / 4.0);
             sprintf(payload, "{\"timestamp\":%ld,\"value\":%d,\"ip\":\"%s\",\"wifipower\":%.2f}",
-                    EspTime.getTime(), rssi, ip4addr_ntoa(&ip_info.ip), powerFactorNew / 4.0);
+                    EspTime.getTime(), rssi, EspStation.getIpAddressString(), powerFactorNew / 4.0);
             EspMqttClient.publish(topic, payload);
             sprintf(loggerMessage, "topic: %s, payload: %s", topic, payload);
             Logger.info("System Service;checkSystem(), send alive", loggerMessage);

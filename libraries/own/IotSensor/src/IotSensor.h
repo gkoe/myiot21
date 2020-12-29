@@ -1,5 +1,7 @@
 #pragma once
 #include "esp_system.h"
+#include "driver/gpio.h"
+
 #include <Constants.h>
 
 /*

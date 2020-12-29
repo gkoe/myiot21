@@ -1,60 +1,119 @@
-#include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
-#include "esp_event_loop.h"
+#include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 
+#include "lwip/err.h"
+#include "lwip/sys.h"
+
+#include <Constants.h>
 #include <EspAp.h>
 
-// Event group
-static EventGroupHandle_t event_group;
-const int STA_CONNECTED_BIT = BIT0;
-const int STA_DISCONNECTED_BIT = BIT1;
+// #define EXAMPLE_ESP_WIFI_SSID      "MyAp"
+#define EXAMPLE_ESP_WIFI_PASS      "my-Iot-21"
+#define EXAMPLE_ESP_WIFI_CHANNEL   1
+#define EXAMPLE_MAX_STA_CONN       3
 
-static bool _isApStarted = false;
+static const char *TAG = "wifi softAP";
+static const char *apPassword = "my-Iot-21";
+bool __isApStarted = false;
 
-// AP event handler
-static esp_err_t event_handler(void *ctx, system_event_t *event)
+EspApClass::EspApClass()
 {
-    switch (event->event_id)
+}
+
+void getSsidText(char ssidText[])
+{
+    uint8_t mac[8];
+    esp_err_t ok = esp_efuse_mac_get_default(mac);
+    if (ok != ESP_OK)
     {
+        sprintf(ssidText, "MAC_ERR_%d", ok);
+        return;
+    }
+    sprintf(ssidText, "ESP_%02X%02X%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], mac[6], mac[7]);
+}
 
-    case SYSTEM_EVENT_AP_START:
-        printf("Access point started\n");
-        _isApStarted = true;
-        break;
 
-    case SYSTEM_EVENT_AP_STACONNECTED:
-        xEventGroupSetBits(event_group, STA_CONNECTED_BIT);
-        break;
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                    int32_t event_id, void* event_data)
+{
+    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
+        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
+        ESP_LOGI(TAG, "station " MACSTR " join, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
+        ESP_LOGI(TAG, "station " MACSTR " leave, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+    }
+}
 
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-        xEventGroupSetBits(event_group, STA_DISCONNECTED_BIT);
-        break;
+void wifi_init_softap(void)
+{
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_ap();
 
-    default:
-        break;
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
+
+    char ssidText[32];
+    for (int i = 0; i < 32; i++)
+        ssidText[i] = 0;
+    getSsidText(ssidText);
+    printf("SSID: %s, Len: %d\n", ssidText, strlen(ssidText));
+    wifi_ap_config_t wifi_ap_config;
+    memcpy(wifi_ap_config.ssid, ssidText, strlen(ssidText));
+    wifi_ap_config.ssid_len = strlen(ssidText);
+    int len = strlen(apPassword);
+    for(int i = 0; i<len; i++){
+        wifi_ap_config.password[i] = apPassword[i];
+    }
+    wifi_ap_config.password[len] = 0;
+    memcpy(wifi_ap_config.password, apPassword, 9);
+    wifi_ap_config.channel = 0;
+    wifi_ap_config.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_ap_config.beacon_interval = 100;
+    wifi_ap_config.max_connection = 4;
+    // wifi_ap_config.ssid_hidden = 0;
+
+    wifi_config_t wifi_config = {
+        .ap = wifi_ap_config
+    };
+
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     }
 
-    return ESP_OK;
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
+             ssidText, EXAMPLE_ESP_WIFI_PASS, EXAMPLE_ESP_WIFI_CHANNEL);
+    __isApStarted = true;
 }
+
 
 // print the list of connected stations
 void printStationList()
 {
+    printf("\n");
     printf(" Connected stations:\n");
     printf("--------------------------------------------------\n");
 
     wifi_sta_list_t wifi_sta_list;
     tcpip_adapter_sta_list_t adapter_sta_list;
 
-    memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
-    memset(&adapter_sta_list, 0, sizeof(adapter_sta_list));
+    // memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
+    // memset(&adapter_sta_list, 0, sizeof(adapter_sta_list));
 
     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&wifi_sta_list));
     ESP_ERROR_CHECK(tcpip_adapter_get_sta_list(&wifi_sta_list, &adapter_sta_list));
@@ -63,27 +122,21 @@ void printStationList()
     {
 
         tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
+     	char ipText[100];
+
+        esp_ip4addr_ntoa(&station.ip, ipText, 100-1);
         printf("%d - mac: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x - IP: %s\n", i + 1,
                station.mac[0], station.mac[1], station.mac[2],
                station.mac[3], station.mac[4], station.mac[5],
-               ip4addr_ntoa(&(station.ip)));
+               ipText);
     }
 
     printf("\n");
 }
 
-// Monitor task, receive Wifi AP events
-void monitor_task(void *pvParameter)
-{
-    while (1)
-    {
 
-        EventBits_t staBits = xEventGroupWaitBits(event_group, STA_CONNECTED_BIT | STA_DISCONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
-        if ((staBits & STA_CONNECTED_BIT) != 0)
-            printf("New station connected\n\n");
-        else
-            printf("A station disconnected\n\n");
-    }
+bool EspApClass::isApStarted(){
+    return __isApStarted;
 }
 
 // Station list task, print station list every 10 seconds
@@ -97,95 +150,23 @@ void station_list_task(void *pvParameter)
     }
 }
 
-void getSsidText(char ssidText[])
-{
-    uint8_t mac[6];
-    esp_err_t ok = esp_efuse_mac_get_default(mac);
-    if (ok != ESP_OK)
-    {
-        sprintf(ssidText, "MAC_ERR_%d", ok);
-        return;
-    }
-    sprintf(ssidText, "ESP_%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-}
 
-wifi_config_t wifi_config = {};
-wifi_ap_config_t wifi_ap_config = {};
-
-EspApClass::EspApClass()
-{
-}
-bool EspApClass::isApStarted(){
-    return _isApStarted;
-}
 
 void EspApClass::init()
 {
-    // disable the default wifi logging
-    //esp_log_level_set("wifi", ESP_LOG_NONE);
 
-    // create the event group to handle wifi events
-    event_group = xEventGroupCreate();
+       //Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
 
-    // initialize NVS
-    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
+    wifi_init_softap();
 
-    // initialize the tcp stack
-    tcpip_adapter_init();
-
-    // stop DHCP server
-    ESP_ERROR_CHECK(tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP));
-
-    // assign a static IP to the network interface
-    tcpip_adapter_ip_info_t info;
-    memset(&info, 0, sizeof(info));
-    IP4_ADDR(&info.ip, 192, 168, 10, 1);
-    IP4_ADDR(&info.gw, 192, 168, 10, 1);
-    IP4_ADDR(&info.netmask, 255, 255, 255, 0);
-    ESP_ERROR_CHECK(tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &info));
-
-    // start the DHCP server
-    ESP_ERROR_CHECK(tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP));
-
-    // initialize the wifi event handler
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
-
-    // initialize the wifi stack in AccessPoint mode with config in RAM
-    wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&wifi_init_config));
-    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-
-    char ssidText[32];
-    for (int i = 0; i < 32; i++)
-        ssidText[i] = 0;
-    getSsidText(ssidText);
-    printf("SSID: %s, Len: %d\n", ssidText, strlen(ssidText));
-    //  wifi_ap_config_t wifi_ap_config;
-    // for (int i = 0; i < 32; i++)
-    // {
-    //  wifi_ap_config.ssid[i] = ssidText[i];
-    // }
-    memcpy(wifi_ap_config.ssid, ssidText, strlen(ssidText));
-    wifi_ap_config.ssid_len = strlen(ssidText);
-    //memcpy(wifi_ap_config.ssid, "AP01", 4);
-    //wifi_ap_config.ssid_len = 4;
-    // memcpy(wifi_ap_config.password, "3101",4);
-    wifi_ap_config.channel = 0;
-    //wifi_ap_config.authmode = WIFI_AUTH_WPA2_PSK;
-    wifi_ap_config.beacon_interval = 100;
-    wifi_ap_config.max_connection = 4;
-    // wifi_ap_config.ssid_hidden = 0;
-    //wifi_config_t wifi_config = {};
-    wifi_config.ap = wifi_ap_config;
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
-
-    // start the wifi interface
-    ESP_ERROR_CHECK(esp_wifi_start());
-    printf("Starting access point, SSID=%s\n", wifi_ap_config.ssid);
-
-    // start the main task
-    xTaskCreate(&monitor_task, "monitor_task", 2048, NULL, 5, NULL);
+    // start the report stationlist task
     xTaskCreate(&station_list_task, "station_list_task", 2048, NULL, 5, NULL);
 }
 

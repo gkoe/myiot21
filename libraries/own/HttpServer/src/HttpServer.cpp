@@ -5,7 +5,7 @@
 #include <nvs_flash.h>
 #include <sys/param.h>
 #include "nvs_flash.h"
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 #include "esp_eth.h"
 
 #include <iterator>
@@ -167,7 +167,7 @@ static esp_err_t configHandler(httpd_req_t *req)
     char loggerMessage[LENGTH_LOGGER_MESSAGE];
     //char readKey[LENGTH_MIDDLE_TEXT];
     char queryString[LENGTH_LONG_TEXT];
-    char response[LENGTH_LOGGER_MESSAGE];
+    char response[LENGTH_200];
     char keyToDelete[LENGTH_MIDDLE_TEXT];
     char readValue[LENGTH_LONG_TEXT];
     esp_err_t err;
@@ -185,8 +185,8 @@ static esp_err_t configHandler(httpd_req_t *req)
                     strncpy(keyToDelete, queryString, queryLength - 2);
                     keyToDelete[queryLength - 2]=0;
                     EspConfig.deleteKey(keyToDelete);
-                    sprintf(response, "Config key: %s deleted", keyToDelete);
-                    sprintf(loggerMessage, "Response: %s", response);
+                    snprintf(response, LENGTH_LONG_TEXT -15,  "Config key: %s deleted", keyToDelete);
+                    snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 20, "Response: %s", response);
                     Logger.info("HttpServer,configHandler()", loggerMessage);
                     httpd_resp_send(req, response, strlen(response));
                 }
@@ -207,25 +207,25 @@ static esp_err_t configHandler(httpd_req_t *req)
                             EspConfig.getNvsStringValue(configKey, readValue);
                             if (readValue == NULL)
                             {
-                                sprintf(response, "ConfigKey %s not found!", configKey);
+                                snprintf(response,  LENGTH_LONG_TEXT -15, "ConfigKey %s not found!", configKey);
                                 Logger.info("HttpServer,configHandler()", loggerMessage);
                                 httpd_resp_send(req, response, strlen(response));
                             }
                             else
                             {
-                                sprintf(response, "Config key: %s, value: %s", configKey, readValue);
-                                sprintf(loggerMessage, "Response: %s", response);
+                                snprintf(response, LENGTH_200 -15, "Config key: %s, value: %s", configKey, readValue);
+                                snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE-20, "Response: %s", response);
                                 Logger.info("HttpServer,configHandler()", loggerMessage);
                                 httpd_resp_send(req, response, strlen(response));
                             }
                         }
                         else // Setzen des Config-Entry
                         {
-                            sprintf(loggerMessage, "Value: %s", value);
+                            snprintf(loggerMessage,  LENGTH_LOGGER_MESSAGE - 20, "Value: %s", value);
                             Logger.info("Thing,configHandler()", loggerMessage);
                             EspConfig.setNvsStringValue(configKey, value);
-                            sprintf(response, "Config %s set to %s", configKey, value);
-                            sprintf(loggerMessage, "Response: %s", response);
+                            snprintf(response,  LENGTH_LONG_TEXT -15, "Config %s set to %s", configKey, value);
+                            snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE-20, "Response: %s", response);
                             Logger.info("Thing,configHandler()", loggerMessage);
                             httpd_resp_send(req, response, strlen(response));
                         }
@@ -235,7 +235,7 @@ static esp_err_t configHandler(httpd_req_t *req)
         }
         else
         {
-            sprintf(loggerMessage, "httpd_req_get_url_query_str() ERROR: %d", err);
+            snprintf(loggerMessage,  LENGTH_LOGGER_MESSAGE - 20,"httpd_req_get_url_query_str() ERROR: %d", err);
             Logger.error("HttpServer, getConfigHandler()", loggerMessage);
             httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
         }
@@ -290,7 +290,7 @@ void HttpServerClass::addRoute(const httpd_uri *httpdUri)
     esp_err_t err = httpd_register_uri_handler(_server, httpdUri);
     if (err != ESP_OK)
     {
-        sprintf(loggerMessage, "httpd_register_uri_handler(), uri: %s, ERROR: %d", httpdUri->uri, err);
+        snprintf(loggerMessage,  LENGTH_LOGGER_MESSAGE - 20, "httpd_register_uri_handler(), uri: %s, ERROR: %d", httpdUri->uri, err);
         Logger.error("HttpServer, addRoute()", loggerMessage);
     }
 }

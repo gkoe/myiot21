@@ -73,6 +73,7 @@ void EspTimeClass::init()
 	sprintf(loggerMessage, "ntpserver: %s", ntpServerAddress);
 	
 	Logger.info("EspTime;init()", loggerMessage);
+	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	sntp_setservername(0, ntpServerAddress); //  "0.at.pool.ntp.org"	sntp_init();
 	sntp_init();
 	// wait for the service to set the time

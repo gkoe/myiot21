@@ -26,7 +26,7 @@
 #include <Bmp280_Pressure.h>
 #include <Noise.h>
 #include <Luminosity.h>
-#include <TrafficLight.h>
+// #include <TrafficLight.h>
 
 // NeoPixels
 // static const gpio_num_t NEOPIXEL_GPIO = GPIO_NUM_27;

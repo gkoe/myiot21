@@ -66,7 +66,7 @@ void measureNoiseInLoopTask(void *pvParameter)
     {
         long startTime = esp_timer_get_time() / 1000;
         int value = getMaxDeltaOfMeasurements(noisePtr->_adcChannel, noisePtr->_measurementWindowMs);
-        long duration = esp_timer_get_time() / 1000 - startTime;
+        // long duration = esp_timer_get_time() / 1000 - startTime;
         noisePtr->setMeasurement(value);
         // noisePtr->_actNoise = value;
         // printf("!!! Noise; Value: %i; duration: %.ld\n", value, duration);

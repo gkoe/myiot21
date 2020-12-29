@@ -5,8 +5,8 @@
 #include <HttpServer.h>
 // #include <SystemService.h>
 
-static const uint8_t server_cert[]  = 
-  "-----BEGIN CERTIFICATE-----\n\
+static const uint8_t server_cert[] =
+    "-----BEGIN CERTIFICATE-----\n\
 MIIDMTCCAhkCFCf35Jhk0YYrT8NKwL9XjywNR+KLMA0GCSqGSIb3DQEBCwUAMFUx\
 CzAJBgNVBAYTAkFUMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRl\
 cm5ldCBXaWRnaXRzIFB0eSBMdGQxDjAMBgNVBAMMBXNzZHBpMB4XDTE5MDgxMzA5\
@@ -100,6 +100,10 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
     Logger.error("EspMqttClient;mqtt_event_handler()", "MQTT_EVENT_ERROR");
     //SystemService.pushError("EspMqttClient, publish-error");
     break;
+  case MQTT_EVENT_ANY:
+    Logger.info("EspMqttClient;mqtt_event_handler()", "MQTT_EVENT_ANY");
+    //SystemService.pushError("EspMqttClient, publish-error");
+    break;
   }
   return ESP_OK;
 }
@@ -140,7 +144,7 @@ void EspMqttClientClass::notifySubscribers(char *topic, char *payload)
 
     Logger.info("EspMqttClient notifySubscribers()", loggerMessage);
     //if (strStartsWith(topic, subscriptionPtr->topic))
-    if (strcmp(topic, subscriptionPtr->topic)==0)
+    if (strcmp(topic, subscriptionPtr->topic) == 0)
     {
       char loggerMessage[LENGTH_LOGGER_MESSAGE];
       sprintf(loggerMessage, "Subscriber MATCH, Topic: %s, Filter: %s", topic, subscriptionPtr->topic);
@@ -210,7 +214,8 @@ static esp_err_t testmqttrequestHandler(httpd_req_t *req)
   return ESP_OK;
 }
 
-bool EspMqttClientClass::isMqttConnected(){
+bool EspMqttClientClass::isMqttConnected()
+{
   return mqttIsConnected;
 }
 
@@ -227,7 +232,7 @@ static const httpd_uri_t testmqttrequest = {
 void EspMqttClientClass::init(const char *mainTopic)
 {
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
-  sprintf(loggerMessage,"maintopic: %s", mainTopic);
+  sprintf(loggerMessage, "maintopic: %s", mainTopic);
   Logger.info("EspMqttClient;init()", loggerMessage);
   strcpy(_mainTopic, mainTopic);
   _mqttBroker = EspConfig.getMqttBroker();
@@ -288,8 +293,8 @@ bool EspMqttClientClass::publish(const char *topic, const char *payload)
   char loggerMessage[LENGTH_LOGGER_MESSAGE];
   // Logger.verbose("EspMqttClient;publish", "Start");
   // publish with retained-flag
-  char totalTopic[LENGTH_TOPIC];
-  sprintf(totalTopic, "%s/%s", _mainTopic, topic);
+  char totalTopic[LENGTH_100];
+  snprintf(totalTopic, LENGTH_LOGGER_MESSAGE - 1, "%s/%s", _mainTopic, topic);
   snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE - 1, "Topic: %s , Payload: %s to publish", totalTopic, payload);
   // Logger.verbose("EspMqttClient;vor publish()", loggerMessage);
   int result = -1;

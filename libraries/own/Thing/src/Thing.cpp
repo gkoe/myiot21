@@ -22,8 +22,8 @@
 static esp_err_t actorRequestHandler(httpd_req_t *req)
 {
 	char loggerMessage[LENGTH_LOGGER_MESSAGE];
-	char queryString[LENGTH_MIDDLE_TEXT];
-	char response[LENGTH_MIDDLE_TEXT];
+	char queryString[LENGTH_LONG_TEXT];
+	char response[LENGTH_200];
 	esp_err_t err;
 	int queryLength = httpd_req_get_url_query_len(req) + 1;
 	if (queryLength > 1)  // gibt es überhaupt Parameter ==> speziellen Actor lesen oder setzen
@@ -44,8 +44,8 @@ static esp_err_t actorRequestHandler(httpd_req_t *req)
 					IotActor *actor = Thing.getActorByName(actorName);
 					if (actor == nullptr)
 					{
-						sprintf(response, "Actor %s not found!", actorName);
-						sprintf(loggerMessage, "Response: %s", response);
+						snprintf(response, LENGTH_200 -20, "Actor %s not found!", actorName);
+						snprintf(loggerMessage,  LENGTH_LOGGER_MESSAGE -15, "Response: %s", response);
 						Logger.info("Thing,actorRequestHandler()", loggerMessage);
 						httpd_resp_send(req, response, strlen(response));
 					}
@@ -55,16 +55,16 @@ static esp_err_t actorRequestHandler(httpd_req_t *req)
 						if (!value) // Abfrage des Actors
 						{
 							char *state = actor->getCurrentState();
-							sprintf(response, "Actors's %s state %s", actorName, state);
-							sprintf(loggerMessage, "Response: %s", response);
+							snprintf(response, LENGTH_200 -20 , "Actors's %s state %s", actorName, state);
+							snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE -15, "Response: %s", response);
 							Logger.info("Thing,actorStateRequestHandler()", loggerMessage);
 							httpd_resp_send(req, response, strlen(response));
 						}
 						else // Setzen des Actors
 						{
 							actor->setState(value);
-							sprintf(response, "Actors's %s set from %s to %s", actorName, actor->getCurrentState(), actor->getSettedState());
-							sprintf(loggerMessage, "Response: %s", response);
+							snprintf(response, LENGTH_200 -20, "Actors's %s set from %s to %s", actorName, actor->getCurrentState(), actor->getSettedState());
+							snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE -15, "Response: %s", response);
 							Logger.info("Thing,actorRequestHandler()", loggerMessage);
 							httpd_resp_send(req, response, strlen(response));
 						}
@@ -72,23 +72,23 @@ static esp_err_t actorRequestHandler(httpd_req_t *req)
 				}  // kein Actorname im Querystring
 				else
 				{
-					sprintf(response, "No actor=value in querystring: %s", queryString);
-					sprintf(loggerMessage, "Response: %s", response);
+					snprintf(response, LENGTH_200 -20, "No actor=value in querystring: %s", queryString);
+					snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE -15, "Response: %s", response);
 					Logger.info("Thing,actorRequestHandler()", loggerMessage);
 					httpd_resp_send(req, response, strlen(response));
 				}
 			}
 			else
 			{
-				sprintf(response, "QUERYSTRING IS NULL");
-				sprintf(loggerMessage, "Response: %s", response);
+				snprintf(response, LENGTH_200 -20, "QUERYSTRING IS NULL");
+				snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE -15, "Response: %s", response);
 				Logger.error("Thing, actorRequestHandler()", loggerMessage);
 				httpd_resp_send(req, response, strlen(response));
 			}
 		}
 		else
 		{
-			sprintf(loggerMessage, "httpd_req_get_url_query_str() ERROR: %d", err);
+			snprintf(loggerMessage, LENGTH_LOGGER_MESSAGE -15, "httpd_req_get_url_query_str() ERROR: %d", err);
 			Logger.error("Thing, actorRequestHandler()", loggerMessage);
 			httpd_resp_send(req, loggerMessage, strlen(loggerMessage));
 		}

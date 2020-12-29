@@ -1,6 +1,6 @@
 #include "UdpLoggerTarget.h"
 
-#include <tcpip_adapter.h>
+#include <esp_netif.h>
 
 #include <Constants.h>
 #include <EspConfig.h>
